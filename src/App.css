@@ -36,3 +36,13 @@
     transform: rotate(360deg);
   }
 }
+
+.my-facebook-button-class {
+  background: #3b5998;
+  color:white;
+}
+
+.my-facebook-button-class :hover {
+  background: #3b5998;
+  opacity: 0.6;
+}
