@@ -9,9 +9,17 @@ import {
   ListGroup, Navbar, Nav
 } from 'react-bootstrap';
 
+import cookie from 'react-cookies';
 
 import FacebookLogin from 'react-facebook-login';
-import MainWindow from './MainWindow';
+import SearchWindow from './SearchWindow';
+import WordWindow from './WordWindow';
+
+import {
+  BrowserRouter as Router,
+  Switch, useParams,
+  Route, Link
+} from "react-router-dom";
 
 const api = axios.create({
   baseURL: API_URL,
@@ -37,46 +45,22 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      "search_value": "",
-      "words": [],
-      "user": null,
+      user: null,
     }
-  }
-
-  clearWords() {
-    this.setState({"words": []});
-  }
-
-  addWord(word) {
-    const words = this.state.words.slice();
-    words.push(word);
-    this.setState({"words": words});
-  }
-
-  handleSearch(event) {
-    console.log("Searching for word!! " + this.state.search_value);
-    api.get(
-      "/search/words",  
-      {"params": {"query": this.state.search_value}}
-    ).then((res) => {
-      this.clearWords();
-      res.data.oids.forEach(oid => {
-        api.get("words/" + oid).then((res) => {
-          if (res.status == 200) this.addWord(res.data);
-          else console.log("Error getting '" + oid + "': " + res.status);
-        }).catch((err) => {
-          console.log("Error getting '" + oid + "': " + err);
-        })
-      });
-    }).catch((res) => {
-      console.log("Error" + res);
-    });
   }
 
   handleLogout(e) {
     e.preventDefault();
-    window.FB.logout();
+    if (window.FB) {
+      window.FB.logout();
+    }
     this.setState({user: null});
+    cookie.remove('user_id',  { path: '/' });
+  }
+
+  setUser(user) {
+    this.setState({user: user});
+    cookie.save('user_id', user.ids[0], { path: '/' });
   }
 
   handleLogin(response) {
@@ -84,8 +68,10 @@ class App extends React.Component {
       api.get('/api/user/facebook_' + response.id, {
         headers: {api_key: API_KEY}
       }).then(user => {
-        this.setState({user: user.data.result});
+        console.log('result', user.data.result);
+        this.setUser(user.data.result);
       }).catch(err => {
+        console.error(err);
         if (err.response.status == 404) { // Create new user
           api.post('/api/user', {
             'id': 'facebook_' + response.id,
@@ -94,7 +80,7 @@ class App extends React.Component {
             'created': new Date(),
             'type': 'USER',
           }, {headers: {api_key: API_KEY}}).then(user => {
-            this.setState({user: user.data.result});
+            this.setUser(user.data.result);
           }).catch(err => {
             console.error(err.response);
           })
@@ -103,24 +89,34 @@ class App extends React.Component {
     }
   }
 
-  render() {
-    let logInOrOut, main;
+  render() {    
+    let loginButton = null;
     let { user } = this.state;
     if (user == null) {
-      logInOrOut = (
-        <FacebookLogin
-          appId={FACEBOOK_APP_ID}
-          autoLoad={true}
-          fields="name,email,picture"
-          callback={response => this.handleLogin(response)}
-          cssClass="btn btn-default my-facebook-button-class"
-        />
-      );
+      let user_id = cookie.load('user_id');
+      if (user_id) {
+        api.get('/api/user/' + user_id, {
+          headers: {api_key: API_KEY}
+        }).then(user => {
+          this.setUser(user.data.result);
+        }).catch(err => {
+          console.error(err);
+        });
+      } else {
+        loginButton = (
+          <FacebookLogin
+            appId={FACEBOOK_APP_ID}
+            fields="name,email,picture"
+            callback={response => this.handleLogin(response)}
+            cssClass="btn btn-default my-facebook-button-class"
+          />
+        );
+      }
     } else {
-      logInOrOut = (
+      loginButton = (
         <Nav>
           <p className='pt-2'>
-            {'Welcome, ' + this.state.user.name}
+            {'Welcome, ' + user.name}
           </p>
           <Button 
             className="ml-3"
@@ -128,30 +124,46 @@ class App extends React.Component {
             onClick={e => this.handleLogout(e)}
           >Logout</Button>
         </Nav>
-      );
+      );  
     }
 
     let navbar = (
       <Navbar bg="light" expand="lg">
-      <Navbar.Brand href="#home">Yaduha</Navbar.Brand>
+      <Navbar.Brand href="/">Yaduha</Navbar.Brand>
       <Navbar.Collapse id="basic-navbar-nav">
         <span className="mr-auto" />
         <Nav>
           <Nav.Item>
-            {logInOrOut}
+            {loginButton}
           </Nav.Item>
         </Nav>
       </Navbar.Collapse>
     </Navbar>
     );
-
+    
     return (
-      <Container>
-        {navbar}
-        <MainWindow getUser={() => this.state.user} />
-      </Container>
+      <Router>
+        <Container>
+          {navbar}
+          <Switch>
+            <Route path="/word/:id">
+              <WordWindowRoute getUser={() => this.state.user} />
+            </Route>
+            <Route path="/">
+              <SearchWindow getUser={() => this.state.user} />
+            </Route>
+          </Switch>
+        </Container>
+      </Router>
     );
   }
+}
+
+function WordWindowRoute(props) {
+  let { id } = useParams();
+  return (
+    <WordWindow wordId={id} getUser={props.getUser} />
+  );
 }
 
 export default App;

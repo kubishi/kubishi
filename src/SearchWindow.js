@@ -17,12 +17,6 @@ const api = axios.create({
     baseURL: API_URL,
 })
 
-class WordCard extends React.Component {
-    render() {
-        return <p></p>;
-    }
-}
-
 class WordSummary extends React.Component {
     render() {
         let { text, definition, part_of_speech } = this.props.word;
@@ -37,7 +31,7 @@ class WordSummary extends React.Component {
     }
 }
   
-class MainWindow extends React.Component {
+class SearchWindow extends React.Component {
     constructor(props) {
         super(props);
 
@@ -180,4 +174,4 @@ class MainWindow extends React.Component {
 }
 
 
-export default MainWindow;
+export default SearchWindow;
