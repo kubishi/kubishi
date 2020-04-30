@@ -3,17 +3,14 @@
 
 import React from 'react';
 import { 
-  Button, ButtonGroup, Jumbotron, Container, 
-  Row, Col, InputGroup, FormControl,
-  ListGroup, Form, DropdownButton, Dropdown,
-  FormGroup
+  Button, Row, Col, InputGroup, FormControl,
+  ListGroup, DropdownButton, Dropdown,
 } from 'react-bootstrap';
 import axios from 'axios';
 
 import './SearchWindow.css';
 
 import { API_URL, API_KEY } from './env';
-
 
 const api = axios.create({
     baseURL: API_URL,

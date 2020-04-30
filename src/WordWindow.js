@@ -1,18 +1,7 @@
 
 import React from 'react';
-import { 
-  Button, ButtonGroup, Jumbotron, Container, 
-  Row, Col, InputGroup, FormControl,
-  ListGroup, Form, DropdownButton, Dropdown,
-  FormGroup, Spinner,
-} from 'react-bootstrap';
+import { Row, Col } from 'react-bootstrap';
 import axios from 'axios';
-
-import {
-    BrowserRouter as Router,
-    Switch, useParams,
-    Route, Link, useRouteMatch
-} from "react-router-dom";
 
 import { API_URL, API_KEY } from './env';
 

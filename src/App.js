@@ -1,12 +1,9 @@
 import React from 'react';
 import './App.css';
 import axios from 'axios';
-import querystring from 'querystring';
 import { FACEBOOK_APP_ID, API_URL, API_KEY } from './env';
 import { 
-  Button, Jumbotron, Container, 
-  Row, Col, InputGroup, FormControl,
-  ListGroup, Navbar, Nav
+  Button, Container, Navbar, Nav
 } from 'react-bootstrap';
 
 import cookie from 'react-cookies';
@@ -17,29 +14,12 @@ import WordWindow from './WordWindow';
 
 import {
   BrowserRouter as Router,
-  Switch, useParams,
-  Route, Link, Redirect
+  Switch, useParams, Route,
 } from "react-router-dom";
 
 const api = axios.create({
   baseURL: API_URL,
 })
-
-class WordCard extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    return (
-      <div>
-        <h3>{this.props.word}</h3>
-        <p><i>{String(this.props.pos).toLowerCase().replace("_", " ")}</i></p>
-        <p>{this.props.def}</p>
-      </div>
-    );
-  }
-}
 
 class App extends React.Component {
   constructor(props) {
@@ -69,7 +49,6 @@ class App extends React.Component {
       api.get('/api/user/facebook_' + response.id, {
         headers: {api_key: API_KEY}
       }).then(user => {
-        console.log('result', user.data.result);
         this.setUser(user.data.result);
       }).catch(err => {
         console.error(err);
@@ -186,7 +165,6 @@ class App extends React.Component {
 
 function WordWindowRoute(props) {
   let { id } = useParams();
-  console.log('word', id);
   return (
     <WordWindow wordId={id} getUser={props.getUser} />
   );
