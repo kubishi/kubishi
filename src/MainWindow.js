@@ -100,6 +100,12 @@ class MainWindow extends React.Component {
         });
     }
 
+    handleSearchKeyPress(e) {
+        if(e.charCode==13){ // Enter key
+            this.handleSearch(e);    
+        } 
+    }
+
     render() {
         let { searchType, results, error } = this.state;
 
@@ -151,6 +157,7 @@ class MainWindow extends React.Component {
                                 placeholder="Query..."
                                 aria-label="Search"
                                 aria-describedby="search-text"
+                                onKeyPress={e => this.handleSearchKeyPress(e)}
                                 onChange={e => {this.setState({query: e.currentTarget.value})}}
                             />
                             
