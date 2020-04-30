@@ -18,7 +18,7 @@ import WordWindow from './WordWindow';
 import {
   BrowserRouter as Router,
   Switch, useParams,
-  Route, Link
+  Route, Link, Redirect
 } from "react-router-dom";
 
 const api = axios.create({
@@ -46,6 +46,7 @@ class App extends React.Component {
     super(props);
     this.state = {
       user: null,
+      randomRedirect: null,
     }
   }
 
@@ -89,9 +90,23 @@ class App extends React.Component {
     }
   }
 
+  randomWord(e) {
+    api.get('/api/random/word', {
+      headers: {api_key: API_KEY}
+    }).then(res => {
+      if (res.status == 200) {
+        // let randomRedirect = <Redirect push from='/' to={'/word/' + res.data.result._id} />;
+        // this.setState({randomRedirect: randomRedirect});
+        window.location.href = '/word/' + res.data.result._id;
+      } else {
+        console.log(res.status, res.data);
+      }
+    }).catch(err => console.error(err));
+  }
+
   render() {    
     let loginButton = null;
-    let { user } = this.state;
+    let { user, randomRedirect } = this.state;
     if (user == null) {
       let user_id = cookie.load('user_id');
       if (user_id) {
@@ -115,9 +130,11 @@ class App extends React.Component {
     } else {
       loginButton = (
         <Nav>
-          <p className='pt-2'>
-            {'Welcome, ' + user.name}
-          </p>
+          <Nav.Item>
+            <Nav.Link disabled>
+              {'Welcome, ' + user.name}
+            </Nav.Link>
+          </Nav.Item>
           <Button 
             className="ml-3"
             variant="outline-primary" 
@@ -130,7 +147,15 @@ class App extends React.Component {
     let navbar = (
       <Navbar bg="light" expand="lg">
       <Navbar.Brand href="/">Yaduha</Navbar.Brand>
+      <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Navbar.Collapse id="basic-navbar-nav">
+        <Nav className="mr-auto">
+          <Nav.Item onClick={e => this.randomWord(e)}>
+            <Nav.Link>
+              Random Word!
+            </Nav.Link>
+          </Nav.Item>
+        </Nav>
         <span className="mr-auto" />
         <Nav>
           <Nav.Item>
@@ -161,6 +186,7 @@ class App extends React.Component {
 
 function WordWindowRoute(props) {
   let { id } = useParams();
+  console.log('word', id);
   return (
     <WordWindow wordId={id} getUser={props.getUser} />
   );

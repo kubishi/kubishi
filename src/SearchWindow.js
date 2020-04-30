@@ -17,7 +17,7 @@ import { API_URL, API_KEY } from './env';
 
 const api = axios.create({
     baseURL: API_URL,
-})
+});
 
 class WordSummary extends React.Component {
     render() {
@@ -145,8 +145,8 @@ class SearchWindow extends React.Component {
         }
 
         return (
-            <Col>
-                <Row className='mt-2'>
+            <div className='m-3'>
+                <Row>
                     <Col>
                         <InputGroup className="mb-3">
                             <DropdownButton
@@ -178,7 +178,7 @@ class SearchWindow extends React.Component {
                         {resultBody}
                     </Col>
                 </Row>
-            </Col>
+            </div>
         )
     }
 }

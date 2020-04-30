@@ -27,7 +27,9 @@ class WordWindow extends React.Component {
             word: null,
             suggestedSentences: [],
         };
+    }
 
+    componentDidMount() {
         this.getWord(this.props.wordId);
     }
 
@@ -81,8 +83,8 @@ class WordWindow extends React.Component {
         }
 
         return (
-            <Row className='mt-3'>
-                <Col style={{'padding-right': '20px', 'border-right': '1px solid #ccc'}}>
+            <Row className='m-3'>
+                <Col style={{paddingRight: '20px', borderRight: '1px solid #ccc'}}>
                     <h4>{word.text}</h4>
                     <p><em>{word.part_of_speech}</em></p>
                     <p>{word.definition.text}</p>
