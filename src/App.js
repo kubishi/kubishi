@@ -94,7 +94,7 @@ class App extends React.Component {
             'created': new Date(),
             'type': 'USER',
           }, {headers: {api_key: API_KEY}}).then(user => {
-            console.log('Logging in 2');
+            this.setState({user: user.data.result});
           }).catch(err => {
             console.error(err.response);
           })
