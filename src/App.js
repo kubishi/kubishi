@@ -25,8 +25,7 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      user: null,
-      randomRedirect: null,
+      user: null
     }
   }
 
@@ -35,8 +34,8 @@ class App extends React.Component {
     if (window.FB) {
       window.FB.logout();
     }
-    this.setState({user: null});
     cookie.remove('user_id',  { path: '/' });
+    this.setState({user: null});
   }
 
   setUser(user) {
@@ -74,8 +73,6 @@ class App extends React.Component {
       headers: {api_key: API_KEY}
     }).then(res => {
       if (res.status == 200) {
-        // let randomRedirect = <Redirect push from='/' to={'/word/' + res.data.result._id} />;
-        // this.setState({randomRedirect: randomRedirect});
         window.location.href = '/word/' + res.data.result._id;
       } else {
         console.log(res.status, res.data);
@@ -85,7 +82,7 @@ class App extends React.Component {
 
   render() {    
     let loginButton = null;
-    let { user, randomRedirect } = this.state;
+    let { user } = this.state;
     if (user == null) {
       let user_id = cookie.load('user_id');
       if (user_id) {
