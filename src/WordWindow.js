@@ -24,14 +24,23 @@ class WordWindow extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            word: null
+            word: null,
+            suggestedSentences: [],
         };
 
-        api.get('/api/word/' + this.props.wordId, {
-            headers: {api_key: API_KEY}
+        this.getWord(this.props.wordId);
+    }
+
+    getWord(wordId) {
+        api.get('/api/word/' + wordId, {
+            headers: {api_key: API_KEY},
+            params: {
+                'populate': true,
+            }
         }).then(res => {
             if (res.status == 200) {
                 this.setState({word: res.data.result});
+                this.getSuggestedSentences(res.data.result);
             } else {
                 console.log(res.status, res.data);
             }
@@ -39,29 +48,49 @@ class WordWindow extends React.Component {
             console.error(err);
             this.setState({word: false});
         });
+    }
 
+    getSuggestedSentences(word) {
+        api.get('/api/search/sentence', {
+            headers: {api_key: API_KEY},
+            params: {
+                query: '.*\b' + word.text + '\b.*',
+                populate: true,
+                is_paiute: true,
+                mode: 'regex',
+            }
+        }).then(res => {
+            if (res.status == 200) {
+                this.setState({suggestedSentences: res.data.sentences})
+            } else {
+                console.log(res.status, res.data);
+            }
+        }).catch(err => console.error(err));
     }
 
     render() {
         let { word } = this.state;
         if (word == null) {
-            return (
-                <Spinner animation="border" role="status" 
-                    className='mt-2 text-center'
-                >
-                    <span className="sr-only">Loading...</span>
-                </Spinner>
-            );
+            return null;
         } else if (word == false) {
             return (
-                <div>
+                <div className='mt-3 text-center'>
                     <h4>We can't find the word you're looking for!</h4>
                 </div>
             );
         }
 
         return (
-            <p>{JSON.stringify(word)}</p>
+            <Row className='mt-3'>
+                <Col style={{'padding-right': '20px', 'border-right': '1px solid #ccc'}}>
+                    <h4>{word.text}</h4>
+                    <p><em>{word.part_of_speech}</em></p>
+                    <p>{word.definition.text}</p>
+                </Col>
+                <Col>
+                    <h5 className='text-center'>Sentences</h5>
+                </Col>
+            </Row>
         );
     }
 }

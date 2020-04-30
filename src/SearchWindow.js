@@ -10,6 +10,8 @@ import {
 } from 'react-bootstrap';
 import axios from 'axios';
 
+import './SearchWindow.css';
+
 import { API_URL, API_KEY } from './env';
 
 
@@ -22,11 +24,19 @@ class WordSummary extends React.Component {
         let { text, definition, part_of_speech } = this.props.word;
         part_of_speech = part_of_speech.toLowerCase().replace('_', ' ');
         return (
-            <div>
-                <h5>{text}</h5>
-                <em>{part_of_speech}</em>
-                <p>{definition.text}</p>
-            </div>
+            <Row>
+                <Col
+                    xs={4}
+                    style={{'paddingRight': '20px', 'borderRight': '1px solid #ccc'}}
+                    className='text-right align-self-center'
+                >
+                    <h5>{text}</h5>
+                    <em>{part_of_speech}</em>
+                </Col>
+                <Col className='align-self-center'>
+                    <p>{definition.text}</p>
+                </Col>
+            </Row>
         );
     }
 }
@@ -122,7 +132,7 @@ class SearchWindow extends React.Component {
         } else {
             let resultItems = results.map((word, i) => {
                 return (
-                    <ListGroup.Item>
+                    <ListGroup.Item action href={'/word/' + word.id}>
                         <WordSummary key={'word-' + i.toString()} word={word} />
                     </ListGroup.Item>
                 );
