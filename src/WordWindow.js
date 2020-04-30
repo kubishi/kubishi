@@ -82,11 +82,12 @@ class WordWindow extends React.Component {
             );
         }
 
+        let part_of_speech = word.part_of_speech.toLowerCase().replace('_', ' ');
         return (
             <Row className='m-3'>
                 <Col style={{paddingRight: '20px', borderRight: '1px solid #ccc'}}>
                     <h4>{word.text}</h4>
-                    <p><em>{word.part_of_speech}</em></p>
+                    <p><em>{part_of_speech}</em></p>
                     <p>{word.definition.text}</p>
                 </Col>
                 <Col>
