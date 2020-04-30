@@ -94,13 +94,17 @@ class App extends React.Component {
           console.error(err);
         });
       } else {
-        loginButton = (
-          <FacebookLogin
-            appId={FACEBOOK_APP_ID}
-            fields="name,email,picture"
-            callback={response => this.handleLogin(response)}
-            cssClass="btn btn-default my-facebook-button-class"
-          />
+        loginButton = ( 
+          <Nav>
+            <Nav.Item>
+              <FacebookLogin
+                appId={FACEBOOK_APP_ID}
+                fields="name,email,picture"
+                callback={response => this.handleLogin(response)}
+                cssClass="btn btn-default my-facebook-button-class"
+              />
+            </Nav.Item>
+          </Nav>
         );
       }
     } else {
@@ -133,11 +137,7 @@ class App extends React.Component {
           </Nav.Item>
         </Nav>
         <span className="mr-auto" />
-        <Nav>
-          <Nav.Item>
-            {loginButton}
-          </Nav.Item>
-        </Nav>
+        {loginButton}
       </Navbar.Collapse>
     </Navbar>
     );
