@@ -109,6 +109,11 @@ class WordWindow extends React.Component {
     handleSave(e) {
         let { text, part_of_speech, definition } = this.state;
 
+        if (!this.canEdit()) {
+            console.error("User does not have permission to edit.");
+            return;
+        }
+
         let body = {};
         if (text != null) body.text = text;
         if (part_of_speech != null) body.part_of_speech = part_of_speech;
