@@ -70,7 +70,10 @@ class App extends React.Component {
 
   randomWord(e) {
     api.get('/api/random/word', {
-      headers: {api_key: API_KEY}
+      headers: {api_key: API_KEY},
+      params: {
+        is_paiute: true
+      }
     }).then(res => {
       if (res.status == 200) {
         window.location.href = '/word/' + res.data.result._id;

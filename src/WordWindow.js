@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Row, Col } from 'react-bootstrap';
+import { Row, Col, ListGroup } from 'react-bootstrap';
 import axios from 'axios';
 
 import { API_URL, API_KEY } from './env';
@@ -26,7 +26,7 @@ class WordWindow extends React.Component {
         api.get('/api/word/' + wordId, {
             headers: {api_key: API_KEY},
             params: {
-                'populate': true,
+                populate: true,
             }
         }).then(res => {
             if (res.status == 200) {
@@ -45,14 +45,16 @@ class WordWindow extends React.Component {
         api.get('/api/search/sentence', {
             headers: {api_key: API_KEY},
             params: {
-                query: '.*\b' + word.text + '\b.*',
+                query: word.text,
                 populate: true,
                 is_paiute: true,
-                mode: 'regex',
+                mode: 'contains',
             }
         }).then(res => {
             if (res.status == 200) {
-                this.setState({suggestedSentences: res.data.sentences})
+                if (res.data.result) {
+                    this.setState({suggestedSentences: res.data.result})
+                }
             } else {
                 console.log(res.status, res.data);
             }
@@ -60,7 +62,7 @@ class WordWindow extends React.Component {
     }
 
     render() {
-        let { word } = this.state;
+        let { word, suggestedSentences } = this.state;
         if (word == null) {
             return null;
         } else if (word == false) {
@@ -71,16 +73,70 @@ class WordWindow extends React.Component {
             );
         }
 
+        let sentence_ids = word.sentences.map((sentence, i) => sentence._id);
+        let sentences = word.sentences.map((sentence, i) => {
+            return (
+                <ListGroup.Item>
+                    <b>{sentence.text}</b>
+                    <p>{sentence.translation.text}</p>
+                </ListGroup.Item>
+            );
+        });
+        
+        let sentencesList = null;
+        if (sentences.length > 0) {
+            sentencesList = (
+                <Row>
+                    <Col>
+                        <h5 className='text-center'>Sentences</h5>
+                        <ListGroup variant='flush'>
+                            {sentences}
+                        </ListGroup>
+                    </Col>
+                </Row>
+            );
+        }
+
+        suggestedSentences = suggestedSentences;
+        let suggSentences = suggestedSentences
+            .filter(sentence => !sentence_ids.includes(sentence._id))
+            .map((sentence, i) => {
+                return (
+                    <ListGroup.Item>
+                        <b>{sentence.text}</b>
+                        <p>{sentence.translation.text}</p>
+                    </ListGroup.Item>
+                );
+            });
+
+        let suggSentencesList = null;
+        if (suggSentences.length > 0) {
+            suggSentencesList = (
+                <Row>
+                    <Col>
+                        <h5 className='text-center'>Suggested Sentences</h5>
+                        <ListGroup variant='flush'>
+                            {suggSentences}
+                        </ListGroup>
+                    </Col>
+                </Row>
+            );
+        }
+
         let part_of_speech = word.part_of_speech.toLowerCase().replace('_', ' ');
         return (
             <Row className='m-3'>
-                <Col style={{paddingRight: '20px', borderRight: '1px solid #ccc'}}>
+                <Col 
+                    xs={4}
+                    style={{paddingRight: '20px', borderRight: '1px solid #ccc'}}
+                >
                     <h4>{word.text}</h4>
                     <p><em>{part_of_speech}</em></p>
                     <p>{word.definition.text}</p>
                 </Col>
                 <Col>
-                    <h5 className='text-center'>Sentences</h5>
+                    {sentencesList}
+                    {suggSentencesList}
                 </Col>
             </Row>
         );
