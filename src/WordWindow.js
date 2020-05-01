@@ -1,10 +1,13 @@
 
 import React from 'react';
-import { Row, Col, ListGroup, Form, Button, ButtonGroup } from 'react-bootstrap';
+import { Row, Col, ListGroup, Form, Button, ButtonGroup, Modal } from 'react-bootstrap';
 import axios from 'axios';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons'
+
+import { confirmAlert } from 'react-confirm-alert'; // Import
+import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
 
 import { API_URL, API_KEY } from './env';
 
@@ -113,6 +116,53 @@ class WordWindow extends React.Component {
         this.setState({definition: definition});
     }
 
+    getDeleteSentenceModal() {
+        let { sentenceToRemove } = this.state;
+
+        let body;
+        if (sentenceToRemove != null) {
+            body = (
+                <div>
+                    <b>{sentenceToRemove.text}</b>
+                    <p>{sentenceToRemove.translation.text}</p>
+                </div>
+            );
+        }
+        
+        return (
+            <Modal 
+                show={sentenceToRemove != null} 
+                onHide={() => this.setState({sentenceToRemove: null})}
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>
+                        Are you sure?
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {body}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button 
+                        variant='outline-primary' 
+                        onClick={() => this.setState({sentenceToRemove: null})}>
+                    Close
+                    </Button>
+                    <Button 
+                        variant='outline-danger' 
+                        onClick={() => this.removeSentence(sentenceToRemove._id, () => {
+                            this.setState({sentenceToRemove: null});
+                            this.getWord();
+                        })}
+                    >
+                        <FontAwesomeIcon icon={faTrash} className='mr-2' />
+                        Delete
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+        );
+    }
+
     saveWord(next) {
         let { text, part_of_speech } = this.state;
         let body = {};
@@ -176,6 +226,7 @@ class WordWindow extends React.Component {
     }
 
     removeSentence(sentenceId, next) {
+        if (sentenceId == null) return;
         api.delete('/api/sentence/' + sentenceId,
             {headers: {api_key: API_KEY}}
         ).then(res => {
@@ -245,9 +296,7 @@ class WordWindow extends React.Component {
                         variant='outline-danger' href='#'
                         className='w-25'
                         onClick={e => {
-                            this.removeSentence(sentence._id, () => {
-                                this.getWord();
-                            });
+                            this.setState({sentenceToRemove: sentence});
                         }}
                     >
                         <FontAwesomeIcon icon={faTrash} className='mr-2' />
@@ -426,10 +475,12 @@ class WordWindow extends React.Component {
         }
 
         let sentenceIds = word.sentences.map((sentence, i) => sentence._id);
-        let sentences = word.sentences.map((sentence, i) => {
-            let listItems = editMode ? this.sentenceForm(sentence, i) : this.sentenceSimple(sentence, i);
-            return <ListGroup.Item key={'sentence-' + sentence._id}>{listItems}</ListGroup.Item>;
-        });
+        let sentences = word.sentences
+            .sort((a, b) => ((a.text == null ? 0 : a.text.length) - (b.text == null ? 0 : b.text.length)))
+            .map((sentence, i) => {
+                let listItems = editMode ? this.sentenceForm(sentence, i) : this.sentenceSimple(sentence, i);
+                return <ListGroup.Item key={'sentence-' + sentence._id}>{listItems}</ListGroup.Item>;
+            });
         
         let sentencesList = null;
         if (sentences.length > 0) {
@@ -502,6 +553,7 @@ class WordWindow extends React.Component {
         return (
             <Row className='m-3'>
                 <Col>
+                    {this.getDeleteSentenceModal()}
                     {wordBody}
                 </Col>
             </Row>
