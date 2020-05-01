@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Row, Col, ListGroup, Form, Button } from 'react-bootstrap';
+import { Row, Col, ListGroup, Form, Button, ButtonGroup } from 'react-bootstrap';
 import axios from 'axios';
 
 import { API_URL, API_KEY } from './env';
@@ -35,16 +35,20 @@ class WordWindow extends React.Component {
         super(props);
         this.state = {
             word: null,
+            text: null,
+            part_of_speech: null,
+            definition: null,
             suggestedSentences: [],
+            sentencesUpdates: {},
         };
     }
 
     componentDidMount() {
-        this.getWord(this.props.wordId);
+        this.getWord();
     }
 
-    getWord(wordId) {
-        api.get('/api/word/' + wordId, {
+    getWord() {
+        api.get('/api/word/' + this.props.wordId, {
             headers: {api_key: API_KEY},
             params: {
                 populate: true,
@@ -61,7 +65,7 @@ class WordWindow extends React.Component {
             this.setState({word: false});
         });
     }
-
+   
     getSuggestedSentences(word) {
         api.get('/api/search/sentence', {
             headers: {api_key: API_KEY},
@@ -106,40 +110,66 @@ class WordWindow extends React.Component {
         this.setState({definition: definition});
     }
 
-    handleSave(e) {
-        let { text, part_of_speech, definition } = this.state;
-
-        if (!this.canEdit()) {
-            console.error("User does not have permission to edit.");
-            return;
-        }
-
+    saveWord(next) {
+        let { text, part_of_speech } = this.state;
         let body = {};
-        if (text != null) body.text = text;
-        if (part_of_speech != null) body.part_of_speech = part_of_speech;
-        if (text != null || part_of_speech != null) {
-            api.put('/api/word/' + this.props.wordId, body, {
-                headers: {api_key: API_KEY}
-            }).then(res => {
-                if (res.status == 200) {
-                    this.getWord(this.props.wordId);
-                } else {
-                    console.log(res.status, res.data);
-                }
-            }).catch(err => console.error(err));
+        if (this.hasTextChanged()) {
+            body.text = text;
         }
+        if (this.hasPosChanged()) {
+            body.part_of_speech = part_of_speech;
+        }
+
+        if (Object.keys(body).length <= 0) {
+            return next();
+        }
+
+        api.put('/api/word/' + this.props.wordId, body, {
+            headers: {api_key: API_KEY}
+        }).then(res => {
+            if (res.status == 200) {
+                next();
+            } else {
+                console.log(res.status, res.data);
+            }
+        }).catch(err => console.error(err));
+    }
+
+    saveDefinition(next) {
+        if (!this.hasDefChanged()) {
+            return next();
+        }
+
+        let { definition } = this.state;
+
+        api.put('/api/word/' + this.props.wordId + '/definition',
+            {'text': definition}, {headers: {api_key: API_KEY}}
+        ).then(res => {
+            if (res.status == 200) {
+                next();
+            } else {
+                console.log(res.status, res.data);
+            }
+        }).catch(err => console.error(err));
+    }
+
+    saveSentence(sentenceId, next) {
+        if (!this.hasSentenceChanged(sentenceId)) {
+            return next();
+        }
+
+        let { sentencesUpdates } = this.state;
+        api.put('/api/sentence/' + sentenceId,
+            {'text': sentencesUpdates[sentenceId]}, 
+            {headers: {api_key: API_KEY}}
+        ).then(res => {
+            if (res.status == 200) {
+                next();
+            } else {
+                console.log(res.status, res.data);
+            }
+        }).catch(err => console.error(err));
         
-        if (definition != null) {
-            api.put('/api/word/' + this.props.wordId + '/definition',
-                {'text': definition}, {headers: {api_key: API_KEY}}
-            ).then(res => {
-                if (res.status == 200) {
-                    this.getWord(this.props.wordId);
-                } else {
-                    console.log(res.status, res.data);
-                }
-            }).catch(err => console.error(err));
-        }
     }
 
     canEdit() {
@@ -150,9 +180,178 @@ class WordWindow extends React.Component {
         return false;
     }
 
+    /**
+     * 
+     * @param {String} sentenceId 
+     * @param {String} value 
+     */
+    changeSentence(sentenceId, value) {
+        let { sentencesUpdates } = this.state;
+        sentencesUpdates[sentenceId] = value;
+        this.setState({sentencesUpdates: sentencesUpdates});
+    }
+
+    sentenceForm(sentence, i) {
+        let hasChanged = this.hasSentenceChanged(sentence._id) || this.hasSentenceChanged(sentence.translation._id);
+        return (
+            <Form>
+
+                <Form.Group controlId={`form-sentence-${i}`}>
+                    <Form.Label>Sentence</Form.Label>
+                    <Form.Control as="textarea" defaultValue={sentence.text} 
+                        onChange={e => this.changeSentence(sentence._id, e.target.value)}
+                    />
+                </Form.Group>
+
+                <Form.Group controlId={`form-translation-${i}`}>
+                    <Form.Label>Translation</Form.Label>
+                    <Form.Control as="textarea" defaultValue={sentence.translation.text} 
+                        onChange={e => this.changeSentence(sentence.translation._id, e.target.value)}
+                    />
+                </Form.Group>
+                
+                <Button 
+                    variant={hasChanged ? 'outline-primary' : 'outline-secondary'} 
+                    block href='#'
+                    disabled={!hasChanged}
+                    onClick={e => {
+                        this.saveSentence(sentence._id, () => {
+                            this.saveSentence(sentence.translation._id, () => {
+                                this.getWord();
+                            });
+                        });
+                    }}
+                >Save</Button>
+
+            </Form>
+        );
+    }
+
+    sentenceSimple(sentence, id) {
+        return (
+            <div>
+                <b>{sentence.text}</b>
+                <p>{sentence.translation.text}</p>
+            </div>  
+        );
+    }
+    
+    wordForm(word) {
+        let part_of_speech_option = word.part_of_speech.toLowerCase().replace('_', ' ');
+        let user_options = parts_of_speech.map((part_of_speech, i) => {
+            let pos = part_of_speech.toLowerCase().replace('_', ' ');
+            return (
+                <option key={'option-pos-' + i}>{pos}</option>
+            );
+        });
+        let hasChanged = this.hasTextChanged() || this.hasPosChanged() || this.hasDefChanged();
+        return (
+            <div>
+                <Form>
+                    <Form.Group controlId='formWord'>
+                        <Form.Label>Word</Form.Label>
+                        <Form.Control 
+                            type='text' defaultValue={word.text}
+                            onChange={e => {this.changeWordText(e.target.value)}}
+                        />
+                    </Form.Group>
+
+                    <Form.Group controlId='formPOS'>
+                        <Form.Label>Part of Speech</Form.Label>
+                        <Form.Control 
+                            as="select" 
+                            defaultValue={part_of_speech_option} 
+                            onChange={e => {this.changePartOfSpeech(e.target.value)}}
+                        >
+                            {user_options}
+                        </Form.Control>
+                    </Form.Group>
+
+                    <Form.Group controlId='formDefinition'>
+                        <Form.Label>Definition</Form.Label>
+                        <Form.Control as="textarea" defaultValue={word.definition.text} 
+                            onChange={e => this.changeDefinition(e.target.value)}
+                        />
+                    </Form.Group>
+
+                    <Button 
+                            variant={hasChanged ? 'outline-primary' : 'outline-secondary'} 
+                            block href='#'
+                            disabled={!hasChanged}
+                            onClick={e => {
+                                this.saveWord(() => {
+                                    this.saveDefinition(() => {
+                                        this.getWord();
+                                    });
+                                });
+                            }}
+                        >Save</Button>
+                </Form>
+            </div>
+        );
+    }
+
+    wordSimple(word) {
+        let part_of_speech_option = word.part_of_speech.toLowerCase().replace('_', ' ');
+        return (
+            <div>
+                <h4>{word.text}</h4>
+                <p><em>{part_of_speech_option}</em></p>
+                <p>{word.definition.text}</p>
+            </div>
+        );
+    }
+
+    hasTextChanged() {
+        let { word, text } = this.state;
+        return text != null && text != word.text;
+    }
+
+    hasPosChanged() {
+        let { word, part_of_speech } = this.state;
+        return part_of_speech != null && part_of_speech != word.part_of_speech;
+    }
+
+    hasDefChanged() {
+        let { word, definition } = this.state;
+        return definition != null && definition != word.definition.text;
+    }
+
+    hasSentenceChanged(sentenceId) {
+        let { sentencesUpdates, word, suggestedSentences } = this.state;
+        let all_sentences = word.sentences.concat(suggestedSentences);
+        let sentence = all_sentences.find(sentence => sentence._id == sentenceId);
+        let sentenceText;
+        if (sentence == null) {
+            sentence = all_sentences.find(sentence => sentence.translation._id == sentenceId);
+            if (sentence == null) { // no matching sentence found
+                console.log('HERE');
+                return false;
+            }
+            sentenceText = sentence.translation.text;
+        } else {
+            sentenceText = sentence.text;
+        }
+        return sentencesUpdates[sentenceId] != null && sentencesUpdates[sentenceId] != sentenceText;
+    }
+
+    hasAnySentenceChanged() {
+        let { sentencesUpdates } = this.state;
+        return Object.keys(sentencesUpdates).some(sentenceId => {
+            return this.hasSentenceChanged(sentenceId);
+        });
+    }
+
+    hasChanged() {
+        return (
+            this.hasTextChanged() || this.hasPosChanged() ||
+            this.hasDefChanged() || this.hasAnySentenceChanged()
+        );
+    }
+
     render() {
         let { word, suggestedSentences } = this.state;
-        let edit_mode = this.canEdit();
+        let editMode = this.canEdit();
 
         if (word == null) {
             return null;
@@ -164,30 +363,10 @@ class WordWindow extends React.Component {
             );
         }
 
-        let user_options = parts_of_speech.map((part_of_speech, i) => {
-            let pos = part_of_speech.toLowerCase().replace('_', ' ');
-            return (
-                <option>{pos}</option>
-            );
-        });
-
-        let sentence_ids = word.sentences.map((sentence, i) => sentence._id);
+        let sentenceIds = word.sentences.map((sentence, i) => sentence._id);
         let sentences = word.sentences.map((sentence, i) => {
-            if (edit_mode) {
-                return (
-                    <ListGroup.Item>
-                        <b>{sentence.text}</b>
-                        <p>{sentence.translation.text}</p>
-                    </ListGroup.Item>
-                );
-            } else {
-                return (
-                    <ListGroup.Item>
-                        <b>{sentence.text}</b>
-                        <p>{sentence.translation.text}</p>
-                    </ListGroup.Item>
-                );
-            }
+            let listItems = editMode ? this.sentenceForm(sentence, i) : this.sentenceSimple(sentence, i);
+            return <ListGroup.Item key={'sentence-' + sentence._id}>{listItems}</ListGroup.Item>;
         });
         
         let sentencesList = null;
@@ -204,16 +383,11 @@ class WordWindow extends React.Component {
             );
         }
 
-        suggestedSentences = suggestedSentences;
         let suggSentences = suggestedSentences
-            .filter(sentence => !sentence_ids.includes(sentence._id))
+            .filter(sentence => !sentenceIds.includes(sentence._id))
             .map((sentence, i) => {
-                return (
-                    <ListGroup.Item>
-                        <b>{sentence.text}</b>
-                        <p>{sentence.translation.text}</p>
-                    </ListGroup.Item>
-                );
+                let listItems = editMode ? this.sentenceForm(sentence, i) : this.sentenceSimple(sentence, i);
+                return <ListGroup.Item key={'sentence-' + sentence._id}>{listItems}</ListGroup.Item>;
             });
 
         let suggSentencesList = null;
@@ -230,74 +404,24 @@ class WordWindow extends React.Component {
             );
         }
 
-        let wordPart;
-        let part_of_speech_option = word.part_of_speech.toLowerCase().replace('_', ' ');
-        let { text, part_of_speech, definition } = this.state;
-        let hasChanged = (
-            (text != null && text != word.text) ||
-            (part_of_speech != null && part_of_speech != word.part_of_speech) ||
-            (definition != null && definition != word.definition.text)
-        );
-        if (edit_mode) {
-            wordPart = (
-                <div>
-                    <Form>
-                        <Form.Group controlId='formWord'>
-                            <Form.Label>Word</Form.Label>
-                            <Form.Control 
-                                type='text' defaultValue={word.text}
-                                onChange={e => {this.changeWordText(e.target.value)}}
-                            />
-                        </Form.Group>
-
-                        <Form.Group controlId='formPOS'>
-                            <Form.Label>Part of Speech</Form.Label>
-                            <Form.Control 
-                                as="select" 
-                                defaultValue={part_of_speech_option} 
-                                onChange={e => {this.changePartOfSpeech(e.target.value)}}
-                            >
-                                {user_options}
-                            </Form.Control>
-                        </Form.Group>
-
-                        <Form.Group controlId='formDefinition'>
-                            <Form.Label>Definition</Form.Label>
-                            <Form.Control as="textarea" defaultValue={word.definition.text} 
-                                onChange={e => this.changeDefinition(e.target.value)}
-                            />
-                        </Form.Group>
-
-                        <Button 
-                            variant={hasChanged ? 'outline-primary' : 'outline-secondary'} 
-                            block href='#'
-                            disabled={!hasChanged} 
-                            onClick={e => this.handleSave(e)}
-                        >Save</Button>
-                    </Form>
-                </div>
-            );
-        } else {
-            wordPart = (
-                <div>
-                    <h4>{word.text}</h4>
-                    <p><em>{part_of_speech_option}</em></p>
-                    <p>{word.definition.text}</p>
-                </div>
-            );
-        }
-
-        return (
-            <Row className='m-3'>
+        let wordBody = (
+            <Row>
                 <Col 
                     xs={4}
                     style={{'paddingRight': '20px', 'borderRight': '1px solid #ccc'}}
                 >
-                    {wordPart}
+                    {editMode ? this.wordForm(word) : this.wordSimple(word)}
                 </Col>
                 <Col>
                     {sentencesList}
                     {suggSentencesList}
+                </Col>
+            </Row>
+        );
+        return (
+            <Row className='m-3'>
+                <Col>
+                    {wordBody}
                 </Col>
             </Row>
         );
