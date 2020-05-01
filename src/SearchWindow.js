@@ -159,7 +159,7 @@ class SearchWindow extends React.Component {
                                 {buttons}
                             </DropdownButton>
                             <FormControl
-                                placeholder="Query..."
+                                placeholder="Search..."
                                 aria-label="Search"
                                 aria-describedby="search-text"
                                 onKeyPress={e => this.handleSearchKeyPress(e)}
