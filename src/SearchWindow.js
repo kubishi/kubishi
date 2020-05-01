@@ -73,14 +73,16 @@ class SearchWindow extends React.Component {
             params.is_paiute = true;
             callback = res => {
                 if (!res.data.success) {
-                    this.setState({error: res.data.result});
+                    this.setState({error: res.data.result, results: []});
+                } else if (res.data.result.length <= 0) {
+                    this.setState({error: 'No Matches!', results: []});
                 } else {
                     let results = res.data.result.map((definition, i) => {
                         let word = definition.word;
                         word.definition = definition;
                         return word;
                     });
-                    this.setState({results: results});
+                    this.setState({error: null, results: results});
                 }
             };
         } else {
@@ -88,9 +90,11 @@ class SearchWindow extends React.Component {
             params.is_paiute = this.state.searchType == "Paiute";
             callback = res => {
                 if (!res.data.success) {
-                    this.setState({error: res.data.result});
+                    this.setState({error: res.data.result, results: []});
+                } else if (res.data.result.length <= 0) {
+                    this.setState({error: 'No Matches!', results: []});
                 } else {
-                    this.setState({results: res.data.result});
+                    this.setState({error: null, results: res.data.result});
                 }
             };
         }
@@ -125,7 +129,7 @@ class SearchWindow extends React.Component {
 
         let resultBody;
         if (error) {
-            resultBody = <p>{JSON.stringify(resultBody)}</p>;
+            resultBody = <h5 className='text-center'>{error}</h5>;
         } else {
             let resultItems = results.map((word, i) => {
                 return (
