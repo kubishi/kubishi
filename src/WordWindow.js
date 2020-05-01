@@ -3,6 +3,9 @@ import React from 'react';
 import { Row, Col, ListGroup, Form, Button, ButtonGroup } from 'react-bootstrap';
 import axios from 'axios';
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons'
+
 import { API_URL, API_KEY } from './env';
 
 const api = axios.create({
@@ -164,12 +167,24 @@ class WordWindow extends React.Component {
             {headers: {api_key: API_KEY}}
         ).then(res => {
             if (res.status == 200) {
-                next();
+                return next();
             } else {
                 console.log(res.status, res.data);
             }
         }).catch(err => console.error(err));
         
+    }
+
+    removeSentence(sentenceId, next) {
+        api.delete('/api/sentence/' + sentenceId,
+            {headers: {api_key: API_KEY}}
+        ).then(res => {
+            if (res.status == 200) {
+                return next();
+            } else {
+                console.log(res.status, res.data);
+            }
+        }).catch(err => console.error(err));
     }
 
     canEdit() {
@@ -209,19 +224,37 @@ class WordWindow extends React.Component {
                         onChange={e => this.changeSentence(sentence.translation._id, e.target.value)}
                     />
                 </Form.Group>
-                
-                <Button 
-                    variant={hasChanged ? 'outline-primary' : 'outline-secondary'} 
-                    block href='#'
-                    disabled={!hasChanged}
-                    onClick={e => {
-                        this.saveSentence(sentence._id, () => {
-                            this.saveSentence(sentence.translation._id, () => {
+
+                <ButtonGroup className='d-flex'>
+                    <Button 
+                        variant={hasChanged ? 'outline-primary' : 'outline-secondary'} 
+                        href='#'
+                        className='w-100'
+                        disabled={!hasChanged}
+                        onClick={e => {
+                            this.saveSentence(sentence._id, () => {
+                                this.saveSentence(sentence.translation._id, () => {
+                                    this.getWord();
+                                });
+                            });
+                        }}
+                    >
+                        Save
+                    </Button>
+                    <Button 
+                        variant='outline-danger' href='#'
+                        className='w-25'
+                        onClick={e => {
+                            this.removeSentence(sentence._id, () => {
                                 this.getWord();
                             });
-                        });
-                    }}
-                >Save</Button>
+                        }}
+                    >
+                        <FontAwesomeIcon icon={faTrash} className='mr-2' />
+                        Delete
+                    </Button>
+                </ButtonGroup>
+                
 
             </Form>
         );
@@ -325,7 +358,6 @@ class WordWindow extends React.Component {
         if (sentence == null) {
             sentence = all_sentences.find(sentence => sentence.translation._id == sentenceId);
             if (sentence == null) { // no matching sentence found
-                console.log('HERE');
                 return false;
             }
             sentenceText = sentence.translation.text;
@@ -347,6 +379,36 @@ class WordWindow extends React.Component {
             this.hasTextChanged() || this.hasPosChanged() ||
             this.hasDefChanged() || this.hasAnySentenceChanged()
         );
+    }
+
+    addSentence() { 
+        api.post('/api/sentence', 
+            {'paiute': '', 'english': ''},
+            {headers: {api_key: API_KEY}}
+        ).then(res => {
+            if (res.status == 200) {
+                let { word } = this.state;
+                if (word == null) {
+                    console.error('Cannot add sentence to invalid word.');
+                    return;
+                }
+                let sentenceId = res.data.result.find(s => s.is_paiute==word.is_paiute)._id;
+                api.post('/api/word/' + this.props.wordId + '/sentence',
+                    {sentence: sentenceId},
+                    {headers: {api_key: API_KEY}}
+                ).then(res => {
+                    if (res.status == 200) {
+                        this.getWord();
+                    } else {
+                        console.log(res.status, res.data);
+                    }
+                }).catch(err => console.error(err));
+            } else {
+                console.log(res.status, res.data);
+            }
+        }).catch(err => {
+            console.error(err);
+        });
     }
 
     render() {
@@ -404,6 +466,24 @@ class WordWindow extends React.Component {
             );
         }
 
+        let addSentenceButton;
+        if (editMode) {
+            addSentenceButton = (
+                <Row>
+                    <Col>
+                        <Button 
+                            className='float-right'
+                            variant='outline-primary'
+                            onClick={e => this.addSentence()}
+                        >
+                            <FontAwesomeIcon icon={faPlus} className='mr-2' />
+                            Add Sentence
+                        </Button>
+                    </Col>
+                </Row>
+            );
+        }
+
         let wordBody = (
             <Row>
                 <Col 
@@ -413,6 +493,7 @@ class WordWindow extends React.Component {
                     {editMode ? this.wordForm(word) : this.wordSimple(word)}
                 </Col>
                 <Col>
+                    {addSentenceButton}
                     {sentencesList}
                     {suggSentencesList}
                 </Col>
