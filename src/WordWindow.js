@@ -6,35 +6,13 @@ import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons'
 
-import { confirmAlert } from 'react-confirm-alert'; // Import
-import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
-
 import { API_URL, API_KEY } from './env';
+import UserType from './UserType';
+import PartOfSpeech from './PartOfSpeech';
 
 const api = axios.create({
     baseURL: API_URL,
 });
-
-const parts_of_speech = [
-    'NOUN',
-    'VERB',
-    'IDIOM',
-    'ADVERB',
-    'PRONOUN',
-    'ADJECTIVE',
-    'NOUN_SUFFIX',
-    'VERB_SUFFIX',
-    'PREPOSITION',
-    'POSTPOSITION',
-    'UNKNOWN',
-];
-
-const UserType = {
-  USER: 1,
-  EDITOR: 2,
-  DEVELOPER: 3,
-  ADMIN: 4
-};
 
 class WordWindow extends React.Component {
     constructor(props) {
@@ -221,7 +199,7 @@ class WordWindow extends React.Component {
             console.error("This user cannot make edits!")
             return;
         }
-        
+
         if (!this.hasSentenceChanged(sentenceId)) {
             return next();
         }
@@ -335,7 +313,7 @@ class WordWindow extends React.Component {
     
     wordForm(word) {
         let part_of_speech_option = word.part_of_speech.toLowerCase().replace('_', ' ');
-        let user_options = parts_of_speech.map((part_of_speech, i) => {
+        let posOptions = PartOfSpeech.map((part_of_speech, i) => {
             let pos = part_of_speech.toLowerCase().replace('_', ' ');
             return (
                 <option key={'option-pos-' + i}>{pos}</option>
@@ -360,7 +338,7 @@ class WordWindow extends React.Component {
                             defaultValue={part_of_speech_option} 
                             onChange={e => {this.changePartOfSpeech(e.target.value)}}
                         >
-                            {user_options}
+                            {posOptions}
                         </Form.Control>
                     </Form.Group>
 
