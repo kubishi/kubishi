@@ -80,7 +80,7 @@ class App extends React.Component {
     if (response) {
       let signed_request = response.signedRequest;
 
-      api.get('/api/user/facebook_' + response.id,
+      api.get('/api/user' + response.id,
         {headers: {signed_request: signed_request}}
       ).then(user => {
         this.setUser(user.data.result, signed_request);
@@ -91,7 +91,7 @@ class App extends React.Component {
         if (err.response.status == 404) { // Create new user
           api.post('/api/user', 
             {
-              'id': 'facebook_' + response.id,
+              'id': response.id,
               'name': response.name,
               'email': response.email,
               'created': new Date(),

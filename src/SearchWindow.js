@@ -73,16 +73,19 @@ class SearchWindow extends React.Component {
             url += '/definition';
             params.is_paiute = true;
             callback = res => {
+                console.log(res.status, res.data);
                 if (!res.data.success) {
                     this.setState({error: res.data.result, results: []});
                 } else if (res.data.result.length <= 0) {
                     this.setState({error: 'No Matches!', results: []});
                 } else {
-                    let results = res.data.result.map((definition, i) => {
-                        let word = definition.word;
-                        word.definition = definition;
-                        return word;
-                    });
+                    let results = res.data.result
+                        .filter(definition => definition != null && definition.word != null)
+                        .map((definition, i) => {
+                            let word = definition.word;
+                            word.definition = definition;
+                            return word;
+                        });
                     this.setState({error: null, results: results});
                 }
             };
