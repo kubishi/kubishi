@@ -34,7 +34,6 @@ class WordWindow extends React.Component {
 
     getWord() {
         api.get('/api/word/' + this.props.wordId, {
-            headers: {api_key: REACT_APP_API_KEY},
             params: {
                 populate: true,
             }
@@ -53,7 +52,6 @@ class WordWindow extends React.Component {
    
     getSuggestedSentences(word) {
         api.get('/api/search/sentence', {
-            headers: {api_key: REACT_APP_API_KEY},
             params: {
                 query: word.text,
                 populate: true,
@@ -161,9 +159,7 @@ class WordWindow extends React.Component {
             return next();
         }
 
-        api.put('/api/word/' + this.props.wordId, body, {
-            headers: {api_key: REACT_APP_API_KEY}
-        }).then(res => {
+        api.put('/api/word/' + this.props.wordId, body).then(res => {
             if (res.status == 200) {
                 next();
             } else {
@@ -185,7 +181,7 @@ class WordWindow extends React.Component {
         let { definition } = this.state;
 
         api.put('/api/word/' + this.props.wordId + '/definition',
-            {'text': definition}, {headers: {api_key: REACT_APP_API_KEY}}
+            {'text': definition}
         ).then(res => {
             if (res.status == 200) {
                 next();
@@ -207,8 +203,7 @@ class WordWindow extends React.Component {
 
         let { sentencesUpdates } = this.state;
         api.put('/api/sentence/' + sentenceId,
-            {'text': sentencesUpdates[sentenceId]}, 
-            {headers: {api_key: REACT_APP_API_KEY}}
+            {'text': sentencesUpdates[sentenceId]}
         ).then(res => {
             if (res.status == 200) {
                 return next();
@@ -221,9 +216,7 @@ class WordWindow extends React.Component {
 
     removeSentence(sentenceId, next) {
         if (sentenceId == null) return;
-        api.delete('/api/sentence/' + sentenceId,
-            {headers: {api_key: REACT_APP_API_KEY}}
-        ).then(res => {
+        api.delete('/api/sentence/' + sentenceId).then(res => {
             if (res.status == 200) {
                 return next();
             } else {
@@ -430,8 +423,7 @@ class WordWindow extends React.Component {
             return;
         }
         api.post('/api/sentence', 
-            {'paiute': '', 'english': ''},
-            {headers: {api_key: REACT_APP_API_KEY}}
+            {'paiute': '', 'english': ''}
         ).then(res => {
             if (res.status == 200) {
                 let { word } = this.state;
@@ -441,8 +433,7 @@ class WordWindow extends React.Component {
                 }
                 let sentenceId = res.data.result.find(s => s.is_paiute==word.is_paiute)._id;
                 api.post('/api/word/' + this.props.wordId + '/sentence',
-                    {sentence: sentenceId},
-                    {headers: {api_key: REACT_APP_API_KEY}}
+                    {sentence: sentenceId}
                 ).then(res => {
                     if (res.status == 200) {
                         this.getWord();

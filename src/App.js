@@ -54,9 +54,7 @@ class App extends React.Component {
 
   handleLogin(response) {
     if (response) {
-      api.get('/api/user/facebook_' + response.id, {
-        headers: {api_key: REACT_APP_API_KEY}
-      }).then(user => {
+      api.get('/api/user/facebook_' + response.id).then(user => {
         this.setUser(user.data.result);
       }).catch(err => {
         console.error(err);
@@ -67,7 +65,7 @@ class App extends React.Component {
             'email': response.email,
             'created': new Date(),
             'type': 'USER',
-          }, {headers: {api_key: REACT_APP_API_KEY}}).then(user => {
+          }).then(user => {
             this.setUser(user.data.result);
           }).catch(err => {
             console.error(err.response);
@@ -79,7 +77,6 @@ class App extends React.Component {
 
   randomWord(e) {
     api.get('/api/random/word', {
-      headers: {api_key: REACT_APP_API_KEY},
       params: {
         is_paiute: true
       }
@@ -177,8 +174,7 @@ class App extends React.Component {
         is_paiute: addWordPaiute == 'Paiute',
         definition: addWordDef,
         part_of_speech: addWordPos.toUpperCase().replace(' ', '_'),
-      },
-      {headers: {api_key: REACT_APP_API_KEY}}
+      }
     ).then(res => {
       if (res.status == 200) {
         window.location.href = '/word/' + res.data.result._id;
@@ -225,9 +221,7 @@ class App extends React.Component {
     if (user == null) {
       let user_id = cookie.load('user_id');
       if (user_id) {
-        api.get('/api/user/' + user_id, {
-          headers: {api_key: REACT_APP_API_KEY}
-        }).then(user => {
+        api.get('/api/user/' + user_id).then(user => {
           this.setUser(user.data.result);
         }).catch(err => {
           console.error(err);
