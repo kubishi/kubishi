@@ -101,7 +101,7 @@ class SearchWindow extends React.Component {
         }
 
         let config = { headers: this.defaultHeader(), params: params };
-        api.get(url, config, {headers: {signedRequest: cookie.load('signedRequest')}}).then(callback).catch(err => {
+        api.get(url, config, {headers: {signed_request: cookie.load('signed_request')}}).then(callback).catch(err => {
             console.error(err.result);
         });
     }
