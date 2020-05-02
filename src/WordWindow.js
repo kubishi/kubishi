@@ -534,6 +534,37 @@ class WordWindow extends React.Component {
                 </Row>
             );
         }
+        
+        let relatedWords = word.words.map((word, i) => {
+
+            return (
+                <ListGroup.Item action href={'/word/' + word._id}>
+                    <Row>
+                        <Col 
+                            style={{'paddingRight': '20px', 'borderRight': '1px solid #ccc'}}
+                            className='text-right'
+                        >
+                            <p>{word.text}</p>
+                        </Col>
+                        <Col>
+                            <em>{word.part_of_speech.toLowerCase().replace('_', ' ')}</em>
+                        </Col>
+                    </Row>
+                </ListGroup.Item>
+            );
+        });
+
+        let relatedWordsList;
+        if (relatedWords.length > 0) {
+            relatedWordsList = (
+                <Row className='mt-3'>
+                    <Col>
+                        <h5 className='text-center'>See Also</h5>
+                        <ListGroup variant='flush'>{relatedWords}</ListGroup>
+                    </Col>
+                </Row>
+            );
+        }
 
         let wordBody = (
             <Row>
@@ -542,6 +573,7 @@ class WordWindow extends React.Component {
                     style={{'paddingRight': '20px', 'borderRight': '1px solid #ccc'}}
                 >
                     {editMode ? this.wordForm(word) : this.wordSimple(word)}
+                    {relatedWordsList}
                 </Col>
                 <Col>
                     {addSentenceButton}
