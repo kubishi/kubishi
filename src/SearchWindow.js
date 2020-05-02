@@ -10,10 +10,10 @@ import axios from 'axios';
 
 import './SearchWindow.css';
 
-import { API_URL, API_KEY } from './env';
+const { REACT_APP_API_URL, REACT_APP_API_KEY } = process.env;
 
 const api = axios.create({
-    baseURL: API_URL,
+    baseURL: REACT_APP_API_URL,
 });
 
 class WordSummary extends React.Component {
@@ -52,7 +52,7 @@ class SearchWindow extends React.Component {
     }
 
     defaultHeader() {
-        let default_header = {api_key: API_KEY};
+        let default_header = {REACT_APP_API_KEY: REACT_APP_API_KEY};
         let user = this.props.getUser();
         if (user) {
             default_header.user_id = user.ids[0];
@@ -133,7 +133,10 @@ class SearchWindow extends React.Component {
         } else {
             let resultItems = results.map((word, i) => {
                 return (
-                    <ListGroup.Item action href={'/word/' + word.id}>
+                    <ListGroup.Item 
+                        key={'word-list-' + word.id}
+                        action href={'/word/' + word.id}
+                    >
                         <WordSummary key={'word-' + i.toString()} word={word} />
                     </ListGroup.Item>
                 );

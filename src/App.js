@@ -1,7 +1,6 @@
 import React from 'react';
 import './App.css';
 import axios from 'axios';
-import { FACEBOOK_APP_ID, API_URL, API_KEY } from './env';
 import { 
   Button, Container, Navbar, Nav, Modal, Form
 } from 'react-bootstrap';
@@ -19,8 +18,10 @@ import {
   Switch, useParams, Route,
 } from "react-router-dom";
 
+const { REACT_APP_FACEBOOK_APP_ID, REACT_APP_API_URL, REACT_APP_API_KEY } = process.env;
+
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: REACT_APP_API_URL,
 })
 
 class App extends React.Component {
@@ -53,7 +54,7 @@ class App extends React.Component {
   handleLogin(response) {
     if (response) {
       api.get('/api/user/facebook_' + response.id, {
-        headers: {api_key: API_KEY}
+        headers: {api_key: REACT_APP_API_KEY}
       }).then(user => {
         this.setUser(user.data.result);
       }).catch(err => {
@@ -65,7 +66,7 @@ class App extends React.Component {
             'email': response.email,
             'created': new Date(),
             'type': 'USER',
-          }, {headers: {api_key: API_KEY}}).then(user => {
+          }, {headers: {api_key: REACT_APP_API_KEY}}).then(user => {
             this.setUser(user.data.result);
           }).catch(err => {
             console.error(err.response);
@@ -77,12 +78,13 @@ class App extends React.Component {
 
   randomWord(e) {
     api.get('/api/random/word', {
-      headers: {api_key: API_KEY},
+      headers: {api_key: REACT_APP_API_KEY},
       params: {
         is_paiute: true
       }
     }).then(res => {
       if (res.status == 200) {
+        console.log(res.data);
         window.location.href = '/word/' + res.data.result._id;
       } else {
         console.log(res.status, res.data);
@@ -175,7 +177,7 @@ class App extends React.Component {
         definition: addWordDef,
         part_of_speech: addWordPos.toUpperCase().replace(' ', '_'),
       },
-      {headers: {api_key: API_KEY}}
+      {headers: {api_key: REACT_APP_API_KEY}}
     ).then(res => {
       if (res.status == 200) {
         window.location.href = '/word/' + res.data.result._id;
@@ -223,7 +225,7 @@ class App extends React.Component {
       let user_id = cookie.load('user_id');
       if (user_id) {
         api.get('/api/user/' + user_id, {
-          headers: {api_key: API_KEY}
+          headers: {api_key: REACT_APP_API_KEY}
         }).then(user => {
           this.setUser(user.data.result);
         }).catch(err => {
@@ -234,7 +236,7 @@ class App extends React.Component {
           <Nav>
             <Nav.Item>
               <FacebookLogin
-                appId={FACEBOOK_APP_ID}
+                appId={REACT_APP_FACEBOOK_APP_ID}
                 fields="name,email,picture"
                 callback={response => this.handleLogin(response)}
                 cssClass="btn btn-default my-facebook-button-class"

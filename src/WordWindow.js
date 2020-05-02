@@ -6,12 +6,13 @@ import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons'
 
-import { API_URL, API_KEY } from './env';
 import UserType from './UserType';
 import PartOfSpeech from './PartOfSpeech';
 
+const { REACT_APP_API_URL, REACT_APP_API_KEY } = process.env;
+
 const api = axios.create({
-    baseURL: API_URL,
+    baseURL: REACT_APP_API_URL,
 });
 
 class WordWindow extends React.Component {
@@ -33,7 +34,7 @@ class WordWindow extends React.Component {
 
     getWord() {
         api.get('/api/word/' + this.props.wordId, {
-            headers: {api_key: API_KEY},
+            headers: {api_key: REACT_APP_API_KEY},
             params: {
                 populate: true,
             }
@@ -52,7 +53,7 @@ class WordWindow extends React.Component {
    
     getSuggestedSentences(word) {
         api.get('/api/search/sentence', {
-            headers: {api_key: API_KEY},
+            headers: {api_key: REACT_APP_API_KEY},
             params: {
                 query: word.text,
                 populate: true,
@@ -161,7 +162,7 @@ class WordWindow extends React.Component {
         }
 
         api.put('/api/word/' + this.props.wordId, body, {
-            headers: {api_key: API_KEY}
+            headers: {api_key: REACT_APP_API_KEY}
         }).then(res => {
             if (res.status == 200) {
                 next();
@@ -184,7 +185,7 @@ class WordWindow extends React.Component {
         let { definition } = this.state;
 
         api.put('/api/word/' + this.props.wordId + '/definition',
-            {'text': definition}, {headers: {api_key: API_KEY}}
+            {'text': definition}, {headers: {api_key: REACT_APP_API_KEY}}
         ).then(res => {
             if (res.status == 200) {
                 next();
@@ -207,7 +208,7 @@ class WordWindow extends React.Component {
         let { sentencesUpdates } = this.state;
         api.put('/api/sentence/' + sentenceId,
             {'text': sentencesUpdates[sentenceId]}, 
-            {headers: {api_key: API_KEY}}
+            {headers: {api_key: REACT_APP_API_KEY}}
         ).then(res => {
             if (res.status == 200) {
                 return next();
@@ -221,7 +222,7 @@ class WordWindow extends React.Component {
     removeSentence(sentenceId, next) {
         if (sentenceId == null) return;
         api.delete('/api/sentence/' + sentenceId,
-            {headers: {api_key: API_KEY}}
+            {headers: {api_key: REACT_APP_API_KEY}}
         ).then(res => {
             if (res.status == 200) {
                 return next();
@@ -430,7 +431,7 @@ class WordWindow extends React.Component {
         }
         api.post('/api/sentence', 
             {'paiute': '', 'english': ''},
-            {headers: {api_key: API_KEY}}
+            {headers: {api_key: REACT_APP_API_KEY}}
         ).then(res => {
             if (res.status == 200) {
                 let { word } = this.state;
@@ -441,7 +442,7 @@ class WordWindow extends React.Component {
                 let sentenceId = res.data.result.find(s => s.is_paiute==word.is_paiute)._id;
                 api.post('/api/word/' + this.props.wordId + '/sentence',
                     {sentence: sentenceId},
-                    {headers: {api_key: API_KEY}}
+                    {headers: {api_key: REACT_APP_API_KEY}}
                 ).then(res => {
                     if (res.status == 200) {
                         this.getWord();
