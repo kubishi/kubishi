@@ -163,7 +163,12 @@ class WordWindow extends React.Component {
         );
     }
 
-    saveWord(next) {
+    saveWord(next) { 
+        if (!this.canEdit()) {
+            console.error("This user cannot make edits!")
+            return;
+        }
+
         let { text, part_of_speech } = this.state;
         let body = {};
         if (this.hasTextChanged()) {
@@ -188,7 +193,12 @@ class WordWindow extends React.Component {
         }).catch(err => console.error(err));
     }
 
-    saveDefinition(next) {
+    saveDefinition(next) { 
+        if (!this.canEdit()) {
+            console.error("This user cannot make edits!")
+            return;
+        }
+
         if (!this.hasDefChanged()) {
             return next();
         }
@@ -206,7 +216,12 @@ class WordWindow extends React.Component {
         }).catch(err => console.error(err));
     }
 
-    saveSentence(sentenceId, next) {
+    saveSentence(sentenceId, next) { 
+        if (!this.canEdit()) {
+            console.error("This user cannot make edits!")
+            return;
+        }
+        
         if (!this.hasSentenceChanged(sentenceId)) {
             return next();
         }
@@ -431,6 +446,10 @@ class WordWindow extends React.Component {
     }
 
     addSentence() { 
+        if (!this.canEdit()) {
+            console.error("This user cannot make edits!")
+            return;
+        }
         api.post('/api/sentence', 
             {'paiute': '', 'english': ''},
             {headers: {api_key: API_KEY}}
