@@ -19,7 +19,6 @@ import {
 } from "react-router-dom";
 
 const { REACT_APP_FACEBOOK_APP_ID, REACT_APP_API_URL, REACT_APP_API_KEY } = process.env;
-console.log('REACT_APP_API_URL', REACT_APP_API_URL);
 
 const api = axios.create({
   baseURL: REACT_APP_API_URL,
@@ -44,29 +43,63 @@ class App extends React.Component {
       window.FB.logout();
     }
     cookie.remove('user_id',  { path: '/' });
+    cookie.remove('signed_request',  { path: '/' });
     this.setState({user: null});
   }
 
-  setUser(user) {
-    this.setState({user: user});
+  setUser(user, signed_request) {
+    cookie.save('signed_request', signed_request, { path: '/' });
     cookie.save('user_id', user.ids[0], { path: '/' });
+    this.setState({user: user});
+  }
+
+  getUser() {
+    let { user } = this.state;
+    let signed_request = cookie.load('signed_request');
+    let user_id = cookie.load('user_id');
+    if (signed_request == null || user_id == null) {
+      return null;
+    };
+
+    console.log()
+    if (user != null && user.ids.includes(user_id)) return user;
+    else console.log('here1');
+
+    api.get('/api/user/' + user_id,
+      {headers: {signed_request: signed_request}}
+    ).then(res => {
+      if (res.status == 200) {
+        this.setState({user: res.data.result});
+      } else {
+        console.log(res.status, res.data);
+      }
+    }).catch(err => console.error(err));
   }
 
   handleLogin(response) {
     if (response) {
-      api.get('/api/user/facebook_' + response.id).then(user => {
-        this.setUser(user.data.result);
+      let signed_request = response.signedRequest;
+
+      api.get('/api/user/facebook_' + response.id,
+        {headers: {signed_request: signed_request}}
+      ).then(user => {
+        this.setUser(user.data.result, signed_request);
       }).catch(err => {
-        console.error(err);
+        if (err.response == null) {
+          return console.error(err);
+        }
         if (err.response.status == 404) { // Create new user
-          api.post('/api/user', {
-            'id': 'facebook_' + response.id,
-            'name': response.name,
-            'email': response.email,
-            'created': new Date(),
-            'type': 'USER',
-          }).then(user => {
-            this.setUser(user.data.result);
+          api.post('/api/user', 
+            {
+              'id': 'facebook_' + response.id,
+              'name': response.name,
+              'email': response.email,
+              'created': new Date(),
+              'type': 'USER',
+            },
+            {headers: {signed_request: signed_request}}
+          ).then(user => {
+            this.setUser(user.data.result, signed_request);
           }).catch(err => {
             console.error(err.response);
           })
@@ -77,6 +110,7 @@ class App extends React.Component {
 
   randomWord(e) {
     api.get('/api/random/word', {
+      headers: {signed_request: cookie.load('signed_request')},
       params: {
         is_paiute: true
       }
@@ -174,7 +208,8 @@ class App extends React.Component {
         is_paiute: addWordPaiute == 'Paiute',
         definition: addWordDef,
         part_of_speech: addWordPos.toUpperCase().replace(' ', '_'),
-      }
+      },
+      {headers: {signed_request: cookie.load('signed_request')}}
     ).then(res => {
       if (res.status == 200) {
         window.location.href = '/word/' + res.data.result._id;
@@ -217,29 +252,20 @@ class App extends React.Component {
 
   render() {    
     let loginButton = null;
-    let { user } = this.state;
+    let user = this.getUser();
     if (user == null) {
-      let user_id = cookie.load('user_id');
-      if (user_id) {
-        api.get('/api/user/' + user_id).then(user => {
-          this.setUser(user.data.result);
-        }).catch(err => {
-          console.error(err);
-        });
-      } else {
-        loginButton = ( 
-          <Nav>
-            <Nav.Item>
-              <FacebookLogin
-                appId={REACT_APP_FACEBOOK_APP_ID}
-                fields="name,email,picture"
-                callback={response => this.handleLogin(response)}
-                cssClass="btn btn-default my-facebook-button-class"
-              />
-            </Nav.Item>
-          </Nav>
-        );
-      }
+      loginButton = ( 
+        <Nav>
+          <Nav.Item>
+            <FacebookLogin
+              appId={REACT_APP_FACEBOOK_APP_ID}
+              fields="name,email,picture"
+              callback={response => this.handleLogin(response)}
+              cssClass="btn btn-default my-facebook-button-class"
+            />
+          </Nav.Item>
+        </Nav>
+      );
     } else {
       loginButton = (
         <Nav>

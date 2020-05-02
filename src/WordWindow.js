@@ -8,6 +8,7 @@ import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons'
 
 import UserType from './UserType';
 import PartOfSpeech from './PartOfSpeech';
+import cookie from 'react-cookies';
 
 const { REACT_APP_API_URL, REACT_APP_API_KEY } = process.env;
 
@@ -34,6 +35,7 @@ class WordWindow extends React.Component {
 
     getWord() {
         api.get('/api/word/' + this.props.wordId, {
+            headers: {signedRequest: cookie.load('signedRequest')},
             params: {
                 populate: true,
             }
@@ -52,6 +54,7 @@ class WordWindow extends React.Component {
    
     getSuggestedSentences(word) {
         api.get('/api/search/sentence', {
+            headers: {signedRequest: cookie.load('signedRequest')},
             params: {
                 query: word.text,
                 populate: true,
@@ -159,7 +162,7 @@ class WordWindow extends React.Component {
             return next();
         }
 
-        api.put('/api/word/' + this.props.wordId, body).then(res => {
+        api.put('/api/word/' + this.props.wordId, body, {headers: {signedRequest: cookie.load('signedRequest')}}).then(res => {
             if (res.status == 200) {
                 next();
             } else {
@@ -181,7 +184,8 @@ class WordWindow extends React.Component {
         let { definition } = this.state;
 
         api.put('/api/word/' + this.props.wordId + '/definition',
-            {'text': definition}
+            {'text': definition},
+            {headers: {signedRequest: cookie.load('signedRequest')}}
         ).then(res => {
             if (res.status == 200) {
                 next();
@@ -203,7 +207,8 @@ class WordWindow extends React.Component {
 
         let { sentencesUpdates } = this.state;
         api.put('/api/sentence/' + sentenceId,
-            {'text': sentencesUpdates[sentenceId]}
+            {'text': sentencesUpdates[sentenceId]},
+            {headers: {signedRequest: cookie.load('signedRequest')}}
         ).then(res => {
             if (res.status == 200) {
                 return next();
@@ -216,7 +221,7 @@ class WordWindow extends React.Component {
 
     removeSentence(sentenceId, next) {
         if (sentenceId == null) return;
-        api.delete('/api/sentence/' + sentenceId).then(res => {
+        api.delete('/api/sentence/' + sentenceId, {headers: {signedRequest: cookie.load('signedRequest')}}).then(res => {
             if (res.status == 200) {
                 return next();
             } else {
@@ -423,7 +428,8 @@ class WordWindow extends React.Component {
             return;
         }
         api.post('/api/sentence', 
-            {'paiute': '', 'english': ''}
+            {'paiute': '', 'english': ''},
+            {headers: {signedRequest: cookie.load('signedRequest')}}
         ).then(res => {
             if (res.status == 200) {
                 let { word } = this.state;
@@ -433,7 +439,8 @@ class WordWindow extends React.Component {
                 }
                 let sentenceId = res.data.result.find(s => s.is_paiute==word.is_paiute)._id;
                 api.post('/api/word/' + this.props.wordId + '/sentence',
-                    {sentence: sentenceId}
+                    {sentence: sentenceId},
+                    {headers: {signedRequest: cookie.load('signedRequest')}}
                 ).then(res => {
                     if (res.status == 200) {
                         this.getWord();

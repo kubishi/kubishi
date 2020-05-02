@@ -9,6 +9,7 @@ import {
 import axios from 'axios';
 
 import './SearchWindow.css';
+import cookie from 'react-cookies';
 
 const { REACT_APP_API_URL, REACT_APP_API_KEY } = process.env;
 
@@ -100,7 +101,7 @@ class SearchWindow extends React.Component {
         }
 
         let config = { headers: this.defaultHeader(), params: params };
-        api.get(url, config).then(callback).catch(err => {
+        api.get(url, config, {headers: {signedRequest: cookie.load('signedRequest')}}).then(callback).catch(err => {
             console.error(err.result);
         });
     }
