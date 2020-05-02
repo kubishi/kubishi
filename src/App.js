@@ -19,6 +19,7 @@ import {
 } from "react-router-dom";
 
 const { REACT_APP_FACEBOOK_APP_ID, REACT_APP_API_URL, REACT_APP_API_KEY } = process.env;
+console.log('REACT_APP_API_URL', REACT_APP_API_URL);
 
 const api = axios.create({
   baseURL: REACT_APP_API_URL,
