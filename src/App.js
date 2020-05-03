@@ -12,6 +12,7 @@ import SearchWindow from './SearchWindow';
 import WordWindow from './WordWindow';
 import UserType from './UserType';
 import PartOfSpeech from './PartOfSpeech';
+import HttpsRedirect from 'react-https-redirect';
 
 import {
   BrowserRouter as Router,
@@ -315,20 +316,22 @@ class App extends React.Component {
     }
 
     return (
-      <Router>
-        <Container>
-          {addWordModal}
-          {navbar}
-          <Switch>
-            <Route path="/word/:id">
-              <WordWindowRoute getUser={() => this.state.user} />
-            </Route>
-            <Route path="/">
-              <SearchWindow getUser={() => this.state.user} />
-            </Route>
-          </Switch>
-        </Container>
-      </Router>
+      <HttpsRedirect>
+        <Router>
+          <Container>
+            {addWordModal}
+            {navbar}
+            <Switch>
+              <Route path="/word/:id">
+                <WordWindowRoute getUser={() => this.state.user} />
+              </Route>
+              <Route path="/">
+                <SearchWindow getUser={() => this.state.user} />
+              </Route>
+            </Switch>
+          </Container>
+        </Router>
+      </HttpsRedirect>
     );
   }
 }
