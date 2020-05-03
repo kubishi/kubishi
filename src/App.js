@@ -264,6 +264,7 @@ class App extends React.Component {
             <FacebookLogin
               appId={REACT_APP_FACEBOOK_APP_ID}
               fields="name,email,picture"
+              disableMobileRedirect={true}
               callback={response => this.handleLogin(response)}
               cssClass="btn btn-default my-facebook-button-class"
             />
