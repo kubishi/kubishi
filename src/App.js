@@ -14,6 +14,8 @@ import UserType from './UserType';
 import PartOfSpeech from './PartOfSpeech';
 import HttpsRedirect from 'react-https-redirect';
 
+import PrivacyPolicy from './PrivacyPolicy';
+
 import {
   BrowserRouter as Router,
   Switch, useParams, Route,
@@ -248,6 +250,10 @@ class App extends React.Component {
     );
   }
 
+  containerWrap(body) {
+
+  }
+
   render() {    
     let loginButton = null;
     let user = this.getUser();
@@ -320,15 +326,24 @@ class App extends React.Component {
         <Router>
           <Container>
             {addWordModal}
-            {navbar}
             <Switch>
               <Route path="/word/:id">
+                {navbar}
                 <WordWindowRoute getUser={() => this.state.user} />
               </Route>
+              <Route path="/privacy">
+                <PrivacyPolicy />
+              </Route>
               <Route path="/">
+                {navbar}
                 <SearchWindow getUser={() => this.state.user} />
               </Route>
             </Switch>
+            <Navbar fixed="bottom" >
+              <Nav>
+                <Nav.Link href="/privacy">Privacy Policy</Nav.Link>
+              </Nav>
+            </Navbar>
           </Container>
         </Router>
       </HttpsRedirect>
