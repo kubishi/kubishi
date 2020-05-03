@@ -73,7 +73,6 @@ class SearchWindow extends React.Component {
             url += '/definition';
             params.is_paiute = true;
             callback = res => {
-                console.log(res.status, res.data);
                 if (!res.data.success) {
                     this.setState({error: res.data.result, results: []});
                 } else if (res.data.result.length <= 0) {

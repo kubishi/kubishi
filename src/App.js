@@ -61,9 +61,7 @@ class App extends React.Component {
       return null;
     };
 
-    console.log()
     if (user != null && user.ids.includes(user_id)) return user;
-    else console.log('here1');
 
     api.get('/api/user/' + user_id,
       {headers: {signed_request: signed_request}}
@@ -116,7 +114,6 @@ class App extends React.Component {
       }
     }).then(res => {
       if (res.status == 200) {
-        console.log(res.data);
         window.location.href = '/word/' + res.data.result._id;
       } else {
         console.log(res.status, res.data);
