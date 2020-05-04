@@ -564,13 +564,11 @@ class WordWindow extends React.Component {
 
         let wordBody = (
             <Row>
-                <Col 
-                    xs={4}
-                    style={{'paddingRight': '20px', 'borderRight': '1px solid #ccc'}}
-                >
+                <Col sm={12} md={4} >
                     {editMode ? this.wordForm(word) : this.wordSimple(word)}
                     {relatedWordsList}
                 </Col>
+                <Col xs={0} style={{'paddingRight': '20px', 'borderRight': '1px solid #ccc'}} className='d-none d-md-block d-xl-block'></Col>
                 <Col>
                     {addSentenceButton}
                     {sentencesList}

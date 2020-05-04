@@ -23,14 +23,12 @@ class WordSummary extends React.Component {
         part_of_speech = part_of_speech.toLowerCase().replace('_', ' ');
         return (
             <Row>
-                <Col
-                    xs={4}
-                    style={{'paddingRight': '20px', 'borderRight': '1px solid #ccc'}}
-                    className='text-right align-self-center'
-                >
+                <Col sm={12} md={4} className='text-right align-self-center' >
                     <h5>{text}</h5>
                     <em>{part_of_speech}</em>
+                    <span></span>
                 </Col>
+                <Col xs={0} style={{'paddingRight': '20px', 'borderRight': '1px solid #ccc'}} className='d-none d-md-block d-xl-block'></Col>
                 <Col className='align-self-center'>
                     <p>{definition.text}</p>
                 </Col>
