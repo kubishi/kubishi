@@ -4,7 +4,7 @@
 import React from 'react';
 import { 
   Button, Row, Col, InputGroup, FormControl,
-  ListGroup, DropdownButton, Dropdown,
+  ListGroup, DropdownButton, Dropdown, ButtonGroup
 } from 'react-bootstrap';
 import axios from 'axios';
 
@@ -43,7 +43,7 @@ class SearchWindow extends React.Component {
     constructor(props) {
         super(props);
 
-        this.buttons = ['Paiute', 'English Word', 'Definition'];
+        this.buttons = ['Definition', 'Paiute', 'English Word'];
         this.state = {
             searchType: this.buttons[0],
             query: null,
@@ -120,13 +120,13 @@ class SearchWindow extends React.Component {
         let buttons = this.buttons.map((name, i) => {
             let key = 'search-' + name.toLowerCase().replace(' ', '-');
             return (
-                <Dropdown.Item 
-                    key={key} 
-                    onClick={e => this.setState({'searchType': name})}
-                    variant={searchType == name ? 'secondary' : 'outline-secondary'}
+                <Button 
+                    className='w-100'
+                    onClick={e => this.setState({'searchType': name}, () => this.handleSearch(e))}
+                    variant={searchType == name ? 'primary' : 'outline-primary'}
                 >
                     {name}
-                </Dropdown.Item>
+                </Button>
             );
         });
 
@@ -153,17 +153,18 @@ class SearchWindow extends React.Component {
 
         return (
             <div className='m-3'>
-                <Row>
+                <Row className="mb-2">
                     <Col>
-                        <InputGroup className="mb-3">
-                            <DropdownButton
-                                as={InputGroup.Prepend}
-                                variant="outline-secondary"
-                                title={this.state.searchType}
-                                id="input-group-dropdown-1"
-                            >
-                                {buttons}
-                            </DropdownButton>
+                    <ButtonGroup
+                        className='d-flex'
+                    >
+                        {buttons}
+                    </ButtonGroup>
+                    </Col>
+                </Row>
+                <Row className="mb-3">
+                    <Col>
+                        <InputGroup>
                             <FormControl
                                 placeholder="Search..."
                                 aria-label="Search"

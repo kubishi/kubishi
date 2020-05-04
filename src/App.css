@@ -38,11 +38,11 @@
 }
 
 .my-facebook-button-class {
-  background: #3b5998;
-  color:white;
+  background: #3b5998 !important;
+  color:white !important;
 }
 
 .my-facebook-button-class :hover {
-  background: #3b5998;
-  opacity: 0.6;
+  background: #3b5998 !important;
+  opacity: 0.6 !important;
 }
