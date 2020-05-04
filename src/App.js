@@ -355,6 +355,9 @@ class App extends React.Component {
               <Nav>
                 <Nav.Link href="/privacy">Privacy Policy</Nav.Link>
               </Nav>
+              <Nav>
+                <Nav.Link href="mailto:help@kubishi.com">Contact</Nav.Link>
+              </Nav>
             </Navbar>
           </Container>
         </Router>
