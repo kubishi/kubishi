@@ -165,6 +165,7 @@ class SearchWindow extends React.Component {
                         <InputGroup>
                             <FormControl
                                 placeholder="Search..."
+                                autoFocus
                                 aria-label="Search"
                                 aria-describedby="search-text"
                                 onKeyPress={e => this.handleSearchKeyPress(e)}
