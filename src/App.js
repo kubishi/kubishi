@@ -15,6 +15,7 @@ import PartOfSpeech from './PartOfSpeech';
 import HttpsRedirect from 'react-https-redirect';
 
 import PrivacyPolicy from './PrivacyPolicy';
+import About from './About';
 
 import {
   BrowserRouter as Router,
@@ -305,6 +306,12 @@ class App extends React.Component {
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Navbar.Collapse id="basic-navbar-nav">
         <Nav className="mr-auto">
+          <Nav.Item>
+            <Nav.Link href='/'>Search</Nav.Link>
+          </Nav.Item>
+          <Nav.Item>
+            <Nav.Link href='/about'>About</Nav.Link>
+          </Nav.Item>
           <Nav.Item onClick={e => this.randomWord(e)}>
             <Nav.Link>
               Random Word!
@@ -325,7 +332,7 @@ class App extends React.Component {
     return (
       <HttpsRedirect>
         <Router>
-          <Container>
+          <Container style={{paddingBottom: '65px'}}>
             {addWordModal}
             <Switch>
               <Route path="/word/:id">
@@ -335,12 +342,16 @@ class App extends React.Component {
               <Route path="/privacy">
                 <PrivacyPolicy />
               </Route>
+              <Route path="/about">
+                {navbar}
+                <About />
+              </Route>
               <Route path="/">
                 {navbar}
                 <SearchWindow getUser={() => this.state.user} />
               </Route>
             </Switch>
-            <Navbar fixed="bottom" >
+            <Navbar fixed="bottom" style={{opacity: "1", backgroundColor: "white"}} >
               <Nav>
                 <Nav.Link href="/privacy">Privacy Policy</Nav.Link>
               </Nav>
