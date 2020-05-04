@@ -9,9 +9,8 @@ import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons'
 import UserType from './UserType';
 import PartOfSpeech from './PartOfSpeech';
 import cookie from 'react-cookies';
-import { Helmet } from 'react-helmet';
 
-const { REACT_APP_API_URL, REACT_APP_API_KEY } = process.env;
+const { REACT_APP_API_URL } = process.env;
 
 const api = axios.create({
     baseURL: REACT_APP_API_URL,
@@ -569,12 +568,6 @@ class WordWindow extends React.Component {
         );
         return (
             <Row className='m-3'>
-                <Helmet>
-                    <meta property="og:title" content={`Kubishi - ${word.text}`} />
-                    <meta property="og:site_name" content={`kubishi.com/word/${word._id}`} />
-                    <meta property="og:description" content={word.definition.text} />
-                    <meta name="description" content={word.definition.text} />
-                </Helmet>
                 <Col>
                     {this.getDeleteSentenceModal()}
                     {wordBody}

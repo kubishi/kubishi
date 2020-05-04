@@ -4,7 +4,6 @@ import axios from 'axios';
 import { 
   Button, Container, Navbar, Nav, Modal, Form
 } from 'react-bootstrap';
-import { Helmet } from 'react-helmet';
 
 import cookie from 'react-cookies';
 
@@ -23,7 +22,7 @@ import {
   Switch, useParams, Route,
 } from "react-router-dom";
 
-const { REACT_APP_FACEBOOK_APP_ID, REACT_APP_API_URL, REACT_APP_API_KEY } = process.env;
+const { REACT_APP_FACEBOOK_APP_ID, REACT_APP_API_URL } = process.env;
 
 const api = axios.create({
   baseURL: REACT_APP_API_URL,
@@ -334,12 +333,6 @@ class App extends React.Component {
       <HttpsRedirect>
         <Router>
           <Container style={{paddingBottom: '65px'}}>
-            <Helmet>
-              <meta name="description" content="Kubishi - The online dictionary for the Owen's Valley Paiute language."/>
-              <meta property="og:title" content="Kubishi" />
-              <meta property="og:site_name" content="kubishi.com" />
-              <meta property="og:description" content="Kubishi - The online dictionary for the Owen's Valley Paiute language." />
-            </Helmet>
             {addWordModal}
             <Switch>
               <Route path="/word/:id">
