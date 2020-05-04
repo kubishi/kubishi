@@ -41,6 +41,10 @@ class App extends React.Component {
     }
   }
 
+  componentDidMount() {
+    this.getUser();
+  }
+
   handleLogout(e) {
     e.preventDefault();
     if (window.FB) {
@@ -62,10 +66,12 @@ class App extends React.Component {
     let signed_request = cookie.load('signed_request');
     let user_id = cookie.load('user_id');
     if (signed_request == null || user_id == null) {
-      return null;
+      this.setState({user: false});
     };
 
-    if (user != null && user.ids.includes(user_id)) return user;
+    if (user != null && user.ids.includes(user_id)) {
+      this.setState({user: user});
+    }
 
     api.get('/api/user/' + user_id,
       {headers: {signed_request: signed_request}}
@@ -74,8 +80,12 @@ class App extends React.Component {
         this.setState({user: res.data.result});
       } else {
         console.log(res.status, res.data);
+        this.setState({user: false});
       }
-    }).catch(err => console.error(err));
+    }).catch(err => {
+      console.error(err);
+      this.setState({user: false});
+    });
   }
 
   handleLogin(response) {
@@ -257,8 +267,8 @@ class App extends React.Component {
 
   render() {    
     let loginButton = null;
-    let user = this.getUser();
-    if (user == null) {
+    let { user } = this.state;
+    if (user == false) {
       loginButton = ( 
         <Nav>
           <Nav.Item>
@@ -272,7 +282,7 @@ class App extends React.Component {
           </Nav.Item>
         </Nav>
       );
-    } else {
+    } else if (user != null) {
       loginButton = (
         <Nav>
           <Nav.Item>
