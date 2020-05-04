@@ -152,17 +152,14 @@ class WordWindow extends React.Component {
 
         let { text, part_of_speech } = this.state;
         let body = {};
-        if (this.hasTextChanged()) {
+        if (text != null) {
             body.text = text;
         }
-        if (this.hasPosChanged()) {
+        if (part_of_speech != null) {
             body.part_of_speech = part_of_speech;
         }
 
-        if (Object.keys(body).length <= 0) {
-            return next();
-        }
-
+        if (Object.keys(body).length <= 0) return next(); // no update
         api.put('/api/word/' + this.props.wordId, body, {headers: {signed_request: cookie.load('signed_request')}}).then(res => {
             if (res.status == 200) {
                 next();
@@ -178,12 +175,8 @@ class WordWindow extends React.Component {
             return;
         }
 
-        if (!this.hasDefChanged()) {
-            return next();
-        }
-
         let { definition } = this.state;
-
+        if (definition == null) return next(); // no update
         api.put('/api/word/' + this.props.wordId + '/definition',
             {'text': definition},
             {headers: {signed_request: cookie.load('signed_request')}}
@@ -202,11 +195,8 @@ class WordWindow extends React.Component {
             return;
         }
 
-        if (!this.hasSentenceChanged(sentenceId)) {
-            return next();
-        }
-
         let { sentencesUpdates } = this.state;
+        if (sentencesUpdates[sentenceId] == null) return next(); // Exit
         api.put('/api/sentence/' + sentenceId,
             {'text': sentencesUpdates[sentenceId]},
             {headers: {signed_request: cookie.load('signed_request')}}
