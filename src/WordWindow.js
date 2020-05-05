@@ -10,6 +10,8 @@ import UserType from './UserType';
 import PartOfSpeech from './PartOfSpeech';
 import cookie from 'react-cookies';
 
+import { remove_punctuation } from './helpers';
+
 const { REACT_APP_API_URL } = process.env;
 
 const api = axios.create({
@@ -36,9 +38,6 @@ class WordWindow extends React.Component {
     getWord() {
         api.get('/api/word/' + this.props.wordId, {
             headers: {signed_request: cookie.load('signed_request')},
-            params: {
-                populate: true,
-            }
         }).then(res => {
             if (res.status == 200) {
                 this.setState({word: res.data.result});
@@ -56,9 +55,8 @@ class WordWindow extends React.Component {
         api.get('/api/search/sentence', {
             headers: {signed_request: cookie.load('signed_request')},
             params: {
-                query: word.text,
-                populate: true,
-                is_paiute: true,
+                query: remove_punctuation(word.text),
+                language: 'paiute',
                 mode: 'contains',
             }
         }).then(res => {
@@ -103,8 +101,8 @@ class WordWindow extends React.Component {
         if (sentenceToRemove != null) {
             body = (
                 <div>
-                    <b>{sentenceToRemove.text}</b>
-                    <p>{sentenceToRemove.translation.text}</p>
+                    <b>{sentenceToRemove.english}</b>
+                    <p>{sentenceToRemove.paiute}</p>
                 </div>
             );
         }
@@ -149,35 +147,15 @@ class WordWindow extends React.Component {
             return;
         }
 
-        let { text, part_of_speech } = this.state;
+        let { text, part_of_speech, definition } = this.state;
         let body = {};
-        if (text != null) {
-            body.text = text;
-        }
-        if (part_of_speech != null) {
-            body.part_of_speech = part_of_speech;
-        }
+        if (text != null) body.text = text;
+        if (part_of_speech != null) body.part_of_speech = part_of_speech;
+        if (definition != null) body.definition = definition;
 
         if (Object.keys(body).length <= 0) return next(); // no update
-        api.put('/api/word/' + this.props.wordId, body, {headers: {signed_request: cookie.load('signed_request')}}).then(res => {
-            if (res.status == 200) {
-                next();
-            } else {
-                console.log(res.status, res.data);
-            }
-        }).catch(err => console.error(err));
-    }
-
-    saveDefinition(next) { 
-        if (!this.canEdit()) {
-            console.error("This user cannot make edits!")
-            return;
-        }
-
-        let { definition } = this.state;
-        if (definition == null) return next(); // no update
-        api.put('/api/word/' + this.props.wordId + '/definition',
-            {'text': definition},
+        api.put('/api/word/' + this.props.wordId, 
+            body, 
             {headers: {signed_request: cookie.load('signed_request')}}
         ).then(res => {
             if (res.status == 200) {
@@ -195,9 +173,13 @@ class WordWindow extends React.Component {
         }
 
         let { sentencesUpdates } = this.state;
-        if (sentencesUpdates[sentenceId] == null) return next(); // Exit
+        if (sentencesUpdates[sentenceId] == null) return next(); // No update
+        let body = {};
+        if (sentencesUpdates[sentenceId].paiute) body.paiute = sentencesUpdates[sentenceId].paiute;
+        if (sentencesUpdates[sentenceId].english) body.english = sentencesUpdates[sentenceId].english;
+        if (!body) return next(); // No update
         api.put('/api/sentence/' + sentenceId,
-            {'text': sentencesUpdates[sentenceId]},
+            body,
             {headers: {signed_request: cookie.load('signed_request')}}
         ).then(res => {
             if (res.status == 200) {
@@ -211,7 +193,9 @@ class WordWindow extends React.Component {
 
     removeSentence(sentenceId, next) {
         if (sentenceId == null) return;
-        api.delete('/api/sentence/' + sentenceId, {headers: {signed_request: cookie.load('signed_request')}}).then(res => {
+        api.delete('/api/sentence/' + sentenceId, 
+            {headers: {signed_request: cookie.load('signed_request')}}
+        ).then(res => {
             if (res.status == 200) {
                 return next();
             } else {
@@ -233,28 +217,31 @@ class WordWindow extends React.Component {
      * @param {String} sentenceId 
      * @param {String} value 
      */
-    changeSentence(sentenceId, value) {
+    changeSentence(language, sentenceId, value) {
         let { sentencesUpdates } = this.state;
-        sentencesUpdates[sentenceId] = value;
+        if (!sentencesUpdates[sentenceId]) {
+            sentencesUpdates[sentenceId] = {}
+        }
+        sentencesUpdates[sentenceId][language] = value;
         this.setState({sentencesUpdates: sentencesUpdates});
     }
 
     sentenceForm(sentence, i) {
-        let hasChanged = this.hasSentenceChanged(sentence._id) || this.hasSentenceChanged(sentence.translation._id);
+        let hasChanged = this.hasSentenceChanged(sentence._id);
         return (
             <Form>
 
-                <Form.Group controlId={`form-sentence-${i}`}>
-                    <Form.Label>Sentence</Form.Label>
-                    <Form.Control as="textarea" defaultValue={sentence.text} 
-                        onChange={e => this.changeSentence(sentence._id, e.target.value)}
+                <Form.Group controlId={`form-sentence-paiute-${i}`}>
+                    <Form.Label>Paiute</Form.Label>
+                    <Form.Control as="textarea" defaultValue={sentence.english} 
+                        onChange={e => this.changeSentence('paiute', sentence._id, e.target.value)}
                     />
                 </Form.Group>
 
-                <Form.Group controlId={`form-translation-${i}`}>
-                    <Form.Label>Translation</Form.Label>
-                    <Form.Control as="textarea" defaultValue={sentence.translation.text} 
-                        onChange={e => this.changeSentence(sentence.translation._id, e.target.value)}
+                <Form.Group controlId={`form-sentence-english-${i}`}>
+                    <Form.Label>English</Form.Label>
+                    <Form.Control as="textarea" defaultValue={sentence.paiute} 
+                        onChange={e => this.changeSentence('english', sentence._id, e.target.value)}
                     />
                 </Form.Group>
 
@@ -264,13 +251,7 @@ class WordWindow extends React.Component {
                         href='#'
                         className='w-100'
                         disabled={!hasChanged}
-                        onClick={e => {
-                            this.saveSentence(sentence._id, () => {
-                                this.saveSentence(sentence.translation._id, () => {
-                                    this.getWord();
-                                });
-                            });
-                        }}
+                        onClick={e => this.saveSentence(sentence._id, () => this.getWord())}
                     >
                         Save
                     </Button>
@@ -294,8 +275,8 @@ class WordWindow extends React.Component {
     sentenceSimple(sentence, id) {
         return (
             <div>
-                <b>{sentence.text}</b>
-                <p>{sentence.translation.text}</p>
+                <b>{sentence.english}</b>
+                <p>{sentence.paiute}</p>
             </div>  
         );
     }
@@ -333,7 +314,7 @@ class WordWindow extends React.Component {
 
                     <Form.Group controlId='formDefinition'>
                         <Form.Label>Definition</Form.Label>
-                        <Form.Control as="textarea" defaultValue={word.definition.text} 
+                        <Form.Control as="textarea" defaultValue={word.definition} 
                             onChange={e => this.changeDefinition(e.target.value)}
                         />
                     </Form.Group>
@@ -342,13 +323,7 @@ class WordWindow extends React.Component {
                             variant={hasChanged ? 'outline-primary' : 'outline-secondary'} 
                             block href='#'
                             disabled={!hasChanged}
-                            onClick={e => {
-                                this.saveWord(() => {
-                                    this.saveDefinition(() => {
-                                        this.getWord();
-                                    });
-                                });
-                            }}
+                            onClick={e => this.saveWord(() => this.getWord())}
                         >Save</Button>
                 </Form>
             </div>
@@ -361,7 +336,7 @@ class WordWindow extends React.Component {
             <div>
                 <h4>{word.text}</h4>
                 <p><em>{part_of_speech_option}</em></p>
-                <p>{word.definition.text}</p>
+                <p>{word.definition}</p>
             </div>
         );
     }
@@ -378,7 +353,7 @@ class WordWindow extends React.Component {
 
     hasDefChanged() {
         let { word, definition } = this.state;
-        return definition != null && definition != word.definition.text;
+        return definition != null && definition != word.definition;
     }
 
     hasSentenceChanged(sentenceId) {
@@ -387,13 +362,13 @@ class WordWindow extends React.Component {
         let sentence = all_sentences.find(sentence => sentence._id == sentenceId);
         let sentenceText;
         if (sentence == null) {
-            sentence = all_sentences.find(sentence => sentence.translation._id == sentenceId);
+            sentence = all_sentences.find(sentence => sentence._id == sentenceId);
             if (sentence == null) { // no matching sentence found
                 return false;
             }
-            sentenceText = sentence.translation.text;
+            sentenceText = sentence.paiute;
         } else {
-            sentenceText = sentence.text;
+            sentenceText = sentence.english;
         }
         return sentencesUpdates[sentenceId] != null && sentencesUpdates[sentenceId] != sentenceText;
     }
@@ -421,15 +396,16 @@ class WordWindow extends React.Component {
             {'paiute': '', 'english': ''},
             {headers: {signed_request: cookie.load('signed_request')}}
         ).then(res => {
-            if (res.status == 200) {
+            if (res.status != 200 || res.data.success == false) {
+                console.log(res.status, res.data);
+            } else {
                 let { word } = this.state;
                 if (word == null) {
                     console.error('Cannot add sentence to invalid word.');
                     return;
                 }
-                let sentenceId = res.data.result.find(s => s.is_paiute==word.is_paiute)._id;
                 api.post('/api/word/' + this.props.wordId + '/sentence',
-                    {sentence: sentenceId},
+                    {sentence: res.data.result._id},
                     {headers: {signed_request: cookie.load('signed_request')}}
                 ).then(res => {
                     if (res.status == 200) {
@@ -438,8 +414,6 @@ class WordWindow extends React.Component {
                         console.log(res.status, res.data);
                     }
                 }).catch(err => console.error(err));
-            } else {
-                console.log(res.status, res.data);
             }
         }).catch(err => {
             console.error(err);

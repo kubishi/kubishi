@@ -67,10 +67,12 @@ class App extends React.Component {
     let user_id = cookie.load('user_id');
     if (signed_request == null || user_id == null) {
       this.setState({user: false});
+      return;
     };
 
     if (user != null && user.ids.includes(user_id)) {
       this.setState({user: user});
+      return;
     }
 
     api.get('/api/user/' + user_id,
@@ -122,9 +124,6 @@ class App extends React.Component {
   randomWord(e) {
     api.get('/api/random/word', {
       headers: {signed_request: cookie.load('signed_request')},
-      params: {
-        is_paiute: true
-      }
     }).then(res => {
       if (res.status == 200) {
         window.location.href = '/word/' + res.data.result._id;
@@ -215,9 +214,10 @@ class App extends React.Component {
     api.post('/api/word', 
       {
         text: addWordText,
-        is_paiute: addWordPaiute == 'Paiute',
         definition: addWordDef,
         part_of_speech: addWordPos.toUpperCase().replace(' ', '_'),
+        sentences: [],
+        words: []
       },
       {headers: {signed_request: cookie.load('signed_request')}}
     ).then(res => {

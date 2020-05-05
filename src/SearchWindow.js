@@ -10,8 +10,9 @@ import axios from 'axios';
 
 import './SearchWindow.css';
 import cookie from 'react-cookies';
+import { remove_punctuation } from './helpers';
 
-const { REACT_APP_API_URL, REACT_APP_API_KEY } = process.env;
+const { REACT_APP_API_URL } = process.env;
 
 const api = axios.create({
     baseURL: REACT_APP_API_URL,
@@ -30,7 +31,7 @@ class WordSummary extends React.Component {
                 </Col>
                 <Col xs={0} style={{'paddingRight': '20px', 'borderRight': '1px solid #ccc'}} className='d-none d-md-block d-xl-block'></Col>
                 <Col className='align-self-center'>
-                    <p>{definition.text}</p>
+                    <p>{definition}</p>
                 </Col>
             </Row>
         );
@@ -41,7 +42,7 @@ class SearchWindow extends React.Component {
     constructor(props) {
         super(props);
 
-        this.buttons = ['Definition', 'Paiute', 'English Word'];
+        this.buttons = ['English', 'Paiute'];
         this.state = {
             searchType: this.buttons[0],
             query: null,
@@ -50,60 +51,29 @@ class SearchWindow extends React.Component {
         };
     }
 
-    defaultHeader() {
-        let default_header = {REACT_APP_API_KEY: REACT_APP_API_KEY};
-        let user = this.props.getUser();
-        if (user) {
-            default_header.user_id = user.ids[0];
-        }
-        return default_header;
-    }
-
     handleSearch(e) {
-        let { query } = this.state;
+        let { query, searchType } = this.state;
         if (query == null) return;
 
-        let url = '/api/search';
-        let params = { query: query, mode: 'fuzzy', populate: "true" };
-        let callback;
-
-        if (this.state.searchType == "Definition") {
-            url += '/definition';
-            params.is_paiute = true;
-            callback = res => {
-                if (!res.data.success) {
-                    this.setState({error: res.data.result, results: []});
-                } else if (res.data.result.length <= 0) {
-                    this.setState({error: 'No Matches!', results: []});
-                } else {
-                    let results = res.data.result
-                        .filter(definition => definition != null && definition.word != null)
-                        .map((definition, i) => {
-                            let word = definition.word;
-                            word.definition = definition;
-                            return word;
-                        });
-                    this.setState({error: null, results: results});
-                }
-            };
-        } else {
-            url += '/word';
-            params.is_paiute = this.state.searchType == "Paiute";
-            callback = res => {
-                if (!res.data.success) {
-                    this.setState({error: res.data.result, results: []});
-                } else if (res.data.result.length <= 0) {
-                    this.setState({error: 'No Matches!', results: []});
-                } else {
-                    this.setState({error: null, results: res.data.result});
-                }
-            };
-        }
-
-        let config = { headers: this.defaultHeader(), params: params };
-        api.get(url, config, {headers: {signed_request: cookie.load('signed_request')}}).then(callback).catch(err => {
-            console.error(err.result);
-        });
+        api.get('/api/search/word', 
+            {
+                params: { 
+                    query: remove_punctuation(query), 
+                    mode: 'fuzzy', 
+                    language: searchType.toLowerCase()
+                },
+                headers: {signed_request: cookie.load('signed_request'),
+            }
+        }).then(res => {
+            if (res.status != 200 || !res.data.success) {
+                console.log(res.status, res.data);
+                this.setState({error: res.data.result, results: []});
+            } else if (res.data.result.length <= 0) {
+                this.setState({error: 'No Matches!', results: []});
+            } else {
+                this.setState({error: null, results: res.data.result});
+            }
+        }).catch(err => console.error(err));
     }
 
     handleSearchKeyPress(e) {
@@ -116,10 +86,10 @@ class SearchWindow extends React.Component {
         let { searchType, results, error } = this.state;
 
         let buttons = this.buttons.map((name, i) => {
-            let key = 'search-' + name.toLowerCase().replace(' ', '-');
             return (
                 <Button 
                     className='w-100'
+                    key={'search-' + name.toLowerCase().replace(' ', '-')}
                     onClick={e => this.setState({'searchType': name}, () => this.handleSearch(e))}
                     variant={searchType == name ? 'primary' : 'outline-primary'}
                 >
@@ -135,8 +105,8 @@ class SearchWindow extends React.Component {
             let resultItems = results.map((word, i) => {
                 return (
                     <ListGroup.Item 
-                        key={'word-list-' + word.id}
-                        action href={'/word/' + word.id}
+                        key={'word-list-' + word._id}
+                        action href={'/word/' + word._id}
                     >
                         <WordSummary key={'word-' + i.toString()} word={word} />
                     </ListGroup.Item>
