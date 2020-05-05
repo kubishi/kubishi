@@ -21,6 +21,7 @@ import {
   BrowserRouter as Router,
   Switch, useParams, Route,
 } from "react-router-dom";
+import Pronunciation from './Pronunciation';
 
 const { REACT_APP_FACEBOOK_APP_ID, REACT_APP_API_URL } = process.env;
 
@@ -151,19 +152,6 @@ class App extends React.Component {
     });
     return (
       <Form>
-        
-        <Form.Group controlId='formAddLanguage'>
-              <Form.Label>Language</Form.Label>
-              <Form.Control 
-                  as="select" 
-                  defaultValue='Paiute' 
-                  onChange={e => {this.setState({addWordPaiute: e.target.value})}}
-              >
-                <option key='formAddPaiuteOption'>Paiute</option>
-                <option key='formAddEnglishOption'>English</option>
-              </Form.Control>
-          </Form.Group>
-
           <Form.Group controlId='formAddWord'>
               <Form.Label>Word</Form.Label>
               <Form.Control 
@@ -321,6 +309,9 @@ class App extends React.Component {
           <Nav.Item>
             <Nav.Link href='/about'>About</Nav.Link>
           </Nav.Item>
+          <Nav.Item>
+            <Nav.Link href='/pronunciation'>Pronunciation Guide</Nav.Link>
+          </Nav.Item>
           <Nav.Item onClick={e => this.randomWord(e)}>
             <Nav.Link>
               Random Word!
@@ -354,6 +345,10 @@ class App extends React.Component {
               <Route path="/about">
                 {navbar}
                 <About />
+              </Route>
+              <Route path="/pronunciation">
+                {navbar}
+                <Pronunciation />
               </Route>
               <Route path="/">
                 {navbar}
