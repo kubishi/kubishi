@@ -275,8 +275,8 @@ class WordWindow extends React.Component {
     sentenceSimple(sentence, id) {
         return (
             <div>
-                <b>{sentence.english}</b>
-                <p>{sentence.paiute}</p>
+                <b>{sentence.paiute}</b>
+                <p>{sentence.english}</p>
             </div>  
         );
     }
