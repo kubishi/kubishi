@@ -52,7 +52,7 @@ class App extends React.Component {
     }
     cookie.remove('user_id',  { path: '/' });
     cookie.remove('signed_request',  { path: '/' });
-    this.setState({user: null});
+    this.setState({user: false});
   }
 
   setUser(user, signed_request) {
@@ -88,35 +88,34 @@ class App extends React.Component {
     });
   }
 
+  createUser(user_id, user_name, user_email, signed_request) {
+    api.post('/api/user', 
+      {
+        'id': user_id,
+        'name': user_name,
+        'email': user_email,
+        'created': new Date(),
+        'type': 'USER',
+      },
+      {headers: {signed_request: signed_request}}
+    ).then(user => {
+      this.setUser(user.data.result, signed_request);
+    }).catch(err => console.error(err));
+  }
+
   handleLogin(response) {
     if (response) {
       let signed_request = response.signedRequest;
 
-      api.get('/api/user' + response.id,
+      api.get('/api/user/' + response.id,
         {headers: {signed_request: signed_request}}
-      ).then(user => {
-        this.setUser(user.data.result, signed_request);
-      }).catch(err => {
-        if (err.response == null) {
-          return console.error(err);
+      ).then(res => {
+        if (res.status == 200) {
+          this.setUser(res.data.result, signed_request);
+        } else if (res.status == 404) {
+          this.createUser(response.id, response.name, response.email, signed_request);
         }
-        if (err.response.status == 404) { // Create new user
-          api.post('/api/user', 
-            {
-              'id': response.id,
-              'name': response.name,
-              'email': response.email,
-              'created': new Date(),
-              'type': 'USER',
-            },
-            {headers: {signed_request: signed_request}}
-          ).then(user => {
-            this.setUser(user.data.result, signed_request);
-          }).catch(err => {
-            console.error(err.response);
-          })
-        }
-      });
+      }).catch(err => console.error(err));
     }
   }
 
