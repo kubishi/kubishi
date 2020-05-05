@@ -233,14 +233,14 @@ class WordWindow extends React.Component {
 
                 <Form.Group controlId={`form-sentence-paiute-${i}`}>
                     <Form.Label>Paiute</Form.Label>
-                    <Form.Control as="textarea" defaultValue={sentence.english} 
+                    <Form.Control as="textarea" defaultValue={sentence.paiute} 
                         onChange={e => this.changeSentence('paiute', sentence._id, e.target.value)}
                     />
                 </Form.Group>
 
                 <Form.Group controlId={`form-sentence-english-${i}`}>
                     <Form.Label>English</Form.Label>
-                    <Form.Control as="textarea" defaultValue={sentence.paiute} 
+                    <Form.Control as="textarea" defaultValue={sentence.english} 
                         onChange={e => this.changeSentence('english', sentence._id, e.target.value)}
                     />
                 </Form.Group>
