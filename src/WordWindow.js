@@ -358,19 +358,18 @@ class WordWindow extends React.Component {
 
     hasSentenceChanged(sentenceId) {
         let { sentencesUpdates, word, suggestedSentences } = this.state;
+
+        // Updated sentence
+        let sentence = sentencesUpdates[sentenceId];
+        if (!sentence) return false; // sentence not
+
+        // Current sentence (as in DB)
         let all_sentences = word.sentences.concat(suggestedSentences);
-        let sentence = all_sentences.find(sentence => sentence._id == sentenceId);
-        let sentenceText;
-        if (sentence == null) {
-            sentence = all_sentences.find(sentence => sentence._id == sentenceId);
-            if (sentence == null) { // no matching sentence found
-                return false;
-            }
-            sentenceText = sentence.paiute;
-        } else {
-            sentenceText = sentence.english;
-        }
-        return sentencesUpdates[sentenceId] != null && sentencesUpdates[sentenceId] != sentenceText;
+        let cur_sentence = all_sentences.find(sentence => sentence._id == sentenceId);
+        if (!cur_sentence) return false; // sentence doesn't exist?
+
+        console.log(sentence.paiute, cur_sentence.paiute,  sentence.english,  cur_sentence.english);
+        return sentence.paiute != cur_sentence.paiute || sentence.english != cur_sentence.english;
     }
 
     hasAnySentenceChanged() {
