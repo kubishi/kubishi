@@ -435,12 +435,10 @@ class WordWindow extends React.Component {
         }
 
         let sentenceIds = word.sentences.map((sentence, i) => sentence._id);
-        let sentences = word.sentences
-            .sort((a, b) => ((a.text == null ? 0 : a.text.length) - (b.text == null ? 0 : b.text.length)))
-            .map((sentence, i) => {
-                let listItems = editMode ? this.sentenceForm(sentence, i) : this.sentenceSimple(sentence, i);
-                return <ListGroup.Item key={'sentence-' + sentence._id}>{listItems}</ListGroup.Item>;
-            });
+        let sentences = word.sentences.map((sentence, i) => {
+            let listItems = editMode ? this.sentenceForm(sentence, i) : this.sentenceSimple(sentence, i);
+            return <ListGroup.Item key={'sentence-' + sentence._id}>{listItems}</ListGroup.Item>;
+        });
         
         let sentencesList = null;
         if (sentences.length > 0) {
