@@ -17,6 +17,7 @@ class WordWindow extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            editMode: false,
             word: null,
             text: null,
             part_of_speech: null,
@@ -148,6 +149,11 @@ class WordWindow extends React.Component {
     }
 
     removeSentence(sentenceId) {
+        if (!this.canEdit()) {
+            console.error("This user cannot make edits!")
+            return;
+        }
+
         if (sentenceId == null) return;
         api.delete('/api/sentence/' + sentenceId).then(res => {
             if (res.status == 200) {
@@ -181,6 +187,11 @@ class WordWindow extends React.Component {
     }
 
     toggleSuggested(sentence) {
+        if (!this.canEdit()) {
+            console.error("This user cannot make edits!")
+            return;
+        }
+
         let { word } = this.state;
         if (!word) return; // word not loaded yet
         let request;
@@ -270,6 +281,11 @@ class WordWindow extends React.Component {
     }
 
     deleteWord() {
+        if (!this.canEdit()) {
+            console.error("This user cannot make edits!")
+            return;
+        }
+
         let { word } = this.state;
         if (!word) return; // word has not loaded yet
 
@@ -425,6 +441,11 @@ class WordWindow extends React.Component {
     }
 
     addRelatedWord(addWord) {
+        if (!this.canEdit()) {
+            console.error("This user cannot make edits!")
+            return;
+        }
+
         let { word } = this.state;
         if (!addWord || !word) return;
 
@@ -434,6 +455,11 @@ class WordWindow extends React.Component {
     }
 
     updateRelatedOptions(query) {
+        if (!this.canEdit()) {
+            console.error("This user cannot make edits!")
+            return;
+        }
+
         if (!query) return;
         api.get('/api/search/word', 
             {
@@ -460,6 +486,11 @@ class WordWindow extends React.Component {
     }
 
     removeRelatedWord(wordId) {
+        if (!this.canEdit()) {
+            console.error("This user cannot make edits!")
+            return;
+        }
+
         let { word } = this.state;
         if (!word || !wordId) return; // word not loaded yet
         api.delete(`/api/word/${word._id}/related/${wordId}`).then(res => {
@@ -472,8 +503,7 @@ class WordWindow extends React.Component {
     }
 
     render() {
-        let { word, sentences } = this.state;
-        let editMode = this.canEdit();
+        let { word, sentences, editMode } = this.state;
 
         if (word == null) {
             return null;
@@ -605,10 +635,25 @@ class WordWindow extends React.Component {
                 </Row>
             );
         }
+
+        let editToggle;
+        if (this.canEdit()) {
+            editToggle = (
+                <Form className='mb-2 float-right'>
+                    <Form.Check 
+                        type="switch"
+                        id="edit-switch"
+                        label="Edit Mode"
+                        onChange={e => this.setState({editMode: e.target.checked})}
+                    />
+                </Form>
+            );
+        }
         
         let wordBody = (
             <Row>
                 <Col sm={12} md={4} >
+                    {editToggle}
                     {editMode ? this.wordForm(word) : this.wordSimple(word)}
                     {relatedWordsList}
                 </Col>
