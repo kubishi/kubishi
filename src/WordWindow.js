@@ -11,6 +11,7 @@ import PartOfSpeech from './PartOfSpeech';
 import cookie from 'react-cookies';
 
 import { remove_punctuation } from './helpers';
+import { pick } from 'lodash';
 
 const { REACT_APP_API_URL } = process.env;
 
@@ -26,7 +27,7 @@ class WordWindow extends React.Component {
             text: null,
             part_of_speech: null,
             definition: null,
-            suggestedSentences: [],
+            sentences: {},
             sentencesUpdates: {},
         };
     }
@@ -40,8 +41,13 @@ class WordWindow extends React.Component {
             headers: {signed_request: cookie.load('signed_request')},
         }).then(res => {
             if (res.status == 200) {
+                let sentences = {};
+                res.data.result.sentences.forEach(sentence => {
+                    sentence.suggested = false;
+                    sentences[sentence._id] = sentence;
+                });
                 this.setState({word: res.data.result});
-                this.getSuggestedSentences(res.data.result);
+                this.getSuggestedSentences(res.data.result, sentences);
             } else {
                 console.log(res.status, res.data);
             }
@@ -51,7 +57,12 @@ class WordWindow extends React.Component {
         });
     }
    
-    getSuggestedSentences(word) {
+    /**
+     * 
+     * @param {String} word 
+     * @param {[Object]} sentences 
+     */
+    getSuggestedSentences(word, sentences) {
         api.get('/api/search/sentence', {
             headers: {signed_request: cookie.load('signed_request')},
             params: {
@@ -62,11 +73,17 @@ class WordWindow extends React.Component {
         }).then(res => {
             if (res.status == 200) {
                 if (res.data.result) {
-                    this.setState({suggestedSentences: res.data.result})
+                    res.data.result.forEach(sentence => {
+                        if (sentences[sentence._id] != null) {
+                            sentence.suggested = true;
+                            sentences[sentence._id] = sentence;
+                        }
+                    });
                 }
             } else {
                 console.log(res.status, res.data);
             }
+            this.setState({sentences: sentences})
         }).catch(err => console.error(err));
     }
 
@@ -226,19 +243,19 @@ class WordWindow extends React.Component {
         this.setState({sentencesUpdates: sentencesUpdates});
     }
 
-    sentenceForm(sentence, i) {
+    sentenceForm(sentence) {
         let hasChanged = this.hasSentenceChanged(sentence._id);
         return (
             <Form>
 
-                <Form.Group controlId={`form-sentence-paiute-${i}`}>
+                <Form.Group controlId={`form-sentence-paiute-${sentence._id}`}>
                     <Form.Label>Paiute</Form.Label>
                     <Form.Control as="textarea" defaultValue={sentence.paiute} 
                         onChange={e => this.changeSentence('paiute', sentence._id, e.target.value)}
                     />
                 </Form.Group>
 
-                <Form.Group controlId={`form-sentence-english-${i}`}>
+                <Form.Group controlId={`form-sentence-english-${sentence._id}`}>
                     <Form.Label>English</Form.Label>
                     <Form.Control as="textarea" defaultValue={sentence.english} 
                         onChange={e => this.changeSentence('english', sentence._id, e.target.value)}
@@ -272,7 +289,7 @@ class WordWindow extends React.Component {
         );
     }
 
-    sentenceSimple(sentence, id) {
+    sentenceSimple(sentence) {
         return (
             <div>
                 <b>{sentence.paiute}</b>
@@ -357,19 +374,14 @@ class WordWindow extends React.Component {
     }
 
     hasSentenceChanged(sentenceId) {
-        let { sentencesUpdates, word, suggestedSentences } = this.state;
+        let { sentencesUpdates, sentences } = this.state;
 
-        // Updated sentence
-        let sentence = sentencesUpdates[sentenceId];
-        if (!sentence) return false; // sentence not
+        let s_new = sentencesUpdates[sentenceId];
+        let s_old = sentences[sentenceId];
+        // Invalid sentence or never updated
+        if (s_new == null || s_old == null) return false;
 
-        // Current sentence (as in DB)
-        let all_sentences = word.sentences.concat(suggestedSentences);
-        let cur_sentence = all_sentences.find(sentence => sentence._id == sentenceId);
-        if (!cur_sentence) return false; // sentence doesn't exist?
-
-        console.log(sentence.paiute, cur_sentence.paiute,  sentence.english,  cur_sentence.english);
-        return sentence.paiute != cur_sentence.paiute || sentence.english != cur_sentence.english;
+        return (s_new.paiute != null && s_new.paiute != s_old.paiute) || (s_new.english != null && s_new.english != s_old.english);
     }
 
     hasAnySentenceChanged() {
@@ -420,7 +432,7 @@ class WordWindow extends React.Component {
     }
 
     render() {
-        let { word, suggestedSentences } = this.state;
+        let { word, sentences } = this.state;
         let editMode = this.canEdit();
 
         if (word == null) {
@@ -433,46 +445,37 @@ class WordWindow extends React.Component {
             );
         }
 
-        let sentenceIds = word.sentences.map((sentence, i) => sentence._id);
-        let sentences = word.sentences.map((sentence, i) => {
-            let listItems = editMode ? this.sentenceForm(sentence, i) : this.sentenceSimple(sentence, i);
-            return <ListGroup.Item key={'sentence-' + sentence._id}>{listItems}</ListGroup.Item>;
+        let regSentences = [];
+        let suggSentences = [];
+        Object.entries(sentences).forEach(([_, sentence]) => {
+            let listItem = (
+                <ListGroup.Item key={'sentence-' + sentence._id}>
+                    {editMode ? this.sentenceForm(sentence) : this.sentenceSimple(sentence)}
+                </ListGroup.Item>
+            );
+            if (sentence.suggested == true) {
+                suggSentences.push(listItem);
+            } else {
+                regSentences.push(listItem);
+            }
         });
-        
-        let sentencesList = null;
-        if (sentences.length > 0) {
-            sentencesList = (
-                <Row>
-                    <Col>
-                        <h5 className='text-center'>Sentences</h5>
-                        <ListGroup variant='flush'>
-                            {sentences}
-                        </ListGroup>
-                    </Col>
-                </Row>
-            );
-        }
 
-        let suggSentences = suggestedSentences
-            .filter(sentence => !sentenceIds.includes(sentence._id))
-            .map((sentence, i) => {
-                let listItems = editMode ? this.sentenceForm(sentence, i) : this.sentenceSimple(sentence, i);
-                return <ListGroup.Item key={'sentence-' + sentence._id}>{listItems}</ListGroup.Item>;
-            });
-
-        let suggSentencesList = null;
-        if (suggSentences.length > 0) {
-            suggSentencesList = (
-                <Row>
-                    <Col>
-                        <h5 className='text-center'>Suggested Sentences</h5>
-                        <ListGroup variant='flush'>
-                            {suggSentences}
-                        </ListGroup>
-                    </Col>
-                </Row>
-            );
-        }
+        let [sentencesList, suggSentencesList] = [[regSentences, 'Sentences'], [suggSentences, 'Suggested Sentences']].map(([listItems, title], _) => {
+            if (listItems.length <= 0) {
+                return null;
+            } else {
+                return (
+                    <Row>
+                        <Col>
+                            <h5 className='text-center'>{title}</h5>
+                            <ListGroup variant='flush'>
+                                {listItems}
+                            </ListGroup>
+                        </Col>
+                    </Row>
+                );
+            }
+        });
 
         let addSentenceButton;
         if (editMode) {
