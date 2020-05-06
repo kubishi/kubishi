@@ -225,7 +225,7 @@ class WordWindow extends React.Component {
 
                 <ButtonGroup className='d-flex'>
                     <Button 
-                        variant={hasChanged ? 'outline-primary' : 'outline-secondary'} 
+                        variant={hasChanged ? 'outline-success' : 'outline-secondary'} 
                         href='#'
                         className='w-100'
                         disabled={!hasChanged}
@@ -234,7 +234,7 @@ class WordWindow extends React.Component {
                         Save
                     </Button>
                     <Button 
-                        variant='outline-info' href='#'
+                        variant='outline-warning' href='#'
                         className='w-100'
                         onClick={e => this.toggleSuggested(sentence)}
                     >
@@ -317,7 +317,7 @@ class WordWindow extends React.Component {
                     </Form.Group>
 
                     <Button 
-                        variant={hasChanged ? 'outline-primary' : 'outline-secondary'} 
+                        variant={hasChanged ? 'outline-success' : 'outline-secondary'} 
                         block href='#'
                         disabled={!hasChanged}
                         onClick={e => this.saveWord()}
@@ -499,6 +499,21 @@ class WordWindow extends React.Component {
                 regSentences.push(listItem);
             }
         });
+        
+        if (editMode) {
+            regSentences.push(
+                <ListGroup.Item key={'sentence-add-button'} >
+                    <Button 
+                        variant='outline-primary'
+                        onClick={e => this.addSentence()}
+                        block
+                    >
+                        <FontAwesomeIcon icon={faPlus} className='mr-2' />
+                        Add Sentence
+                    </Button>
+                </ListGroup.Item>
+            );
+        }
 
         let [sentencesList, suggSentencesList] = [[regSentences, 'Sentences'], [suggSentences, 'Suggested Sentences']].map(([listItems, title], _) => {
             if (listItems.length <= 0) {
@@ -516,24 +531,6 @@ class WordWindow extends React.Component {
                 );
             }
         });
-
-        let addSentenceButton;
-        if (editMode) {
-            addSentenceButton = (
-                <Row>
-                    <Col>
-                        <Button 
-                            className='float-right'
-                            variant='outline-primary'
-                            onClick={e => this.addSentence()}
-                        >
-                            <FontAwesomeIcon icon={faPlus} className='mr-2' />
-                            Add Sentence
-                        </Button>
-                    </Col>
-                </Row>
-            );
-        }
         
         let relatedWords = word.words.map((word, i) => {
             if (editMode) {
@@ -617,7 +614,6 @@ class WordWindow extends React.Component {
                 </Col>
                 <Col xs={0} style={{'paddingRight': '20px', 'borderRight': '1px solid #ccc'}} className='d-none d-md-block d-xl-block'></Col>
                 <Col>
-                    {addSentenceButton}
                     {sentencesList}
                     {suggSentencesList}
                 </Col>
