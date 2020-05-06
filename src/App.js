@@ -118,7 +118,13 @@ class App extends React.Component {
         } else if (res.status == 404) {
           this.createUser(response.id, response.name, response.email, signed_request);
         }
-      }).catch(err => console.error(err));
+      }).catch(err => {
+        if (err.response != null && err.response.status == 404) {
+          this.createUser(response.id, response.name, response.email, signed_request);
+        } else {
+          console.error('err', err);
+        }
+      });
     }
   }
 
