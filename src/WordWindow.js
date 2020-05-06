@@ -4,14 +4,13 @@ import { Row, Col, ListGroup, Form, Button, ButtonGroup, Modal } from 'react-boo
 import axios from 'axios';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faTrash, faCheck, faTimes } from '@fortawesome/free-solid-svg-icons'
 
 import UserType from './UserType';
 import PartOfSpeech from './PartOfSpeech';
 import cookie from 'react-cookies';
 
 import { remove_punctuation } from './helpers';
-import { pick } from 'lodash';
 
 const { REACT_APP_API_URL } = process.env;
 
@@ -74,7 +73,7 @@ class WordWindow extends React.Component {
             if (res.status == 200) {
                 if (res.data.result) {
                     res.data.result.forEach(sentence => {
-                        if (sentences[sentence._id] != null) {
+                        if (sentences[sentence._id] == null) {
                             sentence.suggested = true;
                             sentences[sentence._id] = sentence;
                         }
@@ -243,6 +242,33 @@ class WordWindow extends React.Component {
         this.setState({sentencesUpdates: sentencesUpdates});
     }
 
+    toggleSuggested(sentence) {
+        let { word } = this.state;
+        if (!word) return; // word not loaded yet
+        let request;
+        if (sentence.suggested) {
+            request = api.post(`/api/word/${word._id}/sentence`,
+                {sentence: sentence._id}, 
+                {headers: {signed_request: cookie.load('signed_request')}}
+            );
+        } else {
+            request = api.delete(`/api/word/${word._id}/sentence/${sentence._id}`,
+                {headers: {signed_request: cookie.load('signed_request')}}
+            );
+        }
+        request.then(res => {
+            if (res.status == 200) {
+                this.getWord();
+            } else {
+                console.log(res.status, res.data);
+            }
+        }).catch(err => console.error(err));
+    }
+
+    /**
+     * 
+     * @param {String} sentence 
+     */
     sentenceForm(sentence) {
         let hasChanged = this.hasSentenceChanged(sentence._id);
         return (
@@ -273,8 +299,16 @@ class WordWindow extends React.Component {
                         Save
                     </Button>
                     <Button 
+                        variant='outline-info' href='#'
+                        className='w-100'
+                        onClick={e => this.toggleSuggested(sentence)}
+                    >
+                        <FontAwesomeIcon icon={sentence.suggested ? faCheck : faTimes} className='mr-2' />
+                        {sentence.suggested ? "Approve" : "Un-approve"}
+                    </Button>
+                    <Button 
                         variant='outline-danger' href='#'
-                        className='w-25'
+                        className='w-100'
                         onClick={e => {
                             this.setState({sentenceToRemove: sentence});
                         }}
