@@ -245,7 +245,7 @@ class WordWindow extends React.Component {
                         Save
                     </Button>
                     <Button 
-                        variant='outline-warning' href='#'
+                        variant={sentence.suggested ? "outline-info" : "outline-warning"} href='#'
                         className='w-100'
                         onClick={e => this.toggleSuggested(sentence)}
                     >
