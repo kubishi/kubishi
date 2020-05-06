@@ -94,6 +94,7 @@ class App extends React.Component {
         'created': new Date(),
         'type': 'USER',
       },
+      {headers: {signed_request: signed_request}}
     ).then(user => {
       this.setUser(user.data.result, signed_request);
     }).catch(err => console.error(err));
@@ -103,7 +104,9 @@ class App extends React.Component {
     if (response) {
       let signed_request = response.signedRequest;
 
-      api.get('/api/user/' + response.id).then(res => {
+      api.get('/api/user/' + response.id, 
+        {headers: {signed_request: signed_request}}
+      ).then(res => {
         if (res.status == 200) {
           this.setUser(res.data.result, signed_request);
         } else if (res.status == 404) {
