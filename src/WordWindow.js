@@ -1,22 +1,17 @@
 
 import React from 'react';
-import { Row, Col, ListGroup, Form, Button, ButtonGroup, Modal } from 'react-bootstrap';
-import axios from 'axios';
+import { Row, Col, ListGroup, Form, Button, ButtonGroup } from 'react-bootstrap';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faTrash, faCheck, faTimes } from '@fortawesome/free-solid-svg-icons'
 
 import UserType from './UserType';
 import PartOfSpeech from './PartOfSpeech';
-import cookie from 'react-cookies';
+
+import Select from 'react-select';
 
 import { remove_punctuation } from './helpers';
-
-const { REACT_APP_API_URL } = process.env;
-
-const api = axios.create({
-    baseURL: REACT_APP_API_URL,
-});
+import api from './Api';
 
 class WordWindow extends React.Component {
     constructor(props) {
@@ -28,6 +23,7 @@ class WordWindow extends React.Component {
             definition: null,
             sentences: {},
             sentencesUpdates: {},
+            related_options: [],
         };
     }
 
@@ -36,9 +32,7 @@ class WordWindow extends React.Component {
     }
 
     getWord() {
-        api.get('/api/word/' + this.props.wordId, {
-            headers: {signed_request: cookie.load('signed_request')},
-        }).then(res => {
+        api.get('/api/word/' + this.props.wordId).then(res => {
             if (res.status == 200) {
                 let sentences = {};
                 res.data.result.sentences.forEach(sentence => {
@@ -63,7 +57,6 @@ class WordWindow extends React.Component {
      */
     getSuggestedSentences(word, sentences) {
         api.get('/api/search/sentence', {
-            headers: {signed_request: cookie.load('signed_request')},
             params: {
                 query: remove_punctuation(word.text),
                 language: 'paiute',
@@ -110,54 +103,7 @@ class WordWindow extends React.Component {
         this.setState({definition: definition});
     }
 
-    getDeleteSentenceModal() {
-        let { sentenceToRemove } = this.state;
-
-        let body;
-        if (sentenceToRemove != null) {
-            body = (
-                <div>
-                    <b>{sentenceToRemove.english}</b>
-                    <p>{sentenceToRemove.paiute}</p>
-                </div>
-            );
-        }
-        
-        return (
-            <Modal 
-                show={sentenceToRemove != null} 
-                onHide={() => this.setState({sentenceToRemove: null})}
-            >
-                <Modal.Header closeButton>
-                    <Modal.Title>
-                        Are you sure?
-                    </Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    {body}
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button 
-                        variant='outline-primary' 
-                        onClick={() => this.setState({sentenceToRemove: null})}>
-                    Close
-                    </Button>
-                    <Button 
-                        variant='outline-danger' 
-                        onClick={() => this.removeSentence(sentenceToRemove._id, () => {
-                            this.setState({sentenceToRemove: null});
-                            this.getWord();
-                        })}
-                    >
-                        <FontAwesomeIcon icon={faTrash} className='mr-2' />
-                        Delete
-                    </Button>
-                </Modal.Footer>
-            </Modal>
-        );
-    }
-
-    saveWord(next) { 
+    saveWord() { 
         if (!this.canEdit()) {
             console.error("This user cannot make edits!")
             return;
@@ -169,37 +115,31 @@ class WordWindow extends React.Component {
         if (part_of_speech != null) body.part_of_speech = part_of_speech;
         if (definition != null) body.definition = definition;
 
-        if (Object.keys(body).length <= 0) return next(); // no update
-        api.put('/api/word/' + this.props.wordId, 
-            body, 
-            {headers: {signed_request: cookie.load('signed_request')}}
-        ).then(res => {
+        if (Object.keys(body).length <= 0) return; // no update
+        api.put('/api/word/' + this.props.wordId, body).then(res => {
             if (res.status == 200) {
-                next();
+                this.getWord();
             } else {
                 console.log(res.status, res.data);
             }
         }).catch(err => console.error(err));
     }
 
-    saveSentence(sentenceId, next) { 
+    saveSentence(sentenceId) { 
         if (!this.canEdit()) {
             console.error("This user cannot make edits!")
             return;
         }
 
         let { sentencesUpdates } = this.state;
-        if (sentencesUpdates[sentenceId] == null) return next(); // No update
+        if (sentencesUpdates[sentenceId] == null) return; // No update
         let body = {};
         if (sentencesUpdates[sentenceId].paiute) body.paiute = sentencesUpdates[sentenceId].paiute;
         if (sentencesUpdates[sentenceId].english) body.english = sentencesUpdates[sentenceId].english;
-        if (!body) return next(); // No update
-        api.put('/api/sentence/' + sentenceId,
-            body,
-            {headers: {signed_request: cookie.load('signed_request')}}
-        ).then(res => {
+        if (!body) return; // No update
+        api.put('/api/sentence/' + sentenceId, body).then(res => {
             if (res.status == 200) {
-                return next();
+                return this.getWord();
             } else {
                 console.log(res.status, res.data);
             }
@@ -207,13 +147,11 @@ class WordWindow extends React.Component {
         
     }
 
-    removeSentence(sentenceId, next) {
+    removeSentence(sentenceId) {
         if (sentenceId == null) return;
-        api.delete('/api/sentence/' + sentenceId, 
-            {headers: {signed_request: cookie.load('signed_request')}}
-        ).then(res => {
+        api.delete('/api/sentence/' + sentenceId).then(res => {
             if (res.status == 200) {
-                return next();
+                return this.getWord();
             } else {
                 console.log(res.status, res.data);
             }
@@ -248,13 +186,10 @@ class WordWindow extends React.Component {
         let request;
         if (sentence.suggested) {
             request = api.post(`/api/word/${word._id}/sentence`,
-                {sentence: sentence._id}, 
-                {headers: {signed_request: cookie.load('signed_request')}}
+                {sentence: sentence._id}
             );
         } else {
-            request = api.delete(`/api/word/${word._id}/sentence/${sentence._id}`,
-                {headers: {signed_request: cookie.load('signed_request')}}
-            );
+            request = api.delete(`/api/word/${word._id}/sentence/${sentence._id}`);
         }
         request.then(res => {
             if (res.status == 200) {
@@ -310,7 +245,9 @@ class WordWindow extends React.Component {
                         variant='outline-danger' href='#'
                         className='w-100'
                         onClick={e => {
-                            this.setState({sentenceToRemove: sentence});
+                            if (window.confirm('Are you sure you want to delete this sentence?')) {
+                                this.removeSentence(sentence._id)
+                            }
                         }}
                     >
                         <FontAwesomeIcon icon={faTrash} className='mr-2' />
@@ -330,6 +267,15 @@ class WordWindow extends React.Component {
                 <p>{sentence.english}</p>
             </div>  
         );
+    }
+
+    deleteWord() {
+        let { word } = this.state;
+        if (!word) return; // word has not loaded yet
+
+        api.delete(`/api/word/${word._id}`).then(res => {
+            window.location.href = '/';
+        }).catch(err => console.error(err));
     }
     
     wordForm(word) {
@@ -371,11 +317,26 @@ class WordWindow extends React.Component {
                     </Form.Group>
 
                     <Button 
-                            variant={hasChanged ? 'outline-primary' : 'outline-secondary'} 
-                            block href='#'
-                            disabled={!hasChanged}
-                            onClick={e => this.saveWord(() => this.getWord())}
-                        >Save</Button>
+                        variant={hasChanged ? 'outline-primary' : 'outline-secondary'} 
+                        block href='#'
+                        disabled={!hasChanged}
+                        onClick={e => this.saveWord()}
+                    >
+                        Save
+                    </Button>
+
+                    <Button 
+                        variant='outline-danger'
+                        block href='#'
+                        onClick={e => {
+                            if (window.confirm('Are you sure you want to delete this word?')) {
+                                this.deleteWord();
+                            }
+                        }}
+                    >
+                        <FontAwesomeIcon icon={faTrash} className='mr-2' />
+                        Delete
+                    </Button>
                 </Form>
             </div>
         );
@@ -438,8 +399,7 @@ class WordWindow extends React.Component {
             return;
         }
         api.post('/api/sentence', 
-            {'paiute': '', 'english': ''},
-            {headers: {signed_request: cookie.load('signed_request')}}
+            {'paiute': '', 'english': ''}
         ).then(res => {
             if (res.status != 200 || res.data.success == false) {
                 console.log(res.status, res.data);
@@ -450,8 +410,7 @@ class WordWindow extends React.Component {
                     return;
                 }
                 api.post('/api/word/' + this.props.wordId + '/sentence',
-                    {sentence: res.data.result._id},
-                    {headers: {signed_request: cookie.load('signed_request')}}
+                    {sentence: res.data.result._id}
                 ).then(res => {
                     if (res.status == 200) {
                         this.getWord();
@@ -463,6 +422,53 @@ class WordWindow extends React.Component {
         }).catch(err => {
             console.error(err);
         });
+    }
+
+    addRelatedWord(addWord) {
+        let { word } = this.state;
+        if (!addWord || !word) return;
+
+        api.post(`/api/word/${word._id}/related`,
+            {word: addWord.value}
+        ).then(res => this.getWord()).catch(err => console.log(err));
+    }
+
+    updateRelatedOptions(query) {
+        if (!query) return;
+        api.get('/api/search/word', 
+            {
+                params: { 
+                    query: query + '.*', 
+                    mode: 'regex', 
+                    language: 'paiute'
+                }
+            }
+        ).then(res => {
+            if (res.status != 200 || !res.data.success) {
+                console.log(res.status, res.data);
+                this.setState({related_options: []});
+            } else if (res.data.result.length <= 0) {
+                this.setState({related_options: []});
+            } else {
+                console.log(res.data.result);
+                let options = res.data.result.map((word, i) => {
+                    return {value: word._id, label: word.text};
+                });
+                this.setState({related_options: options});
+            }
+        }).catch(err => console.error(err));
+    }
+
+    removeRelatedWord(wordId) {
+        let { word } = this.state;
+        if (!word || !wordId) return; // word not loaded yet
+        api.delete(`/api/word/${word._id}/related/${wordId}`).then(res => {
+            if (res.status == 200) {
+                this.getWord();
+            } else {
+                console.log(res.status, res.data);
+            }
+        }).catch(err => console.error(err));
     }
 
     render() {
@@ -530,36 +536,79 @@ class WordWindow extends React.Component {
         }
         
         let relatedWords = word.words.map((word, i) => {
-
-            return (
-                <ListGroup.Item action href={'/word/' + word._id}>
-                    <Row>
-                        <Col 
-                            style={{'paddingRight': '20px', 'borderRight': '1px solid #ccc'}}
-                            className='text-right'
-                        >
-                            <p>{word.text}</p>
-                        </Col>
-                        <Col>
-                            <em>{word.part_of_speech.toLowerCase().replace('_', ' ')}</em>
-                        </Col>
-                    </Row>
-                </ListGroup.Item>
-            );
+            if (editMode) {
+                return (
+                    <ListGroup.Item key={`related-word-${word._id}`}>
+                        <Row>
+                            <Col>
+                                <Button variant='outline-danger' onClick={e => {
+                                    if (window.confirm('Are you sure you want to remove this related word?')) {
+                                        this.removeRelatedWord(word._id);
+                                    }
+                                }}>
+                                    <FontAwesomeIcon icon={faTrash} />
+                                </Button>
+                            </Col>
+                            <Col 
+                                style={{'paddingRight': '20px', 'borderRight': '1px solid #ccc'}}
+                                className='text-right'
+                            >
+                                <a href={'/word/' + word._id}><p>{word.text}</p></a>
+                            </Col>
+                            <Col>
+                                <em>{word.part_of_speech.toLowerCase().replace('_', ' ')}</em>
+                            </Col>
+                        </Row>
+                    </ListGroup.Item>
+                );
+            } else {
+                return (
+                    <ListGroup.Item action href={'/word/' + word._id}>
+                        <Row>
+                            <Col 
+                                style={{'paddingRight': '20px', 'borderRight': '1px solid #ccc'}}
+                                className='text-right'
+                            >
+                                <p>{word.text}</p>
+                            </Col>
+                            <Col>
+                                <em>{word.part_of_speech.toLowerCase().replace('_', ' ')}</em>
+                            </Col>
+                        </Row>
+                    </ListGroup.Item>
+                );
+            }
         });
+        
+        let addRelated;
+        if (editMode) {
+            addRelated = (
+                <div className='mt-3'>
+                    <Select 
+                        placeholder='Add Related Word...'
+                        // isSearchable={true}
+                        options={this.state.related_options}
+                        onChange={(selected) => this.addRelatedWord(selected)}
+                        onInputChange={query => this.updateRelatedOptions(query)}
+                    />
+                </div>
+            );
+        }
 
         let relatedWordsList;
-        if (relatedWords.length > 0) {
+        if (relatedWords.length > 0 || addRelated) {
+            let listGroup = <ListGroup variant='flush'>{relatedWords}</ListGroup>;
             relatedWordsList = (
                 <Row className='mt-3'>
                     <Col>
                         <h5 className='text-center'>See Also</h5>
-                        <ListGroup variant='flush'>{relatedWords}</ListGroup>
+                        {addRelated}
+                        {listGroup}
                     </Col>
                 </Row>
             );
         }
-
+        
         let wordBody = (
             <Row>
                 <Col sm={12} md={4} >
@@ -577,7 +626,6 @@ class WordWindow extends React.Component {
         return (
             <Row className='m-3'>
                 <Col>
-                    {this.getDeleteSentenceModal()}
                     {wordBody}
                 </Col>
             </Row>

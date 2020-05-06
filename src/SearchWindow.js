@@ -6,17 +6,11 @@ import {
   Button, Row, Col, InputGroup, FormControl,
   ListGroup, ButtonGroup
 } from 'react-bootstrap';
-import axios from 'axios';
 
 import './SearchWindow.css';
-import cookie from 'react-cookies';
 import { remove_punctuation } from './helpers';
 
-const { REACT_APP_API_URL } = process.env;
-
-const api = axios.create({
-    baseURL: REACT_APP_API_URL,
-});
+import api from './Api';
 
 class WordSummary extends React.Component {
     render() {
@@ -62,9 +56,8 @@ class SearchWindow extends React.Component {
                     mode: 'fuzzy', 
                     language: searchType.toLowerCase()
                 },
-                headers: {signed_request: cookie.load('signed_request'),
             }
-        }).then(res => {
+        ).then(res => {
             if (res.status != 200 || !res.data.success) {
                 console.log(res.status, res.data);
                 this.setState({error: res.data.result, results: []});

@@ -1,6 +1,5 @@
 import React from 'react';
 import './App.css';
-import axios from 'axios';
 import { 
   Button, Container, Navbar, Nav, Modal, Form
 } from 'react-bootstrap';
@@ -22,12 +21,9 @@ import {
   Switch, useParams, Route,
 } from "react-router-dom";
 import Pronunciation from './Pronunciation';
+import api from './Api';
 
-const { REACT_APP_FACEBOOK_APP_ID, REACT_APP_API_URL } = process.env;
-
-const api = axios.create({
-  baseURL: REACT_APP_API_URL,
-})
+const { REACT_APP_FACEBOOK_APP_ID } = process.env;
 
 class App extends React.Component {
   constructor(props) {
@@ -76,9 +72,7 @@ class App extends React.Component {
       return;
     }
 
-    api.get('/api/user/' + user_id,
-      {headers: {signed_request: signed_request}}
-    ).then(res => {
+    api.get('/api/user/' + user_id).then(res => {
       if (res.status == 200) {
         this.setState({user: res.data.result});
       } else {
@@ -100,7 +94,6 @@ class App extends React.Component {
         'created': new Date(),
         'type': 'USER',
       },
-      {headers: {signed_request: signed_request}}
     ).then(user => {
       this.setUser(user.data.result, signed_request);
     }).catch(err => console.error(err));
@@ -110,9 +103,7 @@ class App extends React.Component {
     if (response) {
       let signed_request = response.signedRequest;
 
-      api.get('/api/user/' + response.id,
-        {headers: {signed_request: signed_request}}
-      ).then(res => {
+      api.get('/api/user/' + response.id).then(res => {
         if (res.status == 200) {
           this.setUser(res.data.result, signed_request);
         } else if (res.status == 404) {
@@ -129,9 +120,7 @@ class App extends React.Component {
   }
 
   randomWord(e) {
-    api.get('/api/random/word', {
-      headers: {signed_request: cookie.load('signed_request')},
-    }).then(res => {
+    api.get('/api/random/word').then(res => {
       if (res.status == 200) {
         window.location.href = '/word/' + res.data.result._id;
       } else {
@@ -212,8 +201,7 @@ class App extends React.Component {
         part_of_speech: addWordPos.toUpperCase().replace(' ', '_'),
         sentences: [],
         words: []
-      },
-      {headers: {signed_request: cookie.load('signed_request')}}
+      }
     ).then(res => {
       if (res.status == 200) {
         window.location.href = '/word/' + res.data.result._id;

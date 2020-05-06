@@ -24,6 +24,7 @@
     "react-https-redirect": "^1.1.0",
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.4.1",
+    "react-select": "^3.1.0",
     "route-parser": "^0.0.5"
   },
   "scripts": {
