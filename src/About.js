@@ -38,7 +38,7 @@ function About(props) {
                 </Col>
                 <Col sm={12} md={4}>
                     <h3>Contribute</h3> 
-                    <p>This website is paid for and maintained entirely by me, Jared Coleman. Any contributions would be greatly appreciated!</p>
+                    <p>This website is paid for and maintained entirely by me, Jared Coleman. Any contributions would be greatly appreciated! 100% of donations go toward the cost of operating this website.</p>
                     <DonationButton />
                 </Col>
             </Row>
