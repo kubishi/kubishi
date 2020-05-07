@@ -1,6 +1,4 @@
 import React from 'react';
-// import { PayPalButton } from "react-paypal-button-v2";
-
 import { Row, Col, Button } from 'react-bootstrap';
 
 function DonationButton(props) {
