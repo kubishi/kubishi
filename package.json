@@ -35,7 +35,7 @@
     "route-parser": "^0.0.5"
   },
   "scripts": {
-    "start": "npm run build && node server.js",
+    "start": "node server.js",
     "start:dev": "nodemon server.js",
     "start:client": "react-scripts start",
     "build": "react-scripts build",

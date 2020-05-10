@@ -1,6 +1,5 @@
 
 
-const jwt = require('jsonwebtoken');
 const base64url = require('base64url');
 const crypto = require('crypto');
 const dotenv = require('dotenv');
