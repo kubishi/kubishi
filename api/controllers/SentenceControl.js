@@ -24,7 +24,7 @@ function createSentence(req, res) {
 
     let sentence = new SentenceModel({
         paiute: req.body.paiute,
-        english: true,
+        english: req.body.english,
     });
     sentence.save().then(result => {
         return res.json({success: true, result: result});
