@@ -131,14 +131,19 @@ class SearchWindow extends React.Component {
                                 autoFocus
                                 aria-label="Search"
                                 aria-describedby="search-text"
+                                name='query'
+                                value={this.state.query}
                                 onKeyPress={e => this.handleSearchKeyPress(e)}
                                 onChange={e => {this.setState({query: e.currentTarget.value})}}
                             />
                             
                             <InputGroup.Append>
-                                <Button variant="outline-secondary" 
-                                        onClick={e => this.handleSearch(e)}
-                                >Search</Button>
+                                <Button 
+                                    variant="outline-secondary" 
+                                    onClick={e => this.handleSearch(e)}
+                                >
+                                    Search
+                                </Button>
                             </InputGroup.Append>
                         </InputGroup>
                     </Col>
