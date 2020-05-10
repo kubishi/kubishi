@@ -11,9 +11,16 @@
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
     "axios": "^0.19.2",
+    "base64url": "^3.0.1",
     "bootstrap": "^4.4.1",
     "bootswatch": "^4.4.1",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "dotenv": "^8.2.0",
+    "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.15",
+    "mongoose": "^5.9.13",
+    "nodemon": "^2.0.3",
     "openssl": "^1.1.0",
     "react": "^16.13.1",
     "react-bootstrap": "^1.0.1",
@@ -28,7 +35,9 @@
     "route-parser": "^0.0.5"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "npm run build && node server.js",
+    "start:dev": "nodemon server.js",
+    "start:client": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -47,5 +56,6 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "proxy": "http://localhost:8080"
 }
