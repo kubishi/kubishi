@@ -23,9 +23,26 @@ class WordSummary extends React.Component {
                     <em>{part_of_speech}</em>
                     <span></span>
                 </Col>
-                <Col xs={0} style={{'paddingRight': '20px', 'borderRight': '1px solid #ccc'}} className='d-none d-md-block d-xl-block'></Col>
+                <Col xs={0} style={{'borderRight': '1px solid #ccc'}} className='d-none d-md-block d-xl-block'></Col>
                 <Col className='align-self-center'>
                     <p>{definition}</p>
+                </Col>
+            </Row>
+        );
+    }
+}
+
+class SentenceSummary extends React.Component {
+    render() {
+        let { paiute, english } = this.props.sentence;
+        return (
+            <Row>
+                <Col sm={12} md={6} className='text-right align-self-center' >
+                    <p><b>{paiute}</b></p>
+                </Col>
+                <Col xs={0} style={{'borderRight': '1px solid #ccc'}} className='d-none d-md-block d-xl-block'></Col>
+                <Col className='align-self-center'>
+                    <p>{english}</p>
                 </Col>
             </Row>
         );
@@ -36,9 +53,11 @@ class SearchWindow extends React.Component {
     constructor(props) {
         super(props);
 
-        this.buttons = ['English', 'Paiute'];
+        this.langButtons = ['English', 'Paiute'];
+        this.searchTypeButtons = ['Words', 'Sentences'];
         this.state = {
-            searchType: this.buttons[0],
+            searchLanguage: this.langButtons[0],
+            searchType: this.searchTypeButtons[0],
             query: null,
             results: [],
             error: null,
@@ -46,15 +65,16 @@ class SearchWindow extends React.Component {
     }
 
     handleSearch(e) {
-        let { query, searchType } = this.state;
+        let { query, searchLanguage, searchType } = this.state;
         if (query == null) return;
 
-        api.get('/api/search/word', 
+        let searchTypeRoute = searchType == 'Words' ? 'word' : 'sentence';
+        api.get(`/api/search/${searchTypeRoute}`, 
             {
                 params: { 
                     query: remove_punctuation(query), 
                     mode: 'fuzzy', 
-                    language: searchType.toLowerCase()
+                    language: searchLanguage.toLowerCase()
                 },
             }
         ).then(res => {
@@ -76,14 +96,27 @@ class SearchWindow extends React.Component {
     }
 
     render() {
-        let { searchType, results, error } = this.state;
+        let { searchLanguage, searchType, results, error } = this.state;
 
-        let buttons = this.buttons.map((name, i) => {
+        let langButtons = this.langButtons.map((name, i) => {
             return (
                 <Button 
                     className='w-100'
                     key={'search-' + name.toLowerCase().replace(' ', '-')}
-                    onClick={e => this.setState({'searchType': name}, () => this.handleSearch(e))}
+                    onClick={e => this.setState({searchLanguage: name}, () => this.handleSearch(e))}
+                    variant={searchLanguage == name ? 'primary' : 'outline-primary'}
+                >
+                    {name}
+                </Button>
+            );
+        });
+
+        let searchTypeButtons = this.searchTypeButtons.map((name, i) => {
+            return (
+                <Button 
+                    className='w-100'
+                    key={'search-' + name.toLowerCase().replace(' ', '-')}
+                    onClick={e => this.setState({searchType: name}, () => this.handleSearch(e))}
                     variant={searchType == name ? 'primary' : 'outline-primary'}
                 >
                     {name}
@@ -96,14 +129,26 @@ class SearchWindow extends React.Component {
             resultBody = <h5 className='text-center'>{error}</h5>;
         } else {
             let resultItems = results.map((word, i) => {
-                return (
-                    <ListGroup.Item 
-                        key={'word-list-' + word._id}
-                        action href={'/word/' + word._id}
-                    >
-                        <WordSummary key={'word-' + i.toString()} word={word} />
-                    </ListGroup.Item>
-                );
+                let isSentence = word.part_of_speech == null;
+                if (isSentence) {
+                    return (
+                        <ListGroup.Item 
+                            key={'sentence-list-' + word._id}
+                            // action href={'/word/' + word._id}
+                        >
+                            <SentenceSummary sentence={word} />
+                        </ListGroup.Item>
+                    );
+                } else {
+                    return (
+                        <ListGroup.Item 
+                            key={'word-list-' + word._id}
+                            action href={'/word/' + word._id}
+                        >
+                            <WordSummary word={word} />
+                        </ListGroup.Item>
+                    );
+                }
             });
             resultBody = (
                 <ListGroup variant='flush'>
@@ -113,14 +158,21 @@ class SearchWindow extends React.Component {
         }
 
         return (
-            <div className='m-3'>
+            <div>
                 <Row className="mb-2">
-                    <Col>
-                    <ButtonGroup
-                        className='d-flex'
-                    >
-                        {buttons}
-                    </ButtonGroup>
+                    <Col sm={12} md={6} className='mt-2'>
+                        <ButtonGroup
+                            className='d-flex'
+                        >
+                            {searchTypeButtons}
+                        </ButtonGroup>
+                    </Col>  
+                    <Col sm={12} md={6} className='mt-2'>
+                        <ButtonGroup
+                            className='d-flex'
+                        >
+                            {langButtons}
+                        </ButtonGroup>
                     </Col>
                 </Row>
                 <Row className="mb-3">
