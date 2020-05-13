@@ -109,14 +109,14 @@ function deleteSentence(req, res) {
  */
 function search(req, res) {
     let mode = req.query.mode == null ? "contains" : req.query.mode;
-    let offset = req.query.offset || 0;
-    let limit = req.query.limit || helpers.DEFAULT_LIMIT;
+    let offset = parseInt(req.query.offset || 0);
+    let limit = parseInt(req.query.limit || helpers.DEFAULT_LIMIT);
     let field = (req.query.language || "").toLowerCase() == "paiute" ? "paiute" : "english";
 
     let pipeline = helpers.getSearchPipeline(req.query.query, mode, field, limit, offset);
 
     SentenceModel.aggregate(pipeline).then(result => {
-        res.json({success: true, result: result});
+        res.json({success: true, result: result[0].result, total: result[0].total});
     }).catch(result => {
         res.status(500).json({success: false, result: result});
     });

@@ -97,8 +97,22 @@ function getSearchPipeline(query, mode, field, limit, offset) {
                 as: 'sentences'
             }
         },
-        {$skip: offset},
-        {$limit: limit},
+        {
+            $facet: {
+                result: [
+                    { $skip: offset },
+                    { $limit: limit },
+                ],
+                total: [{ $count: 'count' }]
+            }
+        },
+        {$unwind: {path: '$total'}},
+        {
+            $project: {
+                result: 1,
+                total: '$total.count'
+            }
+        }
     ]);
 
     return pipeline;
