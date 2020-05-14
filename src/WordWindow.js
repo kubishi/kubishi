@@ -451,7 +451,11 @@ class WordWindow extends React.Component {
 
         api.post(`/api/word/${word._id}/related`,
             {word: addWord.value}
-        ).then(res => this.getWord()).catch(err => console.log(err));
+        ).then(res => {
+            api.post(`/api/word/${addWord.value}/related`,
+                {word: word._id}            
+            ).then(res => this.getWord()).catch(err => console.error(err));
+        }).catch(err => console.error(err));
     }
 
     updateRelatedOptions(query) {
@@ -476,7 +480,6 @@ class WordWindow extends React.Component {
             } else if (res.data.result.length <= 0) {
                 this.setState({related_options: []});
             } else {
-                console.log(res.data.result);
                 let options = res.data.result.map((word, i) => {
                     return {value: word._id, label: word.text};
                 });
