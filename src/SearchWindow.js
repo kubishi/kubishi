@@ -78,7 +78,7 @@ class SearchWindow extends React.Component {
                     query: remove_punctuation(query), 
                     mode: 'fuzzy', 
                     language: searchLanguage.toLowerCase(),
-                    offset: pageNumber || 0,
+                    offset: ((pageNumber || 1) - 1) * this.resultsPerPage,
                     limit: this.resultsPerPage,
                 },
             }
