@@ -220,9 +220,13 @@ function search(req, res) {
     let pipeline = helpers.getSearchPipeline(req.query.query, mode, field, limit, offset);
 
     WordModel.aggregate(pipeline).then(result => {
-        res.json({success: true, result: result[0].result, total: result[0].total});
+        if (!result || result.length <= 0) {
+            return res.json({success: true, result: [], total: 0});
+        } else {
+            return res.json({success: true, result: result[0].result, total: result[0].total});
+        }
     }).catch(result => {
-        res.status(500).json({success: false, result: result});
+        return res.status(500).json({success: false, result: result});
     });
 }
 
