@@ -3,16 +3,18 @@ const express = require('express');
 const lodash = require('lodash');
 const helpers = require('../helpers');
 
+
+const allFields = ['english', 'paiute', 'image', 'audio'];
+const requiredFields = ['english', 'paiute'];
+const defaultSearchFields = ['english', 'paiute'];
+
 /** 
  * Adds a sentence to the database.
  * @param {express.Request} req
  * @param {express.Response} res
  */
 function createSentence(req, res) {
-    let diff = lodash.difference(
-        ['paiute', 'english'],
-        Object.keys(req.body)
-    );
+    let diff = lodash.difference(requiredFields, Object.keys(req.body));
 
     if (diff.length > 0) {
         res.status(400).json({
@@ -39,7 +41,7 @@ function createSentence(req, res) {
  * @param {express.Response} res
  */
 function updateSentence(req, res) {
-    let update = lodash.pick(req.body, ['paiute', 'english']);
+    let update = lodash.pick(req.body, allFields);
     SentenceModel.updateOne(
         {_id: req.params.id}, {$set: update}
     ).then(sentence => {
@@ -59,7 +61,10 @@ function updateSentence(req, res) {
  * @param {express.Response} res
  */
 function getSentence(req, res) {
-    SentenceModel.findOne({_id: req.params.id}).then(sentence => {
+    let fields = req.query.fields || allFields;
+    let project = {};
+    fields.forEach(field => project[field] = 1);
+    SentenceModel.findOne({_id: req.params.id}, project).then(sentence => {
         if (!sentence) res.status(404).json({success: false, result: sentence});
         else res.json({success: true, result: sentence});
     }).catch(err => {
@@ -73,7 +78,10 @@ function getSentence(req, res) {
  * @param {express.Response} res
  */
 function getRandomSentence(req, res) {
-    SentenceModel.aggregate([{$sample: {size: 1}}]).then(result => {
+    let fields = req.query.fields || allFields;
+    let project = {};
+    fields.forEach(field => project[field] = 1);
+    SentenceModel.aggregate([{$sample: {size: 1}}, {$project: project}]).then(result => {
         if (!result) {
             return res.status(404).json({success: false, result: "Sentences is empty"});
         } else {
@@ -111,10 +119,13 @@ function search(req, res) {
     let mode = req.query.mode == null ? "contains" : req.query.mode;
     let offset = parseInt(req.query.offset || 0);
     let limit = parseInt(req.query.limit || helpers.DEFAULT_LIMIT);
-    let field = (req.query.language || "").toLowerCase() == "paiute" ? "paiute" : "english";
-
-    let pipeline = helpers.getSearchPipeline(req.query.query, mode, field, limit, offset);
-
+    
+    let searchFields = req.query.searchFields || defaultSearchFields;
+    let fields = req.query.fields || allFields;
+    let project = {};
+    fields.forEach(field => project[field] = 1);
+    let pipeline = helpers.getSearchPipeline(req.query.query, mode, searchFields, limit, offset, project);
+    
     SentenceModel.aggregate(pipeline).then(result => {
         if (!result || result.length <= 0) {
             return res.json({success: true, result: [], total: 0});

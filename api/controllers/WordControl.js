@@ -4,16 +4,19 @@ const lodash = require('lodash');
 
 const helpers = require('../helpers');
 
+
+const allFields = ['text', 'image', 'audio', 'definition', 'part_of_speech', 'sentences', 'words'];
+const editableFields = ['text', 'image', 'audio', 'definition', 'part_of_speech'];
+const requiredFields = ['text', 'definition', 'part_of_speech'];
+const defaultSearchFields = ['text', 'definition'];
+
 /** 
  * Adds a word to the database.
  * @param {express.Request} req
  * @param {express.Response} res
  */
 function createWord(req, res) {
-    let diff = lodash.difference(
-        ['text', 'definition', 'part_of_speech'],
-        Object.keys(req.body)
-    );
+    let diff = lodash.difference(requiredFields, Object.keys(req.body));
 
     if (diff.length > 0) {
         res.status(400).json({
@@ -25,10 +28,12 @@ function createWord(req, res) {
 
     let word = new WordModel({
         text: req.body.text,
+        image: req.body.image,
+        audio: req.body.audio,
         definition: req.body.definition,
         part_of_speech: req.body.part_of_speech,
-        words: req.body.words || [],
-        sentences: req.body.sentences || [],
+        words: req.body.words,
+        sentences: req.body.sentences,
     });
 
     word.save().then((result => {
@@ -48,7 +53,7 @@ function createWord(req, res) {
  * @param {express.Response} res
  */
 function updateWord(req, res) {
-    let update = lodash.pick(req.body, ['text', 'part_of_speech', 'definition']);
+    let update = lodash.pick(req.body, editableFields);
     WordModel.updateOne({_id: req.params.id}, {$set: update}).then(word => {
         if (!word || word.nModified <= 0) {
             res.status(404).json({ success: false, result: "No such word exists" });
@@ -108,7 +113,19 @@ function deleteRelatedWord(req, res) {
  * @param {express.Response} res
  */
 function getWord(req, res) {
-    WordModel.findOne({_id: req.params.id}).populate('sentences').populate('words').then(result => {
+    let fields = req.query.fields || allFields;
+    let project = {};
+    fields.forEach(field => project[field] = 1);
+
+    let find = WordModel.findOne({_id: req.params.id}, project);
+    if (fields.includes('sentences')) {
+        find = find.populate('sentences');
+    }
+    if (fields.includes('words')) {
+        find = find.populate('words');
+    }
+
+    find.then(result => {
         if (!result) {
             return res.status(404).json({success: false, result: "No word with ID found."});
         } else {
@@ -125,6 +142,9 @@ function getWord(req, res) {
  * @param {express.Response} res
  */
 function getRandomWord(req, res) {
+    let fields = req.query.fields || allFields;
+    let project = {};
+    fields.forEach(field => project[field] = 1);
     WordModel.aggregate(
         [
             {
@@ -137,6 +157,9 @@ function getRandomWord(req, res) {
                     foreignField: '_id',
                     as: 'sentences'
                 }
+            },
+            {
+                $project: project
             }
         ]
     ).then(result => {
@@ -215,9 +238,12 @@ function search(req, res) {
     let mode = req.query.mode == null ? "contains" : req.query.mode;
     let offset = parseInt(req.query.offset || 0);
     let limit = parseInt(req.query.limit || helpers.DEFAULT_LIMIT);
-    let field = (req.query.language || "").toLowerCase() == "paiute" ? "text" : "definition";
-
-    let pipeline = helpers.getSearchPipeline(req.query.query, mode, field, limit, offset);
+    
+    let searchFields = req.query.searchFields || defaultSearchFields;
+    let fields = req.query.fields || allFields;
+    let project = {};
+    fields.forEach(field => project[field] = 1);
+    let pipeline = helpers.getSearchPipeline(req.query.query, mode, searchFields, limit, offset, project);
 
     WordModel.aggregate(pipeline).then(result => {
         if (!result || result.length <= 0) {

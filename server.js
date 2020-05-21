@@ -27,8 +27,8 @@ mongoose.connect(process.env.MONGO_URI,
 
 // Middleware
 app.use(cors());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use(express.json({limit: '50mb'}));
 
 app.use(express.static(path.join(__dirname, 'build'))); // React app
 
@@ -36,6 +36,7 @@ app.use(express.static(path.join(__dirname, 'build'))); // React app
 const WordControl = require('./api/controllers/WordControl');
 const SentenceControl = require('./api/controllers/SentenceControl');
 const UserControl = require('./api/controllers/UserControl');
+const ArticleControl = require('./api/controllers/ArticleControl');
 
 /**
  * 
@@ -101,14 +102,13 @@ function ensureUser(req, res, next) {
     }
 }
 
-// Routes
+// --- ROUTES --- //
+
+// crud - words
 app.post('/api/word', ensureEditor, WordControl.create);
 app.put('/api/word/:id', ensureEditor, WordControl.update);
 app.get('/api/word/:id',  WordControl.retrieve);
 app.delete('/api/word/:id', ensureEditor, WordControl.delete);
-
-app.get('/api/random/word', WordControl.random);
-app.get('/api/random/sentence', SentenceControl.random);
 
 app.post('/api/word/:id/related', ensureEditor, WordControl.addRelatedWord);
 app.delete('/api/word/:id/related/:related_id', ensureEditor, WordControl.deleteRelatedWord);
@@ -116,14 +116,30 @@ app.delete('/api/word/:id/related/:related_id', ensureEditor, WordControl.delete
 app.post('/api/word/:id/sentence', ensureEditor, WordControl.addSentence);
 app.delete('/api/word/:id/sentence/:sentence_id', ensureEditor, WordControl.deleteSentence);
 
-app.get('/api/search/word', WordControl.search);
-app.get('/api/search/sentence', SentenceControl.search);
-
+// crud - sentences
 app.post('/api/sentence', ensureEditor, SentenceControl.create);
 app.put('/api/sentence/:id', ensureEditor, SentenceControl.update);
 app.get('/api/sentence/:id', SentenceControl.retrieve);
 app.delete('/api/sentence/:id', ensureEditor, SentenceControl.delete);
 
+// crud - articles
+app.post('/api/article', ensureEditor, ArticleControl.create);
+app.put('/api/article/:id', ensureEditor, ArticleControl.update);
+app.get('/api/article/:id', ArticleControl.retrieve);
+app.delete('/api/article/:id', ensureEditor, ArticleControl.delete);
+
+// random
+app.get('/api/random/word', WordControl.random);
+app.get('/api/random/sentence', SentenceControl.random);
+app.get('/api/random/article', ArticleControl.random);
+
+// search
+app.get('/api/search/word', WordControl.search);
+app.get('/api/search/sentence', SentenceControl.search);
+app.get('/api/search/article', ArticleControl.search);
+
+
+// crud - users
 app.post('/api/user', ensureAuthenticated, (req, res) => {
     if (req.body.type == 'USER') {
         return UserControl.create(req, res);

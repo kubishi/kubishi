@@ -38,13 +38,24 @@ function parseSignedRequest(signedRequest) {
  * @param {String} field
  * @param {Number} limit
  * @param {Number} offset
+ * @param {[String]} project
+ * 
+ * @returns {[Object]}
  */
-function getSearchPipeline(query, mode, field, limit, offset) {
+function getSearchPipeline(query, mode, field, limit, offset, project) {
     /**
      * @type {mongoose.DocumentQuery} prom
      */
+    // project['_id'] = 1; // always include _id
     let pipeline = [];
-    if (mode == "words") {
+    if (mode == "text") {
+        pipeline.push({
+            $search: {$text: query, $language: "none" }
+        });
+        pipeline.push({
+            $sort: { score: { $meta: "textScore" } } 
+        });
+    } else if (mode == "words") {
         pipeline.push({
             $search: {
                 regex: {
@@ -88,15 +99,34 @@ function getSearchPipeline(query, mode, field, limit, offset) {
         throw "Invalid search mode";
     }
 
-    pipeline = pipeline.concat([
-        {
-            $lookup: {
-                from: 'sentences', 
-                localField: 'sentences', 
-                foreignField: '_id', 
-                as: 'sentences'
+    pipeline.push({$project: project});
+    if (project['sentences']) {
+        pipeline.push(
+            {
+                $lookup: {
+                    from: 'sentences', 
+                    localField: 'sentences', 
+                    foreignField: '_id', 
+                    as: 'sentences'
+                }
             }
-        },
+        );
+    }
+
+    if (project['words']) {
+        pipeline.push(
+            {
+                $lookup: {
+                    from: 'words', 
+                    localField: 'words', 
+                    foreignField: '_id', 
+                    as: 'words'
+                }
+            }
+        );
+    }
+
+    pipeline = pipeline.concat([
         {
             $facet: {
                 result: [

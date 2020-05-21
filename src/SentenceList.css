@@ -1,0 +1,7 @@
+.list-group-item{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: '0px';
+    margin: '0px';
+}

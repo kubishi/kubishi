@@ -1,7 +1,8 @@
 import React from 'react';
 import './App.css';
 import { 
-  Button, Container, Navbar, Nav, Modal, Form
+  Button, Container, Navbar, Nav, 
+  Col, Row, Spinner, NavDropdown
 } from 'react-bootstrap';
 
 import cookie from 'react-cookies';
@@ -10,18 +11,24 @@ import FacebookLogin from 'react-facebook-login';
 import SearchWindow from './SearchWindow';
 import WordWindow from './WordWindow';
 import UserType from './UserType';
-import PartOfSpeech from './PartOfSpeech';
 import HttpsRedirect from 'react-https-redirect';
 
 import PrivacyPolicy from './PrivacyPolicy';
 import About from './About';
 
-import {
-  BrowserRouter as Router,
-  Switch, useParams, Route,
-} from "react-router-dom";
 import Pronunciation from './Pronunciation';
 import api from './Api';
+
+import { Switch, useParams, Router, Route, Link, Redirect } from 'react-router-dom';
+import history from './history';
+
+import SearchBar from './SearchBar';
+import qs from 'query-string';
+import NewWord from './NewWord';
+import WordEdit from './WordEdit';
+import ArticleNew from './ArticleNew';
+import ArticleWindow from './ArticleWindow';
+import ArticleEdit from './ArticleEdit';
 
 const { REACT_APP_FACEBOOK_APP_ID } = process.env;
 
@@ -63,25 +70,23 @@ class App extends React.Component {
     let signed_request = cookie.load('signed_request');
     let user_id = cookie.load('user_id');
     if (signed_request == null || user_id == null) {
-      this.setState({user: false});
-      return;
+      return this.setState({user: false});
     };
 
     if (user != null && user.ids.includes(user_id)) {
-      this.setState({user: user});
-      return;
+      return this.setState({user: user});
     }
 
     api.get('/api/user/' + user_id).then(res => {
       if (res.status == 200) {
-        this.setState({user: res.data.result});
+        return this.setState({user: res.data.result});
       } else {
         console.log(res.status, res.data);
-        this.setState({user: false});
+        return this.setState({user: false});
       }
     }).catch(err => {
       console.error(err);
-      this.setState({user: false});
+      return this.setState({user: false});
     });
   }
 
@@ -122,136 +127,14 @@ class App extends React.Component {
     }
   }
 
-  randomWord(e) {
-    api.get('/api/random/word').then(res => {
-      if (res.status == 200) {
-        window.location.href = '/word/' + res.data.result._id;
-      } else {
-        console.log(res.status, res.data);
-      }
-    }).catch(err => console.error(err));
-  }
-
-  canEdit() {
-    let { user } = this.state;
-    if (user != null && UserType[user.type] != null && UserType[user.type] >= UserType.EDITOR) {
-        return true;
-    }
-    return false;
-  }
-
-  getWordForm() {
-    let { addWordText, addWordDef } = this.state;
-    let posOptions = PartOfSpeech.map((part_of_speech, i) => {
-        let pos = part_of_speech.toLowerCase().replace('_', ' ');
-        return (
-            <option key={'option-pos-' + i}>{pos}</option>
-        );
-    });
-    return (
-      <Form>
-          <Form.Group controlId='formAddWord'>
-              <Form.Label>Word</Form.Label>
-              <Form.Control 
-                  type='text'
-                  isValid={addWordText != null && addWordText != ''}
-                  onChange={e => {this.setState({addWordText: e.target.value})}}
-              />
-          </Form.Group>
-
-          <Form.Group controlId='formAddPOS'>
-              <Form.Label>Part of Speech</Form.Label>
-              <Form.Control 
-                  as="select" 
-                  defaultValue='unknown'
-                  isValid={addWordText != null && addWordText != ''}
-                  onChange={e => {this.setState({addWordPos: e.target.value})}}
-              >
-                  {posOptions}
-              </Form.Control>
-          </Form.Group>
-
-          <Form.Group controlId='formAddDefinition'>
-              <Form.Label>Definition</Form.Label>
-              <Form.Control 
-                as="textarea"
-                isValid={addWordDef != null && addWordDef != ''}
-                onChange={e => this.setState({addWordDef: e.target.value})}
-              />
-          </Form.Group>
-      </Form>
-    );
-  }
-
-  addWord() {
-    if (!this.canEdit()) {
-      console.error("User cannot add words");
-      return;
-    }
-
-    let { addWordText, addWordDef, addWordPos, addWordPaiute } = this.state;
-
-    let fields = [addWordText, addWordDef, addWordPos, addWordPaiute];
-    if (fields.some(e => e == null)) {
-      console.error('Some of the fields are null: ', fields);
-      return;
-    }
-
-    api.post('/api/word', 
-      {
-        text: addWordText,
-        definition: addWordDef,
-        part_of_speech: addWordPos.toUpperCase().replace(' ', '_'),
-        sentences: [],
-        words: []
-      }
-    ).then(res => {
-      if (res.status == 200) {
-        window.location.href = '/word/' + res.data.result._id;
-      } else {
-        console.log(res.status, res.data);
-      }
-    }).catch(err => console.error(err));
-  }
-
-  getAddWordModal() {
-    let { showAddWord } = this.state;
-    return (
-      <Modal 
-        show={showAddWord} 
-        onHide={() => this.setState({showAddWord: false})}
-      >
-        <Modal.Header>
-          Add Word
-        </Modal.Header>
-        <Modal.Body>
-          {this.getWordForm()}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant='outline-primary'
-            onClick={e => this.setState({showAddWord: false})}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant='outline-success'
-            onClick={e => this.addWord()}
-          >
-            Submit
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    );
-  }
-
-  containerWrap(body) {
-
-  }
-
   render() {    
+    console.log('rendering main');
     let loginButton = null;
     let { user } = this.state;
+    if (user == null) return <Spinner />; // page is loading
+
+    let canEdit = (UserType[user.type] || UserType.USER) >= UserType.EDITOR;
+
     if (user == false) {
       loginButton = ( 
         <Nav>
@@ -266,7 +149,7 @@ class App extends React.Component {
           </Nav.Item>
         </Nav>
       );
-    } else if (user != null) {
+    } else {
       loginButton = (
         <Nav>
           <Nav.Item>
@@ -283,14 +166,13 @@ class App extends React.Component {
       );  
     }
 
-    let addWordButton;
-    if (this.canEdit()) {
-      addWordButton = (
-        <Nav.Item onClick={e => this.setState({showAddWord: true})}>
-          <Nav.Link>
-            New Word
-          </Nav.Link>
-        </Nav.Item>
+    let contributeButton;
+    if (canEdit) {
+      contributeButton = (
+        <NavDropdown title="Contribute" id="nav-dropdown">
+          <NavDropdown.Item onClick={e => history.push('/create/article')}>New Article</NavDropdown.Item>
+          <NavDropdown.Item onClick={e => history.push('/create/word')}>New Word</NavDropdown.Item>
+        </NavDropdown>
       );
     }
 
@@ -301,55 +183,77 @@ class App extends React.Component {
       <Navbar.Collapse id="basic-navbar-nav">
         <Nav className="mr-auto">
           <Nav.Item>
-            <Nav.Link href='/'>Search</Nav.Link>
-          </Nav.Item>
-          <Nav.Item>
             <Nav.Link href='/about'>About</Nav.Link>
           </Nav.Item>
           <Nav.Item>
             <Nav.Link href='/pronunciation'>Pronunciation Guide</Nav.Link>
           </Nav.Item>
-          <Nav.Item onClick={e => this.randomWord(e)}>
-            <Nav.Link>
-              Random Word!
-            </Nav.Link>
-          </Nav.Item>
-          {addWordButton}
+          {contributeButton}
         </Nav>
         {loginButton}
       </Navbar.Collapse>
     </Navbar>
     );
-    
-    let addWordModal;
-    if (this.canEdit()) {
-      addWordModal = this.getAddWordModal();
-    }
 
     return (
       <HttpsRedirect>
-        <Router>
-          <Container style={{paddingBottom: '65px'}}>
-            {addWordModal}
+        <Router history={history}>
+          <Container style={{paddingBottom: '65px'}} fluid>
+            {navbar}
             <Switch>
-              <Route path="/word/:id">
-                {navbar}
-                <WordWindowRoute getUser={() => this.state.user} />
-              </Route>
+              <Route path="/word/:id" component={(props) => {
+                let { id } = useParams();
+                let { mode } = qs.parse(props.location.search, { ignoreQueryPrefix: true });
+                if (mode == "edit") {
+                  if (canEdit) {
+                    return <WordEdit wordId={id} getUser={() => this.state.user} />
+                  } else {
+                    history.push(`/article/${id}`);
+                    return history.go();
+                  }
+                }
+                return <WordWindow wordId={id} canEdit={canEdit}/>;
+              }} />
+              <Route path="/article/:id" component={(props) => {
+                let { id } = useParams();
+                let { mode } = qs.parse(props.location.search, { ignoreQueryPrefix: true });
+                if (mode == "edit") {
+                  if (canEdit) {
+                    return <ArticleEdit articleId={id} />
+                  } else {
+                    history.push(`/article/${id}`);
+                    return history.go();
+                  }
+                }
+                return <ArticleWindow canEdit={canEdit} articleId={id} getUser={() => this.state.user} />;
+              }} />
+              <Route path="/create/word" component={(props) => {
+                return canEdit ? <NewWord /> : <Redirect path='/' />;
+              }} />
+              <Route path="/create/article" component={(props) => {
+                return canEdit ? <ArticleNew /> : <Redirect path='/' />;
+              }} />
               <Route path="/privacy">
                 <PrivacyPolicy />
               </Route>
               <Route path="/about">
-                {navbar}
                 <About />
               </Route>
               <Route path="/pronunciation">
-                {navbar}
                 <Pronunciation />
               </Route>
+              <Route path="/search" 
+                component={(props) => {
+                  let { query } = qs.parse(props.location.search, { ignoreQueryPrefix: true });
+                  return <SearchWindow query={query} getUser={() => this.state.user} />;
+                }} 
+              />
               <Route path="/">
-                {navbar}
-                <SearchWindow getUser={() => this.state.user} />
+                <Row style={{marginTop: "20vh"}}>
+                  <Col>
+                    <SearchBar showRandomButtons />
+                  </Col>
+                </Row>
               </Route>
             </Switch>
             <Navbar fixed="bottom" style={{opacity: "1", backgroundColor: "white"}} >
@@ -365,13 +269,6 @@ class App extends React.Component {
       </HttpsRedirect>
     );
   }
-}
-
-function WordWindowRoute(props) {
-  let { id } = useParams();
-  return (
-    <WordWindow wordId={id} getUser={props.getUser} />
-  );
 }
 
 export default App;

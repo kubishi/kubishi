@@ -1,177 +1,141 @@
 
-
-
 import React from 'react';
 import { 
-  Button, Row, Col, InputGroup, FormControl,
-  ListGroup, ButtonGroup
+    Row, Col, Spinner
 } from 'react-bootstrap';
 import Pagination from "react-js-pagination";
 
+
 import './SearchWindow.css';
-import { remove_punctuation } from './helpers';
 
 import api from './Api';
+import SearchBar from './SearchBar';
+import WordList from './WordList';
+import SentenceList from './SentenceList';
+import ArticleList from './ArticleList'
 
-class WordSummary extends React.Component {
-    render() {
-        let { text, definition, part_of_speech } = this.props.word;
-        part_of_speech = part_of_speech.toLowerCase().replace('_', ' ');
-        return (
-            <Row>
-                <Col sm={12} md={4} className='text-right align-self-center' >
-                    <h5>{text}</h5>
-                    <em>{part_of_speech}</em>
-                </Col>
-                <Col xs={0} style={{'borderRight': '1px solid #ccc'}} className='d-none d-md-block d-xl-block'></Col>
-                <Col className='align-self-center'>
-                    <p>{definition}</p>
-                </Col>
-            </Row>
-        );
-    }
-}
 
-class SentenceSummary extends React.Component {
-    render() {
-        let { paiute, english } = this.props.sentence;
-        return (
-            <Row>
-                <Col sm={12} md={6} className='text-right align-self-center' >
-                    <p><b>{paiute}</b></p>
-                </Col>
-                <Col xs={0} style={{'borderRight': '1px solid #ccc'}} className='d-none d-md-block d-xl-block'></Col>
-                <Col className='align-self-center'>
-                    <p>{english}</p>
-                </Col>
-            </Row>
-        );
-    }
-}
-  
 class SearchWindow extends React.Component {
     constructor(props) {
         super(props);
 
-        this.resultsPerPage = 10;
-        this.langButtons = ['English', 'Paiute'];
-        this.searchTypeButtons = ['Words', 'Sentences'];
         this.state = {
-            searchLanguage: this.langButtons[0],
-            searchType: this.searchTypeButtons[0],
-            query: null,
-            results: [],
-            error: null,
-            total: 0,
-            activePage: 1
+            resultWords: null,
+            totalWords: 0,
+            pageWords: 1,
+
+            resultArticles: null,
+            totalArticles: 0,
+            pageArticles: 1,
+
+            resultSentences: null,
+            totalSentences: 0,
+            pageSentences: 1,
         };
     }
 
-    handleSearch(pageNumber=null) {
-        let { query, searchLanguage, searchType } = this.state;
-        if (query == null) return;
+    searchWords(pageWords=null) {
+        let { query, resultsPerPage } = this.props;
 
-        let searchTypeRoute = searchType == 'Words' ? 'word' : 'sentence';
-        api.get(`/api/search/${searchTypeRoute}`, 
+        api.get('/api/search/word', 
             {
                 params: { 
-                    query: remove_punctuation(query), 
+                    query: query, 
                     mode: 'fuzzy', 
-                    language: searchLanguage.toLowerCase(),
-                    offset: ((pageNumber || 1) - 1) * this.resultsPerPage,
-                    limit: this.resultsPerPage,
+                    fields: ['text', 'definition', 'part_of_speech'],
+                    offset: ((pageWords || 1) - 1) * resultsPerPage,
+                    limit: resultsPerPage,
                 },
             }
         ).then(res => {
             if (res.status != 200 || !res.data.success) {
                 console.log(res.status, res.data);
-                this.setState({error: res.data.result, results: [], total: 0});
-            } else if (res.data.result.length <= 0) {
-                this.setState({error: 'No Matches!', results: [], total: 0});
+                this.setState({resultWords: [], totalWords: 0});
+            } else if (res.data.result.length <= 0) {;
+                this.setState({resultWords: [], totalWords: 0});
             } else {
-                this.setState({error: null, results: res.data.result, total: res.data.total, activePage: pageNumber || 1});
+                console.log(res.data.result)
+                this.setState({resultWords: res.data.result, totalWords: res.data.total, pageWords: pageWords || 1});
+            }
+        }).catch(err => console.error(err));
+    }
+    
+    searchSentences(pageSentences=null) {
+        let { query, resultsPerPage } = this.props;
+
+        api.get('/api/search/sentence', 
+            {
+                params: { 
+                    query: query, 
+                    mode: 'fuzzy', 
+                    fields: ['english', 'paiute'],
+                    offset: ((pageSentences || 1) - 1) * resultsPerPage,
+                    limit: resultsPerPage,
+                },
+            }
+        ).then(res => {
+            if (res.status != 200 || !res.data.success) {
+                console.log(res.status, res.data);
+                this.setState({resultSentences: [], totalSentences: 0});
+            } else if (res.data.result.length <= 0) {
+                this.setState({resultSentences: [], totalSentences: 0});
+            } else {
+                this.setState({resultSentences: res.data.result, totalSentences: res.data.total, pageSentences: pageSentences || 1});
             }
         }).catch(err => console.error(err));
     }
 
-    handleSearchKeyPress(e) {
-        if(e.charCode==13){ // Enter key
-            this.handleSearch();    
-        } 
+    searchArticles(pageArticles) {
+        let { query, resultsPerPage } = this.props;
+
+        api.get('/api/search/article', 
+            {
+                params: { 
+                    query: query, 
+                    mode: 'fuzzy', 
+                    searchFields: ["title", "keywords"],
+                    fields: ["title", "tags"],
+                    offset: ((pageArticles || 1) - 1) * resultsPerPage,
+                    limit: resultsPerPage,
+                },
+            }
+        ).then(res => {
+            if (res.status != 200 || !res.data.success) {
+                this.setState({resultArticles: [], totalArticles: 0});
+            } else if (res.data.result.length <= 0) {
+                this.setState({resultArticles: [], totalArticles: 0});
+            } else {
+                this.setState({resultArticles: res.data.result, totalArticles: res.data.total, pageArticles: pageArticles || 1});
+            }
+        }).catch(err => console.error(err));
+    }
+
+    componentDidMount() {
+        this.searchWords();
+        this.searchSentences();
+        this.searchArticles();
     }
 
     render() {
-        let { searchLanguage, searchType, results, error, activePage, total, query } = this.state;
+        let { 
+            resultWords, resultSentences, resultArticles,
+            pageWords, pageSentences, pageArticles,
+            totalWords, totalSentences, totalArticles
+        } = this.state;
 
-        let langButtons = this.langButtons.map((name, i) => {
-            return (
-                <Button 
-                    className='w-100'
-                    key={'search-' + name.toLowerCase().replace(' ', '-')}
-                    onClick={e => this.setState({searchLanguage: name}, () => this.handleSearch())}
-                    variant={searchLanguage == name ? 'primary' : 'outline-primary'}
-                >
-                    {name}
-                </Button>
-            );
-        });
+        let { resultsPerPage } = this.props;
 
-        let searchTypeButtons = this.searchTypeButtons.map((name, i) => {
-            return (
-                <Button 
-                    className='w-100'
-                    key={'search-' + name.toLowerCase().replace(' ', '-')}
-                    onClick={e => this.setState({searchType: name}, () => this.handleSearch())}
-                    variant={searchType == name ? 'primary' : 'outline-primary'}
-                >
-                    {name}
-                </Button>
-            );
-        });
-
-        let resultBody;
-        let pagination;
-        if (error) {
-            resultBody = <h5 className='text-center'>{error}</h5>;
-        } else {
-            let resultItems = results.map((word, i) => {
-                let isSentence = word.part_of_speech == null;
-                if (isSentence) {
-                    return (
-                        <ListGroup.Item 
-                            key={'sentence-list-' + word._id}
-                            // action href={'/word/' + word._id}
-                        >
-                            <SentenceSummary sentence={word} />
-                        </ListGroup.Item>
-                    );
-                } else {
-                    return (
-                        <ListGroup.Item 
-                            key={'word-list-' + word._id}
-                            action href={'/word/' + word._id}
-                        >
-                            <WordSummary word={word} />
-                        </ListGroup.Item>
-                    );
-                }
-            });
-
-            resultBody = (
-                <ListGroup variant='flush'>
-                    {resultItems}
-                </ListGroup>
-            );
-
-            if (total > this.resultsPerPage) {
-                pagination = (
+        let contentArticles, paginateArticles;
+        if (totalArticles > 0) {
+            if (totalArticles > resultsPerPage) {
+                paginateArticles = (
                     <div className="mt-2">
                         <Pagination
-                            activePage={activePage}
-                            itemsCountPerPage={this.resultsPerPage}
-                            totalItemsCount={total}
+                            activePage={pageArticles}
+                            itemsCountPerPage={resultsPerPage}
+                            totalItemsCount={totalArticles}
                             pageRangeDisplayed={5}
-                            onChange={pageNumber => this.handleSearch(pageNumber)}
+                            onChange={pageNumber => this.searchArticles(pageNumber)}
                             innerClass="pagination justify-content-center"
                             itemClass="page-item"
                             linkClass="page-link"
@@ -179,57 +143,102 @@ class SearchWindow extends React.Component {
                     </div>
                 );
             }
+            contentArticles = <ArticleList results={resultArticles} />;
+        } else if (resultWords == null) {
+            contentArticles= <Spinner />;
+        } else {
+            contentArticles = <span className='text-center'>No matching articles</span>;
         }
+        let articleCol= (
+            <Col sm={12} md={4}>
+                <h4 className="mt-2">Articles</h4>
+                {contentArticles}
+                {paginateArticles}
+            </Col>
+        );
+
+        let contentWords, paginateWords;
+        if (totalWords > 0) {
+            if (totalWords > resultsPerPage){
+                paginateWords = (
+                    <div className="mt-2">
+                        <Pagination
+                            activePage={pageWords}
+                            itemsCountPerPage={resultsPerPage}
+                            totalItemsCount={totalWords}
+                            pageRangeDisplayed={5}
+                            onChange={pageNumber => this.searchWords(pageNumber)}
+                            innerClass="pagination justify-content-center"
+                            itemClass="page-item"
+                            linkClass="page-link"
+                        />
+                    </div>
+                );
+            }
+            contentWords = <WordList results={resultWords} />;
+        } else if (resultWords == null) {
+            contentWords = <Spinner />;
+        } else {
+            contentWords= <span className='text-center'>No matching words</span>;
+        }
+        let wordsCol= (
+            <Col sm={12} md={4}>
+                <h4 className="mt-2">Words</h4>
+                {contentWords}
+                {paginateWords}
+            </Col>
+        );
+
+        let contentSentences, paginateSentences;
+        if (totalSentences > 0) {
+            if (totalSentences > resultsPerPage) {
+                paginateSentences = (
+                    <div className="mt-2">
+                        <Pagination
+                            activePage={pageSentences}
+                            itemsCountPerPage={resultsPerPage}
+                            totalItemsCount={totalSentences}
+                            pageRangeDisplayed={5}
+                            onChange={pageNumber => this.searchSentences(pageNumber)}
+                            innerClass="pagination justify-content-center"
+                            itemClass="page-item"
+                            linkClass="page-link"
+                        />
+                    </div>
+                );
+            }
+            contentSentences = <SentenceList results={resultSentences} />;
+        } else if (resultSentences == null) {
+            contentSentences = <Spinner />;
+        } else {
+            contentSentences= <span className='text-center'>No matching sentences</span>;
+        }
+        
+        let sentencesCol= (
+            <Col sm={12} md={4}>
+                <h4 className="mt-2">Sentences</h4>
+                {contentSentences}
+                {paginateSentences}
+            </Col>
+        );
 
         return (
-            <div>
-                <Row className="mb-2 mt-2 no-gutters">
-                    <Col sm={12} md={6} className=''>
-                        <ButtonGroup className='d-flex mb-1 mb-md-0 mr-md-1'>
-                            {searchTypeButtons}
-                        </ButtonGroup>
-                    </Col>  
-                    <Col sm={12} md={6}>
-                        <ButtonGroup className='d-flex'>
-                            {langButtons}
-                        </ButtonGroup>
-                    </Col>
-                </Row>
-                <Row className="mb-3 no-gutters">
-                    <Col>
-                        <InputGroup>
-                            <FormControl
-                                placeholder="Search..."
-                                autoFocus
-                                aria-label="Search"
-                                aria-describedby="search-text"
-                                name='query'
-                                value={query}
-                                onKeyPress={e => this.handleSearchKeyPress(e)}
-                                onChange={e => {this.setState({query: e.currentTarget.value})}}
-                            />
-                            
-                            <InputGroup.Append>
-                                <Button 
-                                    variant="outline-secondary" 
-                                    onClick={e => this.handleSearch()}
-                                >
-                                    Search
-                                </Button>
-                            </InputGroup.Append>
-                        </InputGroup>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col className="mt-2">
-                        {resultBody}
-                        {pagination}
-                    </Col>
-                </Row>
-            </div>
-        )
+            <Row>
+                <Col>
+                    <SearchBar className="mt-2" query={this.props.query}/>
+                    <Row>     
+                        {articleCol}
+                        {wordsCol}
+                        {sentencesCol}
+                    </Row>
+                </Col>
+            </Row>
+        );
     }
-}
+};
 
+SearchWindow.defaultProps = {
+    resultsPerPage: 10,
+};
 
 export default SearchWindow;

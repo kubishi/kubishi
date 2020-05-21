@@ -46,3 +46,13 @@
   background: #3b5998 !important;
   opacity: 0.6 !important;
 }
+
+.spinner {
+  display: block;
+  position: fixed;
+  z-index: 1031;
+  top: 50%;
+  right: 50%; /* or: left: 50%; */
+  margin-top: -..px; /* have of the elements height */
+  margin-right: -..px; /* have of the elements widht */
+}
