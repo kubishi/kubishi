@@ -54,7 +54,6 @@ class SearchWindow extends React.Component {
             } else if (res.data.result.length <= 0) {;
                 this.setState({resultWords: [], totalWords: 0});
             } else {
-                console.log(res.data.result)
                 this.setState({resultWords: res.data.result, totalWords: res.data.total, pageWords: pageWords || 1});
             }
         }).catch(err => console.error(err));
@@ -93,7 +92,7 @@ class SearchWindow extends React.Component {
                 params: { 
                     query: query, 
                     mode: 'fuzzy', 
-                    searchFields: ["title", "keywords"],
+                    searchFields: ["title", "keywords", "tags"],
                     fields: ["title", "tags"],
                     offset: ((pageArticles || 1) - 1) * resultsPerPage,
                     limit: resultsPerPage,
@@ -109,11 +108,19 @@ class SearchWindow extends React.Component {
             }
         }).catch(err => console.error(err));
     }
-
+    
     componentDidMount() {
         this.searchWords();
         this.searchSentences();
         this.searchArticles();
+    }
+    
+    componentDidUpdate(prevProps, prevState) {
+        if (prevProps.query != this.props.query) {
+            this.searchWords();
+            this.searchSentences();
+            this.searchArticles();
+        }
     }
 
     render() {

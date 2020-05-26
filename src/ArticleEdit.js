@@ -5,6 +5,7 @@ import { Row, Col, Button, Spinner } from 'react-bootstrap';
 import api from './Api';
 import history from './history';
 import ArticleForm from './ArticleForm';
+import { getUpdates } from './helpers';
 
 import 'react-quill/dist/quill.snow.css';
 
@@ -16,34 +17,34 @@ class ArticleEdit extends React.Component {
     }
     
     componentDidMount() {
+        this.getArticle()
+    }
+
+    getArticle() {
         let { articleId } = this.props;
 
         api.get(`/api/article/${articleId}`).then(res => {
             if (res.status == 200 && res.data.success) {
-                let { title, tags, keywords, content, image } = res.data.result;
-                this.setState({ 
-                    article: {
-                        title: title, 
-                        tags: tags, 
-                        keywords: keywords, 
-                        content: content, 
-                        image: image
-                    } 
-                });
+                this.setState({article: res.data.result});
             } else {
                 console.log(res.status, res.data);
             }
         }).catch(err => console.error(err));
     }
 
-    addArticle(article) {        
-        if (article.title == null || article.content == null) {
+    saveArticle(new_article) {      
+        let { article } = this.state;
+        if (article == null) return; // article not loaded yet
+
+        if (new_article.title == null || new_article.content == null) {
             console.error('articles must havea title and content');
         }
-    
-        api.post('/api/article', article).then(res => {
+
+        let body = getUpdates(article, new_article);
+        if (!body) return; // no updates
+        api.put(`/api/article/${article._id}`, body).then(res => {
             if (res.status == 200) {
-                history.push(`/article/${res.data.result._id}`);
+                this.getArticle();
             } else {
                 console.log(res.status, res.data);
             }
@@ -54,8 +55,7 @@ class ArticleEdit extends React.Component {
         let { articleId } = this.props;
         api.delete(`/api/article/${articleId}`).then(res => {
             if (res.status == 200 && res.data.success) {
-                history.push('/');
-                return history.go();
+                return history.push('/');
             } else {
                 console.log(res.status, res.data);
             }
@@ -67,7 +67,7 @@ class ArticleEdit extends React.Component {
         if (article == null) return <Spinner />;
         return (
             <ArticleForm
-                onSubmit={article => this.addArticle(article)}
+                onSubmit={article => this.saveArticle(article)}
                 onDelete={() => this.deleteArticle()}
                 submitText='Save'
                 article={article}

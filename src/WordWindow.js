@@ -2,11 +2,12 @@
 import React from 'react';
 import { Row, Col, ListGroup, Button, Spinner } from 'react-bootstrap';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faEdit } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEdit } from '@fortawesome/free-solid-svg-icons';
 
 import { remove_punctuation } from './helpers';
 import api from './Api';
+import SentenceList from './SentenceList';
 import history from './history';
 import './common.css';
 
@@ -15,12 +16,6 @@ class WordWindow extends React.Component {
         super(props);
         this.state = {
             word: null,
-            text: null,
-            part_of_speech: null,
-            definition: null,
-            sentences: {},
-            sentencesUpdates: {},
-            related_options: [],
         };
     }
 
@@ -31,12 +26,7 @@ class WordWindow extends React.Component {
     getWord() {
         api.get('/api/word/' + this.props.wordId).then(res => {
             if (res.status == 200) {
-                let sentences = {};
-                res.data.result.sentences.forEach(sentence => {
-                    sentence.suggested = false;
-                    sentences[sentence._id] = sentence;
-                });
-                this.getSuggestedSentences(res.data.result, sentences);
+                this.setState({word: res.data.result})
             } else {
                 console.log(res.status, res.data);
             }
@@ -46,41 +36,9 @@ class WordWindow extends React.Component {
         });
     }
    
-    /**
-     * 
-     * @param {String} word 
-     * @param {[Object]} sentences 
-     */
-    getSuggestedSentences(word, sentences) {
-        api.get('/api/search/sentence', {
-            params: {
-                query: remove_punctuation(word.text),
-                language: 'paiute',
-                mode: 'fuzzy',
-            }
-        }).then(res => {
-            if (res.status == 200) {
-                if (res.data.result) {
-                    res.data.result.forEach(sentence => {
-                        if (sentences[sentence._id] == null) {
-                            sentence.suggested = true;
-                            sentences[sentence._id] = sentence;
-                        }
-                    });
-                }
-            } else {
-                console.log(res.status, res.data);
-            }
-            console.log('Setting state');
-            this.setState({word, sentences});
-        }).catch(err => console.error(err));
-    }
-
     render() {
-        let { word, sentences } = this.state;
+        let { word } = this.state;
         let { canEdit, wordId } = this.props;
-
-        console.log('rendering', word == null, sentences == null);
 
         if (word == null) {
             return <Spinner />;
@@ -92,39 +50,6 @@ class WordWindow extends React.Component {
             );
         }
 
-        let regSentences = [];
-        let suggSentences = [];
-        Object.entries(sentences).forEach(([_, sentence]) => {
-            let listItem = (
-                <ListGroup.Item key={'sentence-' + sentence._id}>
-                    <b>{sentence.paiute}</b>
-                    <p>{sentence.english}</p>
-                </ListGroup.Item>
-            );
-            if (sentence.suggested == true) {
-                suggSentences.push(listItem);
-            } else {
-                regSentences.push(listItem);
-            }
-        });
-
-        let [sentencesList, suggSentencesList] = [[regSentences, 'Sentences'], [suggSentences, 'Suggested Sentences']].map(([listItems, title], _) => {
-            if (listItems.length <= 0) {
-                return null;
-            } else {
-                return (
-                    <Row>
-                        <Col>
-                            <h5 className='text-center'>{title}</h5>
-                            <ListGroup variant='flush'>
-                                {listItems}
-                            </ListGroup>
-                        </Col>
-                    </Row>
-                );
-            }
-        });
-        
         let relatedWords = word.words.map((word, i) => {
             return (
                 <ListGroup.Item action href={'/word/' + word._id}>
@@ -161,8 +86,7 @@ class WordWindow extends React.Component {
                         <Button 
                             variant='outline-primary'
                             onClick={e => {
-                                history.push(`/word/${wordId}?mode=edit`);
-                                return history.go();
+                                return history.push(`/word/${wordId}?mode=edit`);
                             }}
                             block
                         >
@@ -187,9 +111,9 @@ class WordWindow extends React.Component {
                         </Col>
                     </Row>
                 </Col>
-                <Col sm={12} md={8} >
-                    {sentencesList}
-                    {suggSentencesList}
+                <Col sm={12} md={8}>
+                    <h5 className='text-center'>Sentences</h5>
+                    <SentenceList results={word.sentences} />
                 </Col>
             </Row>
         );

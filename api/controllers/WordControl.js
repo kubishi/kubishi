@@ -6,7 +6,7 @@ const helpers = require('../helpers');
 
 
 const allFields = ['text', 'image', 'audio', 'definition', 'part_of_speech', 'sentences', 'words'];
-const editableFields = ['text', 'image', 'audio', 'definition', 'part_of_speech'];
+const editableFields = ['text', 'image', 'audio', 'definition', 'part_of_speech', 'words', 'sentences'];
 const requiredFields = ['text', 'definition', 'part_of_speech'];
 const defaultSearchFields = ['text', 'definition'];
 

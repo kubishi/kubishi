@@ -11,14 +11,11 @@ import './ArticleForm.css' // If using WebPack and style-loader.
  
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
-Quill.register('modules/imageResize', ImageResize);
+import { toBase64, getUpdates, getTagLabel } from './helpers';
+import ImageInput from './ImageInput';
+import history from './history';
 
-const toBase64 = file => new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = error => reject(error);
-});
+Quill.register('modules/imageResize', ImageResize);
 
 class ArticleForm extends React.Component {
     constructor(props) {
@@ -62,6 +59,13 @@ class ArticleForm extends React.Component {
         };
     }
 
+    hasChanged() {
+        let old_article = this.props.article;
+        if (old_article == null) return true;
+
+        return Object.keys(getUpdates(old_article, this.state)).length > 0;
+    }
+
     getForm() {
         let { title, keywords, tags, image } = this.state;
         return (  
@@ -80,21 +84,10 @@ class ArticleForm extends React.Component {
                         </Form.Group>
                     </Col>
                     <Col xs={12} md={6}>
-                        <Form.Group controlId='formArticleFormImage'>
-                            <Form.Label>Image</Form.Label>
-                            <Form.File 
-                                id='form-add-article-image'
-                                accept='image/*'
-                                label={image.filename || "Headline image"}
-                                onChange={e => {
-                                    let file = e.target.files[0];
-                                    toBase64(file).then(res => {
-                                        this.setState({image: {data: res, filename: file.name}});
-                                    }).catch(err => console.error(err));
-                                }}
-                                custom
-                            />
-                        </Form.Group>
+                        <ImageInput 
+                            image={image}
+                            onSave={image => this.setState({image})}
+                        />
                     </Col>
                 </Form.Row>
                 <Form.Row>
@@ -112,7 +105,11 @@ class ArticleForm extends React.Component {
                     <Col xs={12} md={6}>
                         <Form.Group controlId='formArticleFormTitle'>
                             <Form.Label>Tags</Form.Label>
-                            <TagsInput className='form-control' value={tags} onChange={tags => this.setState({tags})} />
+                            <TagsInput 
+                                className='form-control' 
+                                value={tags.map(tag => getTagLabel(tag))} 
+                                onChange={tags => this.setState({tags: tags.map(tag => `tag:${tag}`)})}
+                            />
                         </Form.Group>
                     </Col>
                 </Form.Row>
@@ -135,6 +132,7 @@ class ArticleForm extends React.Component {
     render() {
         let { onDelete, deleteText, submitText } = this.props;
         let { content } = this.state;
+        let { article } = this.props;
         
         let buttons;
         if (onDelete != null) {
@@ -147,7 +145,15 @@ class ArticleForm extends React.Component {
                         </Button>
                     </Col>
                     <Col xs={12} md={6} className='pl-1'>
-                        <Button onClick={e => this.submitArticle()}  variant="outline-primary" block>{submitText}</Button>
+                        <Button 
+                            onClick={e => this.submitArticle()} 
+                            variant="outline-success" 
+                            block
+                            disabled={!this.hasChanged()}
+                            href='#'
+                        >
+                            {submitText}
+                        </Button>
                     </Col>
                 </Row>
             );
@@ -156,9 +162,26 @@ class ArticleForm extends React.Component {
                 <Row className="mt-3">
                     <Col className='d-none d-md-block d-xl-block' md={3}></Col>
                     <Col>
-                        <Button onClick={e => this.submitArticle()} block>Submit</Button>
+                        <Button variant='outline-success' onClick={e => this.submitArticle()} block>Submit</Button>
                     </Col>
                     <Col className='d-none d-md-block d-xl-block' md={3}></Col>
+                </Row>
+            );
+        }
+
+        let returnButton;
+        if (article != null) {
+            returnButton = (
+                <Row className="mb-2">
+                    <Col>
+                        <Button 
+                            block variant='outline-primary' 
+                            href='#' 
+                            onClick={e => history.push(`/article/${article._id}`)}
+                        >
+                            Back to Article
+                        </Button>
+                    </Col>
                 </Row>
             );
         }
@@ -166,6 +189,7 @@ class ArticleForm extends React.Component {
         return (
             <Row className="mt-3">
                 <Col>
+                    {returnButton}
                     <Row>
                         <Col>
                             {this.getForm()}

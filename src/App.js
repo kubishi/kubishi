@@ -24,11 +24,14 @@ import history from './history';
 
 import SearchBar from './SearchBar';
 import qs from 'query-string';
-import NewWord from './NewWord';
+import WordNew from './WordNew';
 import WordEdit from './WordEdit';
 import ArticleNew from './ArticleNew';
 import ArticleWindow from './ArticleWindow';
 import ArticleEdit from './ArticleEdit';
+import SentenceWindow from './SentenceWindow';
+import SentenceEdit from './SentenceEdit';
+import SentenceNew from './SentenceNew';
 
 const { REACT_APP_FACEBOOK_APP_ID } = process.env;
 
@@ -77,7 +80,7 @@ class App extends React.Component {
       return this.setState({user: user});
     }
 
-    api.get('/api/user/' + user_id).then(res => {
+    api.get(`/api/user/${user_id}`).then(res => {
       if (res.status == 200) {
         return this.setState({user: res.data.result});
       } else {
@@ -113,22 +116,21 @@ class App extends React.Component {
         {headers: {signed_request: signed_request}}
       ).then(res => {
         if (res.status == 200) {
-          this.setUser(res.data.result, signed_request);
+          return this.setUser(res.data.result, signed_request);
         } else if (res.status == 404) {
-          this.createUser(response.id, response.name, response.email, signed_request);
+          return this.createUser(response.id, response.name, response.email, signed_request);
         }
       }).catch(err => {
         if (err.response != null && err.response.status == 404) {
-          this.createUser(response.id, response.name, response.email, signed_request);
+          return this.createUser(response.id, response.name, response.email, signed_request);
         } else {
-          console.error('err', err);
+          return console.error('err', err);
         }
       });
     }
   }
 
   render() {    
-    console.log('rendering main');
     let loginButton = null;
     let { user } = this.state;
     if (user == null) return <Spinner />; // page is loading
@@ -172,6 +174,7 @@ class App extends React.Component {
         <NavDropdown title="Contribute" id="nav-dropdown">
           <NavDropdown.Item onClick={e => history.push('/create/article')}>New Article</NavDropdown.Item>
           <NavDropdown.Item onClick={e => history.push('/create/word')}>New Word</NavDropdown.Item>
+          <NavDropdown.Item onClick={e => history.push('/create/sentence')}>New Sentence</NavDropdown.Item>
         </NavDropdown>
       );
     }
@@ -208,8 +211,7 @@ class App extends React.Component {
                   if (canEdit) {
                     return <WordEdit wordId={id} getUser={() => this.state.user} />
                   } else {
-                    history.push(`/article/${id}`);
-                    return history.go();
+                    return history.push(`/article/${id}`);
                   }
                 }
                 return <WordWindow wordId={id} canEdit={canEdit}/>;
@@ -221,17 +223,31 @@ class App extends React.Component {
                   if (canEdit) {
                     return <ArticleEdit articleId={id} />
                   } else {
-                    history.push(`/article/${id}`);
-                    return history.go();
+                    return history.push(`/article/${id}`);
                   }
                 }
                 return <ArticleWindow canEdit={canEdit} articleId={id} getUser={() => this.state.user} />;
               }} />
+              <Route path="/sentence/:id" component={(props) => {
+                let { id } = useParams();
+                let { mode } = qs.parse(props.location.search, { ignoreQueryPrefix: true });
+                if (mode == "edit") {
+                  if (canEdit) {
+                    return <SentenceEdit sentenceId={id} />
+                  } else {
+                    return history.push(`/sentence/${id}`);
+                  }
+                }
+                return <SentenceWindow canEdit={canEdit} sentenceId={id} getUser={() => this.state.user} />;
+              }} />
               <Route path="/create/word" component={(props) => {
-                return canEdit ? <NewWord /> : <Redirect path='/' />;
+                return canEdit ? <WordNew /> : <Redirect path='/' />;
               }} />
               <Route path="/create/article" component={(props) => {
                 return canEdit ? <ArticleNew /> : <Redirect path='/' />;
+              }} />
+              <Route path="/create/sentence" component={(props) => {
+                return canEdit ? <SentenceNew /> : <Redirect path='/' />;
               }} />
               <Route path="/privacy">
                 <PrivacyPolicy />
@@ -245,7 +261,7 @@ class App extends React.Component {
               <Route path="/search" 
                 component={(props) => {
                   let { query } = qs.parse(props.location.search, { ignoreQueryPrefix: true });
-                  return <SearchWindow query={query} getUser={() => this.state.user} />;
+                  return <SearchWindow query={query} timestamp={Date.now()} />;
                 }} 
               />
               <Route path="/">

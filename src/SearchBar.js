@@ -22,11 +22,10 @@ class SearchBar extends React.Component {
     handleSearch(e) {
         let { query } = this.state;
         if (query != null && query != '') {
-            history.push({
+            return history.push({
                 pathname: '/search',
                 search: qs.stringify({query: query}),
             });
-            return history.go();
         }
     }
     
@@ -69,8 +68,7 @@ class SearchBar extends React.Component {
                 {params: {fields: ['_id']}}
             ).then(res => {
                 if (res.status == 200) {
-                    history.push(`/${path}/${res.data.result._id}`);
-                    return history.go();
+                    return history.push(`/${path}/${res.data.result._id}`);
                 } else {
                     console.log(res.status, res.data);
                 }
