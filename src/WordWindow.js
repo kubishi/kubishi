@@ -16,17 +16,19 @@ class WordWindow extends React.Component {
         super(props);
         this.state = {
             word: null,
+            sentences: [],
         };
     }
 
     componentDidMount() {
         this.getWord();
+        this.getSentences();
     }
 
     getWord() {
-        api.get('/api/words/' + this.props.wordId).then(res => {
+        api.get(`/api/words/${this.props.wordId}`).then(res => {
             if (res.status == 200) {
-                this.setState({word: res.data.result})
+                this.setState({word: res.data.result});
             } else {
                 console.log(res.status, res.data);
             }
@@ -35,9 +37,19 @@ class WordWindow extends React.Component {
             this.setState({word: false});
         });
     }
+
+    getSentences() {
+        api.get(`/api/words/${this.props.wordId}/sentences`).then(res => {
+            if (res.status == 200) {
+                this.setState({sentences: res.data.result});
+            } else {
+                console.log(res.status, res.data);
+            }
+        }).catch(err => console.error(err));
+    }
    
     render() {
-        let { word } = this.state;
+        let { word, sentences } = this.state;
         let { canEdit, wordId } = this.props;
 
         if (word == null) {
@@ -113,7 +125,7 @@ class WordWindow extends React.Component {
                 </Col>
                 <Col sm={12} md={8}>
                     <h5 className='text-center'>Sentences</h5>
-                    <SentenceList results={word.sentences} />
+                    <SentenceList results={sentences} />
                 </Col>
             </Row>
         );

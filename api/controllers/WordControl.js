@@ -5,8 +5,7 @@ const lodash = require('lodash');
 const helpers = require('../helpers');
 
 
-const allFields = ['text', 'image', 'audio', 'definition', 'part_of_speech', 'sentences', 'words'];
-const editableFields = ['text', 'image', 'audio', 'definition', 'part_of_speech', 'words', 'sentences'];
+const allFields = ['text', 'image', 'audio', 'definition', 'part_of_speech', 'notes', 'words'];
 const requiredFields = ['text', 'definition', 'part_of_speech'];
 const defaultSearchFields = ['text', 'definition'];
 
@@ -53,7 +52,7 @@ function createWord(req, res) {
  * @param {express.Response} res
  */
 function updateWord(req, res) {
-    let update = lodash.pick(req.body, editableFields);
+    let update = lodash.pick(req.body, allFields);
     WordModel.updateOne({_id: req.params.id}, {$set: update}).then(word => {
         if (!word || word.nModified <= 0) {
             res.status(404).json({ success: false, result: "No such word exists" });

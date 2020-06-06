@@ -114,7 +114,7 @@ app.delete('/api/words/:id', ensureEditor, WordControl.delete);
 app.post('/api/words/:id/related', ensureEditor, WordControl.addRelatedWord);
 app.delete('/api/words/:id/related/:related_id', ensureEditor, WordControl.deleteRelatedWord);
 
-app.get('/api/words/:id/sentences', SentenceControl.retrieveContainsWord) // get sentences that contain this word
+app.get('/api/words/:id/sentences', SentenceControl.retrieveContainsWord); // get sentences that contain this word
 
 // crud - sentences
 app.post('/api/sentences', ensureEditor, SentenceControl.create);

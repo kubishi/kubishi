@@ -12,8 +12,8 @@ const WordSchema = new mongoose.Schema({
         filename: String
     },
     part_of_speech: String,
+    notes: String,
     words: [{type: mongoose.Types.ObjectId, ref: 'word'}],
-    sentences: [{type: mongoose.Types.ObjectId, ref: 'sentence'}],
 });
 
 module.exports = mongoose.model('word', WordSchema);

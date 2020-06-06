@@ -8,6 +8,8 @@ const allFields = ['english', 'paiute', 'image', 'audio', 'notes', 'paiuteTokens
 const requiredFields = ['english', 'paiute'];
 const defaultSearchFields = ['english', 'paiute'];
 
+const ObjectId = require('mongoose').Types.ObjectId;
+
 /** 
  * Adds a sentence to the database.
  * @param {express.Request} req
@@ -139,11 +141,14 @@ function search(req, res) {
 }
 
 function retrieveContainsWord(req, res) {
-    let wordId = req.params._id;
+    let wordId = req.params.id;
+    
+    let offset = parseInt(req.query.offset || 0);
+    let limit = parseInt(req.query.limit || helpers.DEFAULT_LIMIT);
 
     let pipeline = [
         {
-            $find: {'words.wordId': wordId}
+            $match: {'paiuteTokens.word': ObjectId(wordId)}
         },
         {
             $facet: {
@@ -163,12 +168,19 @@ function retrieveContainsWord(req, res) {
         }
     ];
 
-    SentenceModel.aggregate(pipeline).then(result => {
+    SentenceModel.aggregate(pipeline).then(result => { 
         if (!result || result.total <= 0) {
             return res.json({success: true, result: [], total: 0});
         } else {
-            return res.json({success: true, result: result[0].result, total: result.total});
+            SentenceModel.populate(result[0].result, {path: 'paiuteTokens.word', select: 'text definition part_of_speech'}).then(_result => {
+                return res.json({success: true, result: _result, total: result.total});
+            }).catch(err => {
+                console.error(err);
+                res.status(500).json({success: false, result: err, total: 0});
+            })
         }
+    }).catch(err => {
+        return res.status(500).json({success: false, result: err, total: 0});
     });
 }
 
