@@ -18,7 +18,7 @@ class WordNew extends React.Component {
     addRelatedWord(wordId, words, next) {
         let word = words.pop();
         console.log(wordId, word);
-        api.post(`/api/word/${wordId}/related`, {word: word}).then(res => {
+        api.post(`/api/words/${wordId}/related`, {word: word}).then(res => {
             if (res.status != 200 || !res.data.success) {
                 console.log(res.status, res.data);
             }
@@ -33,9 +33,9 @@ class WordNew extends React.Component {
     addWord(word) {
         if (word == null) return;
 
-        api.post('/api/word', word).then(res => {
+        api.post('/api/words', word).then(res => {
             if (res.status == 200 && res.data.success) {
-                this.addRelatedWord(res.data.result._id, word.words, () => history.push(`/word/${res.data.result._id}`));
+                this.addRelatedWord(res.data.result._id, word.words, () => history.push(`/words/${res.data.result._id}`));
             } else {
                 console.log(res.status, res.data);
             }
@@ -43,7 +43,7 @@ class WordNew extends React.Component {
     }
 
     render() {
-        return <WordForm onSubmit={word => this.addWord(word)} center />;
+        return <WordForm onSubmit={word => this.addWord(word)} />;
     }
 };
 

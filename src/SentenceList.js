@@ -17,7 +17,7 @@ function SentenceList(props) {
                 className="py-2"
                 key={'sentence-list-' + sentence._id}
                 action
-                href={`/sentence/${sentence._id}`}
+                href={`/sentences/${sentence._id}`}
             >   
                 <b>{paiute}</b>
                 <br />

@@ -24,7 +24,7 @@ class WordWindow extends React.Component {
     }
 
     getWord() {
-        api.get('/api/word/' + this.props.wordId).then(res => {
+        api.get('/api/words/' + this.props.wordId).then(res => {
             if (res.status == 200) {
                 this.setState({word: res.data.result})
             } else {
@@ -52,7 +52,7 @@ class WordWindow extends React.Component {
 
         let relatedWords = word.words.map((word, i) => {
             return (
-                <ListGroup.Item action href={'/word/' + word._id}>
+                <ListGroup.Item action href={'/words/' + word._id}>
                     <Row>
                         <Col className='text-right xs-border-right'>
                             <p>{word.text}</p>
@@ -86,7 +86,7 @@ class WordWindow extends React.Component {
                         <Button 
                             variant='outline-primary'
                             onClick={e => {
-                                return history.push(`/word/${wordId}?mode=edit`);
+                                return history.push(`/words/${wordId}?mode=edit`);
                             }}
                             block
                         >

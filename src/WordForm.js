@@ -70,7 +70,7 @@ class WordForm extends React.Component {
 
     updateRelatedOptions(query) {
         if (!query) return;
-        api.get('/api/search/word', 
+        api.get('/api/search/words', 
             {
                 params: { 
                     query: query + '.*', 
@@ -188,68 +188,77 @@ class WordForm extends React.Component {
 
         let form = (
             <Form>
-                <Form.Group controlId='formWord'>
-                    <Form.Label>Word</Form.Label>
-                    <Form.Control 
-                        type='text' value={text}
-                        onChange={e => {this.setState({text: replaceSpecialChars(e.target.value)})}}
-                    />
-                </Form.Group>
+                <Form.Row>
+                    <Col xs={12} md={6}>
+                        <Form.Group controlId='formWord'>
+                            <Form.Label>Word</Form.Label>
+                            <Form.Control 
+                                type='text' value={text}
+                                onChange={e => {this.setState({text: replaceSpecialChars(e.target.value)})}}
+                            />
+                        </Form.Group>
+                    </Col>
+                    <Col xs={12} md={6}>
+                        <Form.Group controlId='formPOS'>
+                            <Form.Label>Part of Speech</Form.Label>
+                            <Form.Control 
+                                as="select" 
+                                defaultValue={part_of_speech_option} 
+                                onChange={e => {this.setState({part_of_speech: e.target.value})}}
+                            >
+                                {posOptions}
+                            </Form.Control>
+                        </Form.Group>
+                    </Col>
+                </Form.Row>
+                
+                <Form.Row>
+                    <Col xs={12} md={6}>
+                        <Form.Group controlId='formDefinition'>
+                            <Form.Label>Definition</Form.Label>
+                            <Form.Control as="textarea" defaultValue={definition} 
+                                onChange={e => this.setState({definition: e.target.value})}
+                            />
+                        </Form.Group>
+                    </Col>
+                    <Col xs={12} md={6}>
+                        <ImageInput 
+                            image={image}
+                            onSave={image => this.setState({image})}
+                        />
+                    </Col>
+                </Form.Row>
+                
+                <Form.Row>
+                    <Col xs={12} md={6}>
+                        <AudioInput 
+                            audio={audio}
+                            onSave={audio => this.setState({audio})}
+                        />
+                    </Col>
+                    <Col xs={12} md={6}>
+                        <Form.Group>
+                            <Form.Label>Related Words</Form.Label>
+                            <Select 
+                                placeholder='Add Related Word...'
+                                options={this.state.related_options}
+                                onChange={selected => this.addRelatedWord(selected.value)}
+                                onInputChange={query => this.updateRelatedOptions(query)}
+                            />
+                            <ListGroup variant='flush'>
+                                {wordList}
+                            </ListGroup>
+                        </Form.Group>
+                    </Col>
+                </Form.Row>
 
-                <Form.Group controlId='formPOS'>
-                    <Form.Label>Part of Speech</Form.Label>
-                    <Form.Control 
-                        as="select" 
-                        defaultValue={part_of_speech_option} 
-                        onChange={e => {this.setState({part_of_speech: e.target.value})}}
-                    >
-                        {posOptions}
-                    </Form.Control>
-                </Form.Group>
-
-                <Form.Group controlId='formDefinition'>
-                    <Form.Label>Definition</Form.Label>
-                    <Form.Control as="textarea" defaultValue={definition} 
-                        onChange={e => this.setState({definition: e.target.value})}
-                    />
-                </Form.Group>
-
-                <ImageInput 
-                    image={image}
-                    onSave={image => this.setState({image})}
-                />
-
-                <AudioInput 
-                    audio={audio}
-                    onSave={audio => this.setState({audio})}
-                />
-
-                <Form.Group>
-                    <Form.Label>Related Words</Form.Label>
-                    <Select 
-                        placeholder='Add Related Word...'
-                        options={this.state.related_options}
-                        onChange={selected => this.addRelatedWord(selected.value)}
-                        onInputChange={query => this.updateRelatedOptions(query)}
-                    />
-                    <ListGroup variant='flush'>
-                        {wordList}
-                    </ListGroup>
-                </Form.Group>
-
-                {buttons}
+                <Form.Row>
+                    <Col>
+                        {buttons}
+                    </Col>
+                </Form.Row>
             </Form>
         );
-
-        if (this.props.center) {
-            return (
-                <Row>
-                    <Col className='d-none d-md-block d-xl-block' md={3}></Col>
-                    <Col>{form}</Col>
-                    <Col className='d-none d-md-block d-xl-block' md={3}></Col>
-                </Row>
-            );
-        }
 
         return form;
     }

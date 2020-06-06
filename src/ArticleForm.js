@@ -159,13 +159,14 @@ class ArticleForm extends React.Component {
             );
         } else {
             buttons = (
-                <Row className="mt-3">
-                    <Col className='d-none d-md-block d-xl-block' md={3}></Col>
-                    <Col>
-                        <Button variant='outline-success' onClick={e => this.submitArticle()} block>Submit</Button>
-                    </Col>
-                    <Col className='d-none d-md-block d-xl-block' md={3}></Col>
-                </Row>
+                <Button 
+                    className='mt-2'
+                    variant='outline-success' 
+                    onClick={e => this.submitArticle()} 
+                    block
+                >
+                    Submit
+                </Button>
             );
         }
 
@@ -177,7 +178,7 @@ class ArticleForm extends React.Component {
                         <Button 
                             block variant='outline-primary' 
                             href='#' 
-                            onClick={e => history.push(`/article/${article._id}`)}
+                            onClick={e => history.push(`/articles/${article._id}`)}
                         >
                             Back to Article
                         </Button>

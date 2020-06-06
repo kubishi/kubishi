@@ -18,9 +18,9 @@ class ArticleNew extends React.Component {
           console.error('articles must havea title and content');
         }
     
-        api.post('/api/article', article).then(res => {
+        api.post('/api/articles', article).then(res => {
           if (res.status == 200) {
-            history.push(`/article/${res.data.result._id}`);
+            history.push(`/articles/${res.data.result._id}`);
           } else {
             console.log(res.status, res.data);
           }

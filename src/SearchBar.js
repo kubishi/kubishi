@@ -8,7 +8,7 @@ import {
 import history from './history';
 import qs from 'query-string';
 import api from './Api';
-
+import { replaceSpecialChars } from './helpers';
 
 class SearchBar extends React.Component {
     constructor(props) {
@@ -40,25 +40,34 @@ class SearchBar extends React.Component {
 
         return (
             <InputGroup>
-            <FormControl
-            placeholder=""
-            autoFocus
-            aria-label="Search"
-            aria-describedby="search-text"
-            name='query'
-            value={query}
-            onKeyPress={e => this.handleSearchKeyPress(e)}
-            onChange={e => this.setState({query: e.currentTarget.value})}
-            />
-            
-            <InputGroup.Append>
-            <Button 
-            variant="outline-secondary" 
-            onClick={e => this.handleSearch()}
-            >
-            Search
-            </Button>
-            </InputGroup.Append>
+                <FormControl
+                    placeholder=""
+                    ref="searchBar"
+                    autoFocus
+                    aria-label="Search"
+                    aria-describedby="search-text"
+                    name='query'
+                    value={query}
+                    onKeyPress={e => this.handleSearchKeyPress(e)}
+                    onChange={e => {
+                        let [text, newStart]= replaceSpecialChars(e.currentTarget.value, e.currentTarget.selectionStart);
+                        this.setState(
+                            { query: text }, 
+                            () => this.refs.searchBar.setSelectionRange(newStart, newStart)
+                        );
+
+                        this.setState({query: replaceSpecialChars(e.currentTarget.value)});
+                    }}
+                />
+                
+                <InputGroup.Append>
+                    <Button 
+                        variant="outline-secondary" 
+                        onClick={e => this.handleSearch()}
+                    >
+                        Search
+                    </Button>
+                </InputGroup.Append>
             </InputGroup>
             );
         }
@@ -81,13 +90,13 @@ class SearchBar extends React.Component {
                 randomButtons = (
                     <Row  className="no-gutters mt-1">
                         <Col className="no-gutters">
-                            <Button type="submit" onClick={e => this.getRandom('article')} block>Random Article</Button> 
+                            <Button type="submit" onClick={e => this.getRandom('articles')} block>Random Article</Button> 
                         </Col>
                         <Col className="no-gutters ml-1 mr-1">
-                            <Button type="submit" onClick={e => this.getRandom('word')} block>Random Word</Button> 
+                            <Button type="submit" onClick={e => this.getRandom('words')} block>Random Word</Button> 
                         </Col>
                         <Col className="no-gutters">
-                            <Button type="submit" onClick={e => this.getRandom('sentence')} block>Random Sentence</Button> 
+                            <Button type="submit" onClick={e => this.getRandom('sentences')} block>Random Sentence</Button> 
                         </Col>
                     </Row> 
                 );

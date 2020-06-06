@@ -22,7 +22,7 @@ class SentenceWindow extends React.Component {
     componentDidMount() {
         let { sentence, sentenceId } = this.props;
         if (sentence == null) {
-            api.get(`/api/sentence/${sentenceId}`).then(res => {
+            api.get(`/api/sentences/${sentenceId}`).then(res => {
                 if (res.status == 200 && res.data.success) {
                     this.setState({ sentence: res.data.result });
                 } else {
@@ -60,7 +60,7 @@ class SentenceWindow extends React.Component {
                     <Col>
                         <Button 
                             variant='outline-primary'
-                            onClick={e => history.push(`/sentence/${sentence._id}?mode=edit`)}
+                            onClick={e => history.push(`/sentences/${sentence._id}?mode=edit`)}
                             block
                         >
                             <FontAwesomeIcon icon={faEdit} className='mr-2' />

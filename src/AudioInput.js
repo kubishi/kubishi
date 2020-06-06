@@ -3,10 +3,39 @@ import React from 'react';
 import { Form, InputGroup, Button } from 'react-bootstrap';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMicrophone, faStop, faTrash, faCheck, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faMicrophone, faStop, faTrash, faPlay, faPause } from '@fortawesome/free-solid-svg-icons';
 
 import { ReactMic } from 'react-mic';
 import { toBase64 } from './helpers';
+
+class AudioPlayButton extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            playing: false
+        }
+        this.audio = new Audio(this.props.src);
+        this.audio.addEventListener('ended', () => this.setState({ playing: false }));
+        this.audio.addEventListener('pause', () => this.setState({ playing: false }));
+    }
+
+    render() {
+        let { playing } = this.state;
+        return (
+            <Button onClick={e => {
+                let { playing } = this.state;
+                if (playing) {
+                    this.audio.pause();
+                } else {
+                    this.audio.play().then(() => this.setState({ playing: true }));
+                }
+            }} >
+                <FontAwesomeIcon icon={playing ? faPause : faPlay} />
+            </Button>
+        );   
+    }
+};
 
 class AudioInput extends React.Component {
     constructor(props) {
@@ -37,9 +66,11 @@ class AudioInput extends React.Component {
     }
 
     removeRecording() {
-        this.setState({audio: {filename: null, data: null}}, () => {
-            this.props.onSave(this.state.audio);
-        });
+        if (window.confirm('Are you sure you want to remove the recording?')) {
+            this.setState({audio: {filename: null, data: null}}, () => {
+                this.props.onSave(this.state.audio);
+            });
+        }
     }
 
     render() {
@@ -54,16 +85,30 @@ class AudioInput extends React.Component {
                 </InputGroup.Prepend>
             );
         }
+
+        let recordAudioButton;
+        if (audio.data == null) {
+            recordAudioButton = (
+                <InputGroup.Prepend>
+                    <Button onClick={() => this.toggleRecording()} variant={record ? 'outline-danger' : 'outline-primary'}>
+                        <FontAwesomeIcon icon={record ? faStop : faMicrophone} />
+                    </Button>
+                </InputGroup.Prepend>
+            );
+        }
         
         let audioPlayer;
         if (audio.data != null) {
-            audioPlayer = [<br />, <audio src={audio.data} controls />];
+            audioPlayer = (
+                <InputGroup.Prepend>
+                    <AudioPlayButton src={audio.data} />
+                </InputGroup.Prepend>
+            );
         }
 
         return (
-            <Form.Group controlId={`form-sentence-audio-${this.props.key || "new"}`}>
+            <Form.Group controlId='audio-input'>
                 <Form.Label>Audio</Form.Label>
-                {audioPlayer}
                 <ReactMic
                     record={record}
                     className="d-none"
@@ -71,14 +116,11 @@ class AudioInput extends React.Component {
                     onStop={blob => this.onStop(blob)}
                 />                    
                 <InputGroup className="mb-3">
+                    {audioPlayer}
                     {removeAudioButton}
-                    <InputGroup.Prepend>
-                        <Button onClick={() => this.toggleRecording()} variant={record ? 'outline-danger' : 'outline-primary'}>
-                            <FontAwesomeIcon icon={record ? faStop : faMicrophone} />
-                        </Button>
-                    </InputGroup.Prepend>
+                    {recordAudioButton}
                     <Form.File 
-                        id={`form-file-sentence-audio-${this.props.key || "new"}`}
+                        id={'audio-input-form'}
                         accept='audio/*'
                         label={audio.filename || "Sentence audio"}
                         onChange={e => {

@@ -126,6 +126,7 @@ function getSearchPipeline(query, mode, field, limit, offset, project) {
         );
     }
 
+    // Get total and limit
     pipeline = pipeline.concat([
         {
             $facet: {

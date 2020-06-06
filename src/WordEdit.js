@@ -1,17 +1,9 @@
 
 import React from 'react';
-import { Row, Col, ListGroup, Form, Button, ButtonGroup, Spinner } from 'react-bootstrap';
+import { Row, Col, Button, Spinner } from 'react-bootstrap';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus, faTrash, faCheck, faTimes } from '@fortawesome/free-solid-svg-icons'
-
-import PartOfSpeech from './PartOfSpeech';
 import WordForm from './WordForm';
-import SentenceForm from './SentenceForm';
 
-import Select from 'react-select';
-
-import { remove_punctuation, toBase64 } from './helpers';
 import api from './Api';
 import history from './history';
 import './common.css';
@@ -22,7 +14,6 @@ class WordWindow extends React.Component {
 
         this.state = {
             word: null,
-            sentences: []
         };
     }
 
@@ -31,16 +22,10 @@ class WordWindow extends React.Component {
     }
 
     getWord() {
-        api.get('/api/word/' + this.props.wordId).then(res => {
+        api.get('/api/words/' + this.props.wordId).then(res => {
             if (res.status == 200) {
                 let word = res.data.result;
-                let sentences = [];
-                res.data.result.sentences.forEach(sentence => {
-                    sentence.suggested = false;
-                    sentence.wordId = word._id;
-                    sentences.push(sentence);
-                });
-                this.getSuggestedSentences(word, sentences);
+                this.setState({ word });
             } else {
                 console.log(res.status, res.data);
             }
@@ -50,75 +35,9 @@ class WordWindow extends React.Component {
         });
     }
    
-    addSentence() {
-        let { word } = this.state;
-
-        api.post('/api/sentence',
-            {english: "", paiute: ""}
-        ).then(res => {
-            if (res.status == 200 && res.data.success) {
-                api.post(`/api/word/${word._id}/sentence`, 
-                    {sentence: res.data.result._id}
-                ).then(res => {
-                    if (res.status == 200 && res.data.success) {
-                        this.getWord();
-                    } else {
-                        console.log(res.status, res.data);
-                    }
-                }).catch(err => console.error(err));
-            } else {
-                console.log(res.status, res.data);
-            }
-        }).catch(err => console.error(err));
-
-    }
-
-    /**
-     * 
-     * @param {String} word 
-     * @param {[Object]} sentences 
-     */
-    getSuggestedSentences(word, sentences) {
-        api.get('/api/search/sentence', {
-            params: {
-                query: remove_punctuation(word.text),
-                searchFields: ['text'],
-                mode: 'fuzzy',
-            }
-        }).then(res => {
-            if (res.status == 200) {
-                if (res.data.result) {
-                    res.data.result.forEach(sentence => {
-                        if (sentences[sentence._id] == null) {
-                            sentence.suggested = true;
-                            sentence.wordId = word._id;
-                            sentences.push(sentence);
-                        }
-                    });
-                }
-            } else {
-                console.log(res.status, res.data);
-            }
-            this.setState({ word, sentences });
-        }).catch(err => console.error(err));
-    }
-    
     saveWord(word) { 
         console.log(this.props.wordId, word);
-        api.put('/api/word/' + this.props.wordId, word).then(res => {
-            if (res.status == 200) {
-                this.getWord()
-            } else {
-                console.log(res.status, res.data);
-            }
-        }).catch(err => console.error(err));
-    }
-
-    removeSentence(sentenceId) {
-        let { word } = this.state;
-        if (word == null) return; // word not loaded yet
-
-        api.delete(`/api/word/${word._id}/sentence/${sentenceId}`).then(res => {
+        api.put('/api/words/' + this.props.wordId, word).then(res => {
             if (res.status == 200) {
                 this.getWord()
             } else {
@@ -131,7 +50,7 @@ class WordWindow extends React.Component {
         let { word } = this.state;
         if (word == null) return; // word not loaded yet
 
-        api.delete(`/api/word/${word._id}`).then(res => {
+        api.delete(`/api/words/${word._id}`).then(res => {
             if (res.status == 200) {
                 return history.push('/');
             } else {
@@ -141,7 +60,7 @@ class WordWindow extends React.Component {
     }
 
     render() {
-        let { word, sentences } = this.state;
+        let { word } = this.state;
 
         if (word == null) {
             return <Spinner />;
@@ -153,60 +72,11 @@ class WordWindow extends React.Component {
             );
         }
 
-        let regSentences = [];
-        let suggSentences = [];
-        Object.entries(sentences).forEach(([_, sentence]) => {
-            let listItem = (
-                <ListGroup.Item key={'sentence-' + sentence._id}>
-                    <SentenceForm 
-                        sentence={sentence} 
-                        postSave={e => this.getWord()} postApprove={e => this.getWord()} 
-                        postDelete={e => this.removeSentence(sentence._id)}
-                    />
-                </ListGroup.Item>
-            );
-            if (sentence.suggested == true) {
-                suggSentences.push(listItem);
-            } else {
-                regSentences.push(listItem);
-            }
-        });
-        
-        regSentences.push(
-            <ListGroup.Item key={'sentence-add-button'} >
-                <Button 
-                    variant='outline-primary'
-                    onClick={e => this.addSentence()}
-                    block
-                >
-                    <FontAwesomeIcon icon={faPlus} className='mr-2' />
-                    Add Sentence
-                </Button>
-            </ListGroup.Item>
-        );
-
-        let [sentencesList, suggSentencesList] = [[regSentences, 'Sentences'], [suggSentences, 'Suggested Sentences']].map(([listItems, title], _) => {
-            if (listItems.length <= 0) {
-                return null;
-            } else {
-                return (
-                    <Row>
-                        <Col>
-                            <h5 className='text-center'>{title}</h5>
-                            <ListGroup variant='flush'>
-                                {listItems}
-                            </ListGroup>
-                        </Col>
-                    </Row>
-                );
-            }
-        });
-        
         return (
             <Row className='m-3'>
-                <Col xs={12} md={4}>
+                <Col>
                     <Button variant='outline-primary' block className='mb-2' onClick={e => {
-                        return history.push(`/word/${word._id}`);
+                        return history.push(`/words/${word._id}`);
                     }}>
                         Back to Word
                     </Button>
@@ -216,10 +86,6 @@ class WordWindow extends React.Component {
                         onSubmit={word => this.saveWord(word)} 
                         onDelete={e => this.deleteWord()} 
                     />
-                </Col>
-                <Col xs={12} md={8}>
-                    {sentencesList}
-                    {suggSentencesList}
                 </Col>
             </Row>
         );

@@ -30,7 +30,7 @@ function About(props) {
         <div>
             <Row className='text-center mt-3'>
                 <Col sm={12} md={8}>
-                    <h3><a href='/word/5eacb4f3dca21c60a0a90dde'>Kubishi</a> means brain in <a href='/word/5eacb4f7dca21c60a0a91b42'>nanüümüyadohana</a></h3>
+                    <h3><a href='/words/5eacb4f3dca21c60a0a90dde'>Kubishi</a> means brain in <a href='/words/5eacb4f7dca21c60a0a91b42'>nanüümüyadohana</a></h3>
                     <p>
                         This website is an unofficial encyclopedia for Owens Valley Paiute history, language, and culture.
                         It was created and is maintained by <a href='https://jaredraycoleman.com'>Jared Coleman</a>, member of the <a href='http://bigpinepaiute.org'>Big Pine Paiute Tribe of the Owen's Valley</a>.

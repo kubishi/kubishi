@@ -21,12 +21,30 @@ export function getUpdates(prevObj, obj) {
     }));
 }
 
+export function formatSentence(sentence) {
+    let fSentence = lodash.cloneDeep(lodash.pick(sentence, ['english', 'paiute', 'image', 'audio', 'notes', 'englishTokens', 'paiuteTokens', 'tokenMap']));
+    fSentence.paiuteTokens = fSentence.paiuteTokens.map(token => {
+        if (token.word != null) token.word = token.word._id;
+        return token;
+    });
+    Object.entries(fSentence.tokenMap).forEach(([key, value]) => {
+        fSentence.tokenMap[key] = Array.from(value);
+    });
+    return fSentence;
+}
+
 export function getTagLabel(tag) {
     return tag.startsWith("tag:") ? tag.slice(4) : tag;
 }  
 
-export function replaceSpecialChars(text) {
-    return text.replace("~w", "w̃").replace("~W", "W̃").replace('"u', "ü").replace('"U', "Ü");
+export function replaceSpecialChars(text, cursorIndex = null) {
+    let newText = text.replace("~w", "w̃").replace("~W", "W̃").replace('"u', "ü").replace('"U', "Ü");
+    if (cursorIndex != null) {
+        let startText = text.slice(0, cursorIndex);
+        let newCursorIndex = cursorIndex - (startText.match(/~w|~W|"u|"U/) || []).length;
+        return [newText, newCursorIndex];
+    }
+    return newText;
 }
 
 /**

@@ -37,7 +37,7 @@ class SearchWindow extends React.Component {
     searchWords(pageWords=null) {
         let { query, resultsPerPage } = this.props;
 
-        api.get('/api/search/word', 
+        api.get('/api/search/words', 
             {
                 params: { 
                     query: query, 
@@ -62,7 +62,7 @@ class SearchWindow extends React.Component {
     searchSentences(pageSentences=null) {
         let { query, resultsPerPage } = this.props;
 
-        api.get('/api/search/sentence', 
+        api.get('/api/search/sentences', 
             {
                 params: { 
                     query: query, 
@@ -87,7 +87,7 @@ class SearchWindow extends React.Component {
     searchArticles(pageArticles) {
         let { query, resultsPerPage } = this.props;
 
-        api.get('/api/search/article', 
+        api.get('/api/search/articles', 
             {
                 params: { 
                     query: query, 

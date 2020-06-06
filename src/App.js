@@ -80,7 +80,7 @@ class App extends React.Component {
       return this.setState({user: user});
     }
 
-    api.get(`/api/user/${user_id}`).then(res => {
+    api.get(`/api/users/${user_id}`).then(res => {
       if (res.status == 200) {
         return this.setState({user: res.data.result});
       } else {
@@ -94,7 +94,7 @@ class App extends React.Component {
   }
 
   createUser(user_id, user_name, user_email, signed_request) {
-    api.post('/api/user', 
+    api.post('/api/users', 
       {
         'id': user_id,
         'name': user_name,
@@ -112,7 +112,7 @@ class App extends React.Component {
     if (response) {
       let signed_request = response.signedRequest;
 
-      api.get('/api/user/' + response.id, 
+      api.get('/api/users/' + response.id, 
         {headers: {signed_request: signed_request}}
       ).then(res => {
         if (res.status == 200) {
@@ -204,7 +204,7 @@ class App extends React.Component {
           <Container style={{paddingBottom: '65px'}} fluid>
             {navbar}
             <Switch>
-              <Route path="/word/:id" component={(props) => {
+              <Route path="/words/:id" component={(props) => {
                 let { id } = useParams();
                 let { mode } = qs.parse(props.location.search, { ignoreQueryPrefix: true });
                 if (mode == "edit") {
@@ -216,7 +216,7 @@ class App extends React.Component {
                 }
                 return <WordWindow wordId={id} canEdit={canEdit}/>;
               }} />
-              <Route path="/article/:id" component={(props) => {
+              <Route path="/articles/:id" component={(props) => {
                 let { id } = useParams();
                 let { mode } = qs.parse(props.location.search, { ignoreQueryPrefix: true });
                 if (mode == "edit") {
@@ -228,14 +228,14 @@ class App extends React.Component {
                 }
                 return <ArticleWindow canEdit={canEdit} articleId={id} getUser={() => this.state.user} />;
               }} />
-              <Route path="/sentence/:id" component={(props) => {
+              <Route path="/sentences/:id" component={(props) => {
                 let { id } = useParams();
                 let { mode } = qs.parse(props.location.search, { ignoreQueryPrefix: true });
                 if (mode == "edit") {
                   if (canEdit) {
                     return <SentenceEdit sentenceId={id} />
                   } else {
-                    return history.push(`/sentence/${id}`);
+                    return history.push(`/sentences/${id}`);
                   }
                 }
                 return <SentenceWindow canEdit={canEdit} sentenceId={id} getUser={() => this.state.user} />;

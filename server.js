@@ -104,43 +104,43 @@ function ensureUser(req, res, next) {
 
 // --- ROUTES --- //
 
-// crud - words
-app.post('/api/word', ensureEditor, WordControl.create);
-app.put('/api/word/:id', ensureEditor, WordControl.update);
-app.get('/api/word/:id',  WordControl.retrieve);
-app.delete('/api/word/:id', ensureEditor, WordControl.delete);
+// WORDS
+// crud
+app.post('/api/words', ensureEditor, WordControl.create);
+app.put('/api/words/:id', ensureEditor, WordControl.update);
+app.get('/api/words/:id',  WordControl.retrieve);
+app.delete('/api/words/:id', ensureEditor, WordControl.delete);
 
-app.post('/api/word/:id/related', ensureEditor, WordControl.addRelatedWord);
-app.delete('/api/word/:id/related/:related_id', ensureEditor, WordControl.deleteRelatedWord);
+app.post('/api/words/:id/related', ensureEditor, WordControl.addRelatedWord);
+app.delete('/api/words/:id/related/:related_id', ensureEditor, WordControl.deleteRelatedWord);
 
-app.post('/api/word/:id/sentence', ensureEditor, WordControl.addSentence);
-app.delete('/api/word/:id/sentence/:sentence_id', ensureEditor, WordControl.deleteSentence);
+app.get('/api/words/:id/sentences', SentenceControl.retrieveContainsWord) // get sentences that contain this word
 
 // crud - sentences
-app.post('/api/sentence', ensureEditor, SentenceControl.create);
-app.put('/api/sentence/:id', ensureEditor, SentenceControl.update);
-app.get('/api/sentence/:id', SentenceControl.retrieve);
-app.delete('/api/sentence/:id', ensureEditor, SentenceControl.delete);
+app.post('/api/sentences', ensureEditor, SentenceControl.create);
+app.put('/api/sentences/:id', ensureEditor, SentenceControl.update);
+app.get('/api/sentences/:id', SentenceControl.retrieve);
+app.delete('/api/sentences/:id', ensureEditor, SentenceControl.delete);
 
 // crud - articles
-app.post('/api/article', ensureEditor, ArticleControl.create);
-app.put('/api/article/:id', ensureEditor, ArticleControl.update);
-app.get('/api/article/:id', ArticleControl.retrieve);
-app.delete('/api/article/:id', ensureEditor, ArticleControl.delete);
+app.post('/api/articles', ensureEditor, ArticleControl.create);
+app.put('/api/articles/:id', ensureEditor, ArticleControl.update);
+app.get('/api/articles/:id', ArticleControl.retrieve);
+app.delete('/api/articles/:id', ensureEditor, ArticleControl.delete);
 
 // random
-app.get('/api/random/word', WordControl.random);
-app.get('/api/random/sentence', SentenceControl.random);
-app.get('/api/random/article', ArticleControl.random);
+app.get('/api/random/words', WordControl.random);
+app.get('/api/random/sentences', SentenceControl.random);
+app.get('/api/random/articles', ArticleControl.random);
 
 // search
-app.get('/api/search/word', WordControl.search);
-app.get('/api/search/sentence', SentenceControl.search);
-app.get('/api/search/article', ArticleControl.search);
+app.get('/api/search/words', WordControl.search);
+app.get('/api/search/sentences', SentenceControl.search);
+app.get('/api/search/articles', ArticleControl.search);
 
 
 // crud - users
-app.post('/api/user', ensureAuthenticated, (req, res) => {
+app.post('/api/users', ensureAuthenticated, (req, res) => {
     if (req.body.type == 'USER') {
         return UserControl.create(req, res);
     } else {
@@ -148,9 +148,9 @@ app.post('/api/user', ensureAuthenticated, (req, res) => {
     }
 });
 
-app.get('/api/user/:id', ensureAuthenticated, ensureUser, UserControl.retrieve);
-app.put('/api/user/:id', ensureEditor, ensureUser, UserControl.update);
-app.delete('/api/user/:id', ensureEditor, ensureUser, UserControl.delete);
+app.get('/api/users/:id', ensureAuthenticated, ensureUser, UserControl.retrieve);
+app.put('/api/users/:id', ensureEditor, ensureUser, UserControl.update);
+app.delete('/api/users/:id', ensureEditor, ensureUser, UserControl.delete);
 
 app.get('/api', (req, res) => {
     res.json({success: true, result: 'Welcome to the Yaduha API'});

@@ -2,9 +2,10 @@
 import React from 'react';
 import { Row, Col, ListGroup, Form, Button, ButtonGroup, InputGroup, FormControl } from 'react-bootstrap';
 import Select from 'react-select';
+import lodash from 'lodash';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash, faCheck, faTimes, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faAngleRight, faAngleLeft, faLock, faLockOpen } from '@fortawesome/free-solid-svg-icons';
 
 import api from './Api';
 import AudioInput from './AudioInput';
@@ -13,20 +14,111 @@ import { getUpdates, replaceSpecialChars, getPosLabel } from './helpers';
 
 import './SentenceForm.css';
 
-class WordSearch extends React.Component {
+
+function setdefault(obj, key, value) {
+    if (!obj.hasOwnProperty(key)) {
+        obj[key] = value;
+    }
+    return obj[key];
+}
+
+function getdefault(obj, key, value = null) {
+    if (obj.hasOwnProperty(key)) {
+        return obj[key];
+    }
+    return value;
+}
+
+let REGEX = /([0-9a-zA-Zw̃W̃üÜ']+)([^\s]?\s?)?/g;
+
+class SentenceForm extends React.Component {
     constructor(props) {
         super(props);
-
+    
+        let sentence = this.props.sentence || {};
         this.state = {
+            english: sentence.english || null,
+            paiute: sentence.paiute || null,
+            image: sentence.image || {filename: null, data: null},
+            audio: sentence.audio || {filename: null, data: null},
+            notes: sentence.notes || null,
+
+            editingText: sentence.paiuteTokens == null,
+            selectedButton: null,
+            defaultQuery: null,
+            selected: null,
+            query: null,
             options: [],
-            query: null
+
+            paiuteTokens: (!sentence.paiuteTokens || sentence.paiuteTokens.length <= 0) ? this.parseSentence(sentence.paiute || '') : sentence.paiuteTokens,
+            englishTokens: (!sentence.englishTokens || sentence.englishTokens.length <= 0) ? this.parseSentence(sentence.english || '') : sentence.englishTokens,
+    
+            tokenMap: {}
+        };
+        
+        if (sentence.tokenMap != null) {
+            Object.entries(sentence.tokenMap).forEach(([key, value]) => {
+                this.state.tokenMap[key] = new Set(value || []);
+            });
         }
     }
 
-    updateOptions() {
-        let { query } = this.state;
+    /**
+     * 
+     * @param {String} text 
+     * @returns 
+     */
+    parseSentence(text) {
+        let tokens = [];
+        let match = REGEX.exec(text);
+        while (match) {
+          tokens.push({token_type: 'word', text: match[1], word: null});
+          tokens.push({token_type: 'punc', text: match[2] || null});
+          match = REGEX.exec(text);
+        }
+        return tokens;
+    }
+  
+    /**
+     * 
+     * @param {React.ChangeEvent} e 
+     */
+    handlePaiuteChange(e) {
+        let [paiute, newStart]= replaceSpecialChars(e.target.value, e.target.selectionStart);
+        let paiuteTokens = this.parseSentence(paiute);
+        this.setState(
+            { paiuteTokens, paiute, paiuteSelectStart: newStart }, 
+            () => this.refs.paiuteInput.setSelectionRange(newStart, newStart)
+        );
+    }
+  
+    /**
+     * 
+     * @param {React.ChangeEvent} e 
+     */
+    handleEnglishChange(e) {
+        let englishTokens = this.parseSentence(e.target.value);
+        this.setState({ englishTokens, english: e.target.value });
+    }
+
+    getWordLabel(word) { 
+        if (word == null) return '';
+        return `${word.text} (${getPosLabel(word.part_of_speech)}): ${word.definition}`;
+    }
+
+    getWordOption(word) { 
+        if (word == null) return null;
+        return {
+            label: `${word.text} (${getPosLabel(word.part_of_speech)}): ${word.definition}`,
+            value: word
+        };
+    }
+    
+    updateSearchQuery() {
+        let query = this.state.query || this.state.defaultQuery;
         if (query == null || query == '') return; // empty query
-        api.get('/api/search/word', 
+        query = replaceSpecialChars(query);
+        api.get('/api/search/words', 
             {
                 params: {
                     query: query, 
@@ -37,9 +129,7 @@ class WordSearch extends React.Component {
             }
         ).then(res => {
             if (res.status == 200 && res.data.success) {
-                let options = res.data.result.map(word => {
-                    return {value: word, label: `${word.text} (${getPosLabel(word.part_of_speech)}): ${word.definition}`}
-                });
+                let options = res.data.result.map(word => this.getWordOption(word));
                 this.setState({ options });
             } else {
                 console.log(res.status, res.data);
@@ -48,336 +138,219 @@ class WordSearch extends React.Component {
         }).catch(err => console.error(err));
     }
 
-    render() {
-        let { options, query } = this.state;
-        let { onSelect } = this.props;
+    getWordSearch() {
+        let { options, query, selected } = this.state;
 
         return (
             <Select 
                 placeholder='Search for word...'
+                isClearable={true}
                 options={options}
-                inputValue={query}
-                onChange={selected => onSelect(selected.value)}
-                onInputChange={query => this.setState({ query: replaceSpecialChars(query) }, () => this.updateOptions())}
-                styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }}
-                menuPortalTarget={document.body}
+                inputValue={query || ''}
+                value={selected}
+                onChange={selected => {
+                    let { paiuteTokens, selectedButton } = this.state;
+                    paiuteTokens[selectedButton].word = selected == null ? null : selected.value;
+                    this.setState({ paiuteTokens, selected });
+                }}
+                onInputChange={query => this.setState({ query }, () => this.updateSearchQuery()) }
             />
         );
     }
-};
+  
+    render() {
+        let {
+            editingText,
+            image, audio, notes,
+            english, paiute,
+            paiuteTokens,
+            englishTokens,
+            selectedButton,
+            tokenMap
+        } = this.state;
 
-
-class SentenceForm extends React.Component {
-    constructor(props) {
-        super(props);
-
-        let sentence = (this.props.sentence || {});
-        this.state = {
-            english: sentence.english || null,
-            paiute: sentence.paiute || null,
-            audio: sentence.audio || {data: null, filename: null},
-            image: sentence.image || {data: null, filename: null},
-
-            words: [],
-            selectingIdx: null,
-            selectingMode: null,
-        }
-    }
-    
-    hasChanged() {
-        let { english, paiute } = this.state;
-        let { sentence } = this.props;
-
-        if (sentence == null) {
-            return english != null && paiute != null;
-        }
-        
-        return Object.keys(getUpdates(sentence, this.state)).length > 0;
-    }
-
-    save() {
-        if (!this.hasChanged()) return;
-        let { postSave } = this.props;
         let sentence = this.props.sentence || {};
-
-        let body = {};
-        [ 'english', 'paiute', 'audio' ].forEach(key => {
-            if (this.state[key] != sentence[key]) {
-                body[key] = this.state[key];
+  
+        let paiuteButtons = paiuteTokens.map((token, i) => {
+            if (token.token_type == 'word') {
+                return (
+                    <Button
+                        key={`token-paiute-${i}`}
+                        variant={selectedButton === i ? "primary" : "outline-primary"}
+                        onClick={e => this.setState(
+                                { 
+                                    selectedButton: i, 
+                                    defaultQuery: paiuteTokens[i].text, 
+                                    query: '', 
+                                    selected: this.getWordOption(paiuteTokens[i].word)
+                                }, 
+                                () => this.updateSearchQuery()
+                            )
+                        }
+                    >
+                        {token.text}
+                    </Button>
+                );
+            } else {
+                return token.text;
             }
         });
-
-        let request;
-        if (sentence._id != null) { // word exists
-            request = api.put(`/api/sentence/${sentence._id}`, body);
-        } else {
-            request = api.post('/api/sentence', body);
-        }
-
-        request.then(res => {
-            if (res.status == 200) {
-                if (postSave != null) {
-                    return postSave();
-                }
-            } else {
-                console.log(res.status, res.data);
-            }
-        }).catch(err => console.error(err));
-    }
-
-    toggleApprove() {
-        let { sentence, postApprove } = this.props;
-        if (sentence == null || sentence.wordId == null || sentence.suggested == null) return;
-        let request;
-        if (sentence.suggested) {
-            request = api.post(`/api/word/${sentence.wordId}/sentence`,
-                {sentence: sentence._id}
-            );
-        } else {
-            request = api.delete(`/api/word/${sentence.wordId}/sentence/${sentence._id}`);
-        }
-        request.then(res => {
-            if (res.status == 200) {
-                if (postApprove != null) {
-                    return postApprove();
-                }
-            } else {
-                console.log(res.status, res.data);
-            }
-        }).catch(err => console.error(err));
-    }
-
-    delete() {
-        let { sentence, postDelete } = this.props;
-        if (sentence != null) {
-            api.delete(`/api/sentence/${sentence._id}`).then(res => {
-                if (res.status == 200 && postDelete != null) {
-                    return postDelete();
-                } else {
-                    console.log(res.status, res.data);
-                }
-            }).catch(err => console.error(err));
-        }
-    }
-
-    annotateForm() {
-        let { english, paiute, words, selectingIdx, selectingMode } = this.state;
-
-        let wordForms = words.map((word, i) => {
-            return (
-                <ListGroup.Item>
-                    <Form key={`word-${i}`}>
-                        <Form.Row className='mt-1'>
-                            <Col>
-                                <WordSearch 
-                                    onSelect={selectedWord => {
-                                        let words = this.state.words.slice();
-                                        words[i].wordId = selectedWord._id;
-                                        this.setState({ words });
-                                    }} 
-                                />
-                            </Col>
-                        </Form.Row>
-
-                        <Form.Row className='mt-1'>
-                            <Col>
-                                <InputGroup>
-                                    <InputGroup.Prepend>
-                                        <Button 
-                                            variant={selectingIdx == i && selectingMode == 'paiute' ? 'primary' : 'outline-primary'} 
-                                            onClick={e => this.setState({ selectingIdx: i, selectingMode: 'paiute' })}
-                                            block 
-                                        >
-                                            Select Paiute
-                                        </Button>
-                                    </InputGroup.Prepend>
-                                    <FormControl value={word.paiute} placeholder='Select Paiute' />
-                                </InputGroup>
-                            </Col>
-                        </Form.Row>
-
-                        <Form.Row className='mt-1'>
-                            <Col>
-                                <InputGroup>
-                                    <InputGroup.Prepend>
-                                        <Button 
-                                            variant={selectingIdx == i && selectingMode == 'english' ? 'primary' : 'outline-primary'} 
-                                            onClick={e => this.setState({ selectingIdx: i, selectingMode: 'english' })}
-                                            block 
-                                        >
-                                            Select English
-                                        </Button>
-                                    </InputGroup.Prepend>
-                                    <FormControl value={word.english} placeholder='Select English' />
-                                </InputGroup>
-                            </Col>
-                        </Form.Row>
-
-                        <Form.Row className='mt-1'>
-                            <Col>
-                                <Button block variant='outline-danger' onClick={e => {
-                                    let words = this.state.words.slice();
-                                    words.splice(i);
-                                    this.setState({ words });
-                                }}>
-                                    <FontAwesomeIcon icon={faTrash} className='mr-2' />
-                                    Delete
-                                </Button>
-                            </Col>
-                        </Form.Row>
-
-                    </Form>
-                </ListGroup.Item>
-            );
-        });
-
-        let wordFormsList;
-        if (wordForms.length > 0) {
-            wordFormsList = (
-                <ListGroup variant='flush'>
-                    {wordForms}
-                </ListGroup>
-            );
-        }
         
-        return (
+        let englishButtons = englishTokens.map((token, i) => {
+            if (token.token_type == 'word') {
+                return (
+                    <Button
+                        key={`token-english-${i}`}
+                        variant={(getdefault(tokenMap, selectedButton) || new Set()).has(i) ? "secondary" : "outline-primary"}
+                        onClick={e => {
+                            if (selectedButton == null) return;
+                            setdefault(tokenMap, selectedButton, new Set());
+                            if (!tokenMap[selectedButton].has(i)) {
+                                tokenMap[selectedButton].add(i);
+                            } else {
+                                tokenMap[selectedButton].delete(i);
+                            }
+                            this.setState({ tokenMap });
+                        }}
+                    >
+                        {token.text}
+                    </Button>
+                );
+            } else {
+                return token.text;
+            }
+        });
+        
+        if (englishButtons.length <= 0) {
+            englishButtons = 'English words go here'.split(' ').map(word => [
+                <Button key='english-label-btn' variant='secondary' href='#' disabled >{word}</Button>, 
+                ' '
+            ]);
+        }
+        if (paiuteButtons.length <= 0) {
+            paiuteButtons = 'Paiute words go here'.split(' ').map(word => [
+                <Button key='paiute-label-btn' variant='secondary' href='#' disabled>{word}</Button>, 
+                ' '
+            ]);
+        }
+
+        let wordSearch = this.getWordSearch();
+        let wordTokenForm = [
+            <Row className='mt-2'>
+                <Col xs={12} md={6}>
+                    <Row className="mb-2">
+                        <Col className='text-center'>
+                            {paiuteButtons}
+                        </Col>
+                    </Row>
+                    <Row className="mb-2">
+                        <Col>
+                            {wordSearch}
+                        </Col>
+                    </Row>
+                    <Row className="mb-2">
+                        <Col className='text-center'>
+                            {englishButtons}
+                        </Col>
+                    </Row>
+                </Col>
+                <Col>
+                    <Form>
+                        <Form.Group>
+                            <Form.Label>Notes</Form.Label>
+                            <Form.Control
+                                as="textarea"
+                                value={notes}
+                                onChange={e => this.setState({ notes: e.target.value })}
+                            />
+                        </Form.Group>
+
+                        <AudioInput 
+                            key={`audio-input-${sentence._id || "new"}`}
+                            audio={audio}
+                            onSave={audio => this.setState({ audio })}
+                        />
+
+                        <ImageInput
+                            key={`image-input-${sentence._id || "new"}`}
+                            image={image}
+                            onSave={image => this.setState({ image })}
+                        />
+                    </Form>
+                </Col>
+            </Row>,
             <Row>
                 <Col>
                     <Button 
-                        variant='outline-primary' 
-                        block
-                        onClick={e => {
-                            let words = this.state.words.slice();
-                            words.push({ paiuteRange: null, englishRange: null, wordId: null, english: '', paiute: ''});
-                            this.setState({ words });
+                        block 
+                        variant='outline-primary'
+                        onClick={e =>{
+                            if (window.confirm('Are you sure you want to go back to editing sentence text? If you do, all current word mappings will be lost.')) {
+                                this.setState({ editingText: true, tokenMap: {}, paiuteTokens: [], englishTokens: [], selectedButton: null });
+                            }
                         }}
                     >
-                        <FontAwesomeIcon icon={faPlus} className='mr-2' />
-                        Word
+                        <FontAwesomeIcon icon={faAngleLeft} className='mr-2' />
+                        Edit Sentence Text
                     </Button>
-                    {wordFormsList}
+                </Col>
+                <Col>
+                    <Button 
+                        block
+                        onClick={e => this.props.onSave(this.state)} variant='outline-primary'
+                    >
+                        Save
+                    </Button>
                 </Col>
             </Row>
-        );
-    }
+        ];
 
-    getForm() {
-        let { english, paiute, audio, image, selectingIdx, selectingMode } = this.state;
-        let sentence = this.props.sentence || {};
-
-        let approveButton;
-        if (sentence.wordId != null) {
-            approveButton = (
-                <Button 
-                    variant={sentence.suggested ? "outline-info" : "outline-warning"} href='#'
-                    className='w-100'
-                    onClick={e => this.toggleApprove()}
-                >
-                    <FontAwesomeIcon icon={sentence.suggested ? faCheck : faTimes} className='mr-2' />
-                    {sentence.suggested ? "Approve" : "Un-approve"}
-                </Button>
-            );
-        }
-
-        let deleteButton;
-        if (sentence._id != null) { // sentence exists
-            deleteButton = (
-                <Button 
-                    variant='outline-danger' href='#'
-                    className='w-100'
-                    onClick={e => {
-                        if (window.confirm('Are you sure you want to delete this sentence?')) {
-                            this.delete()
-                        }
-                    }}
-                >
-                    <FontAwesomeIcon icon={faTrash} className='mr-2' />
-                    Delete
-                </Button>
-            );
-        }
-
-        let hasChanged = this.hasChanged();
-        return (
-            <Form>
-                <Form.Group controlId={`form-sentence-paiute-${sentence._id || "new"}`}>
+        let wordTextForm = (
+            <Form className='mt-2'>
+                <Form.Group>
                     <Form.Label>Paiute</Form.Label>
-                    <Form.Control as="textarea" value={paiute} 
-                        onSelectCapture={e => {
-                            let [start, end] = [e.target.selectionStart, e.target.selectionEnd];
-                            if (end - start > 0 && selectingIdx != null && selectingMode == 'paiute') {
-                                let { words } = this.state;
-
-                                words[selectingIdx].paiute = e.target.value.slice(start, end);
-                                words[selectingIdx].paiuteRange = [start, end];
-                                this.setState({ words: words, selectingIdx: null, selectingMode: null });
-                            }
-                        }}
-                        onChange={e => this.setState({ paiute: replaceSpecialChars(e.target.value) })}
+                    <Form.Control
+                        type="text"
+                        ref="paiuteInput"
+                        placeholder="Paiute"
+                        aria-label="Paiute"
+                        aria-describedby="basic-addon1"
+                        value={paiute}
+                        onChange={e => this.handlePaiuteChange(e)}
                     />
                 </Form.Group>
 
-                <Form.Group controlId={`form-sentence-english-${sentence._id || "new"}`}>
+                <Form.Group>
                     <Form.Label>English</Form.Label>
-                    <Form.Control as="textarea" value={english} 
-                        onSelectCapture={e => {
-                            let [start, end] = [e.target.selectionStart, e.target.selectionEnd];
-                            if (end - start > 0 && selectingIdx != null && selectingMode == 'english') {
-                                let { words } = this.state;
-
-                                words[selectingIdx].english = e.target.value.slice(start, end);
-                                words[selectingIdx].englishRange = [start, end];
-                                this.setState({ words: words, selectingIdx: null, selectingMode: null });
-                            }
-                        }}
-                        onChange={e => this.setState({english: e.target.value})}
+                    <Form.Control
+                        type="text"
+                        placeholder="English"
+                        aria-label="English"
+                        aria-describedby="basic-addon2"
+                        value={english}
+                        onChange={e => this.handleEnglishChange(e)}
                     />
-                </Form.Group>
-                
-                <AudioInput 
-                    key={sentence._id}
-                    audio={audio}
-                    onSave={audio => this.setState({ audio })}
-                />
+                </Form.Group>  
 
-                <ImageInput
-                    key={sentence._id}
-                    image={image}
-                    onSave={image => this.setState({ image })}
-                />
-
-                <ButtonGroup className='d-flex' id={`form-sentence-buttons-${sentence._id || "new"}`}>
-                    <Button 
-                        variant={hasChanged ? 'outline-success' : 'outline-secondary'} 
-                        href='#'
-                        className='w-100'
-                        disabled={!hasChanged}
-                        onClick={e => this.save()}
+                <Form.Group>
+                    <Button
+                        onClick={e => {
+                            this.setState({ editingText: false, paiuteTokens: this.parseSentence(paiute), englishTokens: this.parseSentence(english) });
+                        }}
+                        disabled={!paiute || !english}
+                        variant='outline-primary'
+                        block href='#'
                     >
-                        {sentence._id == null ? "Submit" : "Save"}
+                        Next
+                        <FontAwesomeIcon className='ml-2' icon={faAngleRight} />
                     </Button>
-                    {approveButton}
-                    {deleteButton}
-                </ButtonGroup>
-                
-
+                </Form.Group>
             </Form>
         );
-    }
 
-    render() {
-        return (
-            <Row className="mt-3">
-                <Col xs={12} md={6}>
-                    {this.getForm()}
-                </Col>
-                <Col xs={12} md={6}>
-                    {this.annotateForm()}
-                </Col>
-            </Row>
-        );
+        return editingText ? wordTextForm : wordTokenForm;
+  
     }
 };
-
 
 export default SentenceForm;

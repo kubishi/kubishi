@@ -11,7 +11,7 @@ function WordList(props) {
             <ListGroup.Item 
                 className="py-2"
                 key={'word-list-' + word._id}
-                action href={'/word/' + word._id}
+                action href={'/words/' + word._id}
             >
                 <b>{text} <em>({part_of_speech})</em></b>
                 <br />

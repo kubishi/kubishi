@@ -23,7 +23,7 @@ class ArticleEdit extends React.Component {
     getArticle() {
         let { articleId } = this.props;
 
-        api.get(`/api/article/${articleId}`).then(res => {
+        api.get(`/api/articles/${articleId}`).then(res => {
             if (res.status == 200 && res.data.success) {
                 this.setState({article: res.data.result});
             } else {
@@ -42,7 +42,7 @@ class ArticleEdit extends React.Component {
 
         let body = getUpdates(article, new_article);
         if (!body) return; // no updates
-        api.put(`/api/article/${article._id}`, body).then(res => {
+        api.put(`/api/articles/${article._id}`, body).then(res => {
             if (res.status == 200) {
                 this.getArticle();
             } else {
@@ -53,7 +53,7 @@ class ArticleEdit extends React.Component {
 
     deleteArticle() {
         let { articleId } = this.props;
-        api.delete(`/api/article/${articleId}`).then(res => {
+        api.delete(`/api/articles/${articleId}`).then(res => {
             if (res.status == 200 && res.data.success) {
                 return history.push('/');
             } else {

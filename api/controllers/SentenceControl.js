@@ -4,7 +4,7 @@ const lodash = require('lodash');
 const helpers = require('../helpers');
 
 
-const allFields = ['english', 'paiute', 'image', 'audio'];
+const allFields = ['english', 'paiute', 'image', 'audio', 'notes', 'paiuteTokens', 'englishTokens', 'tokenMap'];
 const requiredFields = ['english', 'paiute'];
 const defaultSearchFields = ['english', 'paiute'];
 
@@ -24,10 +24,7 @@ function createSentence(req, res) {
         return;
     }
 
-    let sentence = new SentenceModel({
-        paiute: req.body.paiute,
-        english: req.body.english,
-    });
+    let sentence = new SentenceModel(lodash.pick(req.body, allFields));
     sentence.save().then(result => {
         return res.json({success: true, result: result});
     }).catch(err => {
@@ -64,7 +61,11 @@ function getSentence(req, res) {
     let fields = req.query.fields || allFields;
     let project = {};
     fields.forEach(field => project[field] = 1);
-    SentenceModel.findOne({_id: req.params.id}, project).then(sentence => {
+    SentenceModel.findOne({_id: req.params.id}, project).populate(
+        'paiuteTokens.word', 'text part_of_speech definition'
+    ).populate(
+        'englishTokens.word', 'text part_of_speech definition'
+    ).then(sentence => {
         if (!sentence) res.status(404).json({success: false, result: sentence});
         else res.json({success: true, result: sentence});
     }).catch(err => {
@@ -137,6 +138,40 @@ function search(req, res) {
     });
 }
 
+function retrieveContainsWord(req, res) {
+    let wordId = req.params._id;
+
+    let pipeline = [
+        {
+            $find: {'words.wordId': wordId}
+        },
+        {
+            $facet: {
+                result: [
+                    { $skip: offset },
+                    { $limit: limit },
+                ],
+                total: [{ $count: 'count' }]
+            }
+        },
+        {$unwind: {path: '$total'}},
+        {
+            $project: {
+                result: 1,
+                total: '$total.count'
+            }
+        }
+    ];
+
+    SentenceModel.aggregate(pipeline).then(result => {
+        if (!result || result.total <= 0) {
+            return res.json({success: true, result: [], total: 0});
+        } else {
+            return res.json({success: true, result: result[0].result, total: result.total});
+        }
+    });
+}
+
 module.exports = {
     create: createSentence,
     update: updateSentence,
@@ -144,4 +179,5 @@ module.exports = {
     delete: deleteSentence,
     search: search,
     random: getRandomSentence,
+    retrieveContainsWord: retrieveContainsWord,
 };

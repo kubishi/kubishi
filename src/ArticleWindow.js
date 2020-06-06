@@ -28,7 +28,7 @@ class ArticleWindow extends React.Component {
     componentDidMount() {
         let { articleId } = this.props;
 
-        api.get(`/api/article/${articleId}`).then(res => {
+        api.get(`/api/articles/${articleId}`).then(res => {
             if (res.status == 200 && res.data.success) {
                 let { title, tags, keywords, content, image } = res.data.result;
                 console.log({ title, tags, keywords, content, image });
@@ -92,7 +92,7 @@ class ArticleWindow extends React.Component {
                     className="mb-2"
                     variant='outline-primary'
                     onClick={e => {
-                        return history.push(`/article/${articleId}?mode=edit`);
+                        return history.push(`/articles/${articleId}?mode=edit`);
                     }}
                     block
                 >
