@@ -8,7 +8,6 @@ import {
 import history from './history';
 import qs from 'query-string';
 import api from './Api';
-import { replaceSpecialChars } from './helpers';
 
 class SearchBar extends React.Component {
     constructor(props) {
@@ -49,15 +48,7 @@ class SearchBar extends React.Component {
                     name='query'
                     value={query}
                     onKeyPress={e => this.handleSearchKeyPress(e)}
-                    onChange={e => {
-                        let [text, newStart]= replaceSpecialChars(e.currentTarget.value, e.currentTarget.selectionStart);
-                        this.setState(
-                            { query: text }, 
-                            () => this.refs.searchBar.setSelectionRange(newStart, newStart)
-                        );
-
-                        this.setState({query: replaceSpecialChars(e.currentTarget.value)});
-                    }}
+                    onChange={e => this.setState({ query: e.currentTarget.value })}
                 />
                 
                 <InputGroup.Append>

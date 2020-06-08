@@ -1,17 +1,20 @@
 import React from 'react';
-import { Spinner, Row, Col, Button, Image } from 'react-bootstrap';
+import { Spinner, Row, Col, Button, Image, Popover, OverlayTrigger } from 'react-bootstrap';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit } from '@fortawesome/free-solid-svg-icons';
 import api from './Api';
 import history from './history';
 
+import { getPosLabel, getdefault, setdefault } from './helpers';
+
 class SentenceWindow extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            sentence: null
+            sentence: this.props.sentence || null,
+            popover: null,
         };
 
         if (this.props.sentence != null) {
@@ -24,7 +27,24 @@ class SentenceWindow extends React.Component {
         if (sentence == null) {
             api.get(`/api/sentences/${sentenceId}`).then(res => {
                 if (res.status == 200 && res.data.success) {
-                    this.setState({ sentence: res.data.result });
+                    console.log(res.data.result);
+                    let reverseTokenMap = {};
+                    let newTokenMap = {};
+                    if (res.data.result.tokenMap != null) {
+                        Object.entries(res.data.result.tokenMap).forEach(([key, values])=> {
+                            if (values != null) {
+                                newTokenMap[key] = new Set(values);
+                                values.forEach(value => {
+                                    setdefault(reverseTokenMap, value, new Set());
+                                    reverseTokenMap[value].add(Number.parseInt(key));
+                                });
+                            }
+                        })
+                    }
+                    console.log(newTokenMap);
+                    console.log(reverseTokenMap);
+                    res.data.result.tokenMap = newTokenMap;
+                    this.setState({ reverseTokenMap, sentence: res.data.result });
                 } else {
                     console.log(res.status, res.data);
                     this.setState({ sentence: false });
@@ -34,6 +54,93 @@ class SentenceWindow extends React.Component {
                 this.setState({ sentence: false });
             });
         }
+    }
+
+    /**
+     * 
+     * @param {String} lang 
+     * @param {Array} tokens 
+     */
+    getSentenceTokens(lang, tokens) {
+        let { sentence, hoverLang, hoverToken, reverseTokenMap } = this.state;
+
+        let tokenMap = sentence.tokenMap || {};
+
+        return tokens.map((token, i) => {
+            if (token.token_type == 'word') {
+                let isHovering = hoverLang == lang && hoverToken == i;
+                let isRelatedHovering = false;
+                if (hoverLang != lang) {
+                    isRelatedHovering = getdefault(lang == 'english' ? tokenMap : reverseTokenMap, hoverToken, new Set()).has(i);
+                }
+
+                let tokenSpan = (
+                    <span
+                        key={`span-token-${lang}-${i}`}
+                        className={(isHovering || isRelatedHovering) ? 'bg-info' : ''}
+                        onMouseEnter={() => {
+                            this.setState({hoverLang: lang, hoverToken: i});
+                        }}
+                        onMouseLeave={() => {
+                            if (isHovering) {
+                                this.setState({ hoverLang: null, hoverToken: null });
+                            }
+                        }}
+                        style={{fontSize: '20px', cursor: 'pointer'}}
+                        
+                        onClick={e => {
+                            if (token.word != null && token.word.text != null) {
+                                history.push(`/words/${token.word._id}`)
+                            }
+                        }}
+                    >
+                        {token.text}
+                    </span>
+                );
+                if (token.word != null && token.word.text != null) {
+                    tokenSpan = (
+                        <OverlayTrigger
+                            key={`overlay-token-paiute-${i}`}
+                            trigger='hover'
+                            overlay={
+                                <Popover id={`popover-${lang}-${i}`} show={false} placement='top'>
+                                    <Popover.Title as="h5">
+                                        {token.word.text}
+                                        <span className='float-right'><em>{getPosLabel(token.word.part_of_speech)}</em></span>
+                                    </Popover.Title>
+                                    <Popover.Content>
+                                        {token.word.definition}
+                                    </Popover.Content>
+                                </Popover>
+                            }
+                        >
+                            {tokenSpan}
+                        </OverlayTrigger>
+                    );
+                }
+                return tokenSpan;
+            } else {
+                return <span style={{fontSize: '20px'}} key={`span-token-${lang}-${i}`}>{token.text}</span>;
+            }
+        });
+    }
+
+    getSentence() {
+        let { sentence } = this.state;
+        console.log('here1', sentence);
+        if (sentence.paiuteTokens.length <= 0 || sentence.englishTokens.length <= 0) {
+            console.log('here');
+            return [
+                <b key={'sentence-paiute'}>{sentence.paiute}<br /></b>,
+                <p key={'sentence-paiute'}>{sentence.english}</p>
+            ];
+        }
+        
+        return [
+            this.getSentenceTokens('paiute', sentence.paiuteTokens),
+            <br key={'sentence-br'} />,
+            this.getSentenceTokens('english', sentence.englishTokens),
+        ]
     }
 
     render() {
@@ -81,10 +188,9 @@ class SentenceWindow extends React.Component {
                 <Col className={imageSquare == null ? 'd-none d-md-block d-xl-block': ''} md={3}></Col>
                 <Col>
                     {editButton}
-                    <Row>
+                    <Row className='mt-2'>
                         <Col xs={12} md={imageSquare == null ? 12 : 6}>
-                            <b>{sentence.paiute}</b>
-                            <p>{sentence.english}</p>
+                            {this.getSentence()}
                         </Col>
                         {audioPlayer}
                         {imageSquare}

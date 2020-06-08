@@ -37,16 +37,6 @@ export function getTagLabel(tag) {
     return tag.startsWith("tag:") ? tag.slice(4) : tag;
 }  
 
-export function replaceSpecialChars(text, cursorIndex = null) {
-    let newText = text.replace("~w", "w̃").replace("~W", "W̃").replace('"u', "ü").replace('"U', "Ü");
-    if (cursorIndex != null) {
-        let startText = text.slice(0, cursorIndex);
-        let newCursorIndex = cursorIndex - (startText.match(/~w|~W|"u|"U/) || []).length;
-        return [newText, newCursorIndex];
-    }
-    return newText;
-}
-
 /**
  * 
  * @param {String} part_of_speech 
@@ -61,4 +51,19 @@ export function getPosLabel(part_of_speech) {
  */
 export function getPosValue(part_of_speech) {
     return part_of_speech.toUpperCase().replace(' ', '_');
+}
+
+
+export function setdefault(obj, key, value) {
+    if (!obj.hasOwnProperty(key)) {
+        obj[key] = value;
+    }
+    return obj[key];
+}
+
+export function getdefault(obj, key, value = null) {
+    if (obj.hasOwnProperty(key)) {
+        return obj[key];
+    }
+    return value;
 }

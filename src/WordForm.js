@@ -8,7 +8,7 @@ import { faPlus, faTrash, faCheck, faTimes } from '@fortawesome/free-solid-svg-i
 import PartOfSpeech from './PartOfSpeech';
 import Select from 'react-select';
 
-import { remove_punctuation, toBase64, replaceSpecialChars } from './helpers';
+import { remove_punctuation, toBase64 } from './helpers';
 import ImageInput from './ImageInput';
 import AudioInput from './AudioInput';
 import api from './Api';
@@ -194,7 +194,7 @@ class WordForm extends React.Component {
                             <Form.Label>Word</Form.Label>
                             <Form.Control 
                                 type='text' value={text}
-                                onChange={e => {this.setState({text: replaceSpecialChars(e.target.value)})}}
+                                onChange={e => {this.setState({text: e.target.value})}}
                             />
                         </Form.Group>
                     </Col>

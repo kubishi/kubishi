@@ -10,24 +10,9 @@ import { faTrash, faAngleRight, faAngleLeft, faLock, faLockOpen } from '@fortawe
 import api from './Api';
 import AudioInput from './AudioInput';
 import ImageInput from './ImageInput';
-import { getUpdates, replaceSpecialChars, getPosLabel } from './helpers';
+import { getUpdates, getPosLabel, setdefault, getdefault } from './helpers';
 
 import './SentenceForm.css';
-
-
-function setdefault(obj, key, value) {
-    if (!obj.hasOwnProperty(key)) {
-        obj[key] = value;
-    }
-    return obj[key];
-}
-
-function getdefault(obj, key, value = null) {
-    if (obj.hasOwnProperty(key)) {
-        return obj[key];
-    }
-    return value;
-}
 
 let REGEX = /([0-9a-zA-Zw̃W̃üÜ']+)([^\s]?\s?)?/g;
 
@@ -84,12 +69,8 @@ class SentenceForm extends React.Component {
      * @param {React.ChangeEvent} e 
      */
     handlePaiuteChange(e) {
-        let [paiute, newStart]= replaceSpecialChars(e.target.value, e.target.selectionStart);
-        let paiuteTokens = this.parseSentence(paiute);
-        this.setState(
-            { paiuteTokens, paiute, paiuteSelectStart: newStart }, 
-            () => this.refs.paiuteInput.setSelectionRange(newStart, newStart)
-        );
+        let paiuteTokens = this.parseSentence(e.target.value);
+        this.setState({ paiuteTokens, paiute: e.target.value });
     }
   
     /**
@@ -117,7 +98,6 @@ class SentenceForm extends React.Component {
     updateSearchQuery() {
         let query = this.state.query || this.state.defaultQuery;
         if (query == null || query == '') return; // empty query
-        query = replaceSpecialChars(query);
         api.get('/api/search/words', 
             {
                 params: {
