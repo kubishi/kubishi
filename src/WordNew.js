@@ -17,7 +17,7 @@ class WordNew extends React.Component {
      */
     addRelatedWord(wordId, words, next) {
         let word = words.pop();
-        console.log(wordId, word);
+        if (words != null) return next();
         api.post(`/api/words/${wordId}/related`, {word: word}).then(res => {
             if (res.status != 200 || !res.data.success) {
                 console.log(res.status, res.data);

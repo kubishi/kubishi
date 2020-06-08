@@ -117,7 +117,7 @@ class WordWindow extends React.Component {
                     <Row>
                         <Col>
                             <h4>{word.text}</h4>
-                            <p><em>{word.part_of_speech.toLowerCase().replace('_', ' ')}</em></p>
+                            <p><em>{(word.part_of_speech || 'UNKNOWN').toLowerCase().replace('_', ' ')}</em></p>
                             <p>{word.definition}</p>
                             {relatedWordsList}
                         </Col>
