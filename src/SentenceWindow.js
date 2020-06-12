@@ -57,7 +57,7 @@ class SentenceWindow extends React.Component {
      * @param {Array} tokens 
      */
     getSentenceTokens(lang, tokens) {
-        let { sentence, hoverLang, hoverToken, tokenMap, reverseTokenMap } = this.state;
+        let { hoverLang, hoverToken, tokenMap, reverseTokenMap } = this.state;
 
         return tokens.map((token, i) => {
             if (token.token_type == 'word') {
@@ -79,7 +79,7 @@ class SentenceWindow extends React.Component {
                                 this.setState({ hoverLang: null, hoverToken: null });
                             }
                         }}
-                        style={{fontSize: '20px', cursor: 'pointer'}}
+                        style={{fontSize: '20px', cursor: 'pointer', fontWeight: lang == "paiute" ? "bold" : "normal"}}
                         
                         onClick={e => {
                             if (token.word != null && token.word.text != null) {
@@ -95,8 +95,9 @@ class SentenceWindow extends React.Component {
                         <OverlayTrigger
                             key={`overlay-token-paiute-${i}`}
                             trigger='hover'
+                            placement='bottom'
                             overlay={
-                                <Popover id={`popover-${lang}-${i}`} show={false} placement='top'>
+                                <Popover id={`popover-${lang}-${i}`} show={false}>
                                     <Popover.Title as="h5">
                                         {token.word.text}
                                         <span className='float-right'> <em>{getPosLabel(token.word.part_of_speech)}</em></span>
@@ -113,7 +114,7 @@ class SentenceWindow extends React.Component {
                 }
                 return tokenSpan;
             } else {
-                return <span style={{fontSize: '20px'}} key={`span-token-${lang}-${i}`}>{token.text}</span>;
+                return <span style={{fontSize: '20px', fontWeight: lang == "paiute" ? "bold" : "normal"}} key={`span-token-${lang}-${i}`}>{token.text}</span>;
             }
         });
     }
@@ -121,16 +122,30 @@ class SentenceWindow extends React.Component {
     getSentence() {
         let { sentence } = this.state;
         if (sentence.paiuteTokens.length <= 0 || sentence.englishTokens.length <= 0) {
-            return [
-                <b key={'sentence-paiute'}>{sentence.paiute}<br /></b>,
-                <p key={'sentence-paiute'}>{sentence.english}</p>
-            ];
+            return (
+                <Row>
+                    <Col style={{borderRight: '1px solid gray'}} className='text-right'>
+                        <b key={'sentence-paiute'}>{sentence.paiute}<br /></b>
+                    </Col>
+                    <Col>
+                        <p key={'sentence-paiute'}>{sentence.english}</p>
+                    </Col>                
+                </Row>
+            );
         }
+
+        return (
+            <Row>
+                <Col style={{borderRight: '1px solid gray'}} className='text-right'>
+                    {this.getSentenceTokens('paiute', sentence.paiuteTokens)}
+                </Col>
+                <Col>
+                    {this.getSentenceTokens('english', sentence.englishTokens)}
+                </Col>                
+            </Row>
+        );
         
         return [
-            this.getSentenceTokens('paiute', sentence.paiuteTokens),
-            <br key={'sentence-br'} />,
-            this.getSentenceTokens('english', sentence.englishTokens),
         ]
     }
 
@@ -154,7 +169,7 @@ class SentenceWindow extends React.Component {
         let editButton;
         if (canEdit) {
             editButton = (
-                <Row>
+                <Row className='mb-2'>
                     <Col>
                         <Button 
                             variant='outline-primary'
@@ -174,23 +189,42 @@ class SentenceWindow extends React.Component {
             imageSquare = <Image src={sentence.image.data} rounded style={{maxHeight: '30vh', maxWidth: '100%'}} />;
         }
 
-        return (
-            <Row className='mt-3'>
-                <Col className={imageSquare == null ? 'd-none d-md-block d-xl-block': ''} md={3}></Col>
+        let notesSquare;
+        if (sentence.notes) {
+            notesSquare = (
                 <Col>
-                    {editButton}
-                    <Row className='mt-2'>
-                        <Col xs={12} md={imageSquare == null ? 12 : 6}>
-                            {this.getSentence()}
-                        </Col>
-                        {audioPlayer}
-                        {imageSquare}
-                    </Row>
-                    {audioPlayer}
+                    <h5>Notes</h5>
+                    <p>{sentence.notes}</p>
                 </Col>
-                <Col className={imageSquare == null ? 'd-none d-md-block d-xl-block': ''} md={3}></Col>
-            </Row>
-        );
+            );
+        }
+
+        if (!notesSquare && !imageSquare && !audioPlayer) {
+            return (
+                <Row className='mt-3'>
+                    <Col className='d-none d-md-block d-xl-block' md={3}></Col>
+                    <Col>
+                        {editButton}
+                        {this.getSentence()}
+                    </Col>
+                    <Col className='d-none d-md-block d-xl-block' md={3}></Col>
+                </Row>
+            );
+        } else {
+            return (
+                <Row className='mt-3'>
+                    <Col>
+                        {this.getSentence()}
+                    </Col>
+                    <Col>
+                        {editButton}
+                        {imageSquare}
+                        {audioPlayer}
+                        {notesSquare}
+                    </Col>
+                </Row>
+            );
+        }
     }
 };
 
