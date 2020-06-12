@@ -41,11 +41,12 @@ class AudioInput extends React.Component {
     constructor(props) {
         super(props);
 
+        let audio = this.props.audio || {};
         this.state = {
             record: false,
             audio: {
-                data: null,
-                filename: false
+                data: audio.data || null,
+                filename: audio.filename || null
             }
         };
     }

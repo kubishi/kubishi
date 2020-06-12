@@ -17,7 +17,7 @@ export const toBase64 = file => new Promise((resolve, reject) => {
 export function getUpdates(prevObj, obj) {
     return _.pick(obj, _.paths(obj, {leavesOnly: true}).filter(path => {
         let val = _.get(obj, path);
-        return val != null && !lodash.isEqual(val, _.get(prevObj, path));
+        return val == null || !lodash.isEqual(val, _.get(prevObj, path));
     }));
 }
 

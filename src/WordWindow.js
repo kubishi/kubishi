@@ -1,11 +1,10 @@
 
 import React from 'react';
-import { Row, Col, ListGroup, Button, Spinner } from 'react-bootstrap';
+import { Row, Col, ListGroup, Button, Spinner, Image, InputGroup } from 'react-bootstrap';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit } from '@fortawesome/free-solid-svg-icons';
 
-import { remove_punctuation } from './helpers';
 import api from './Api';
 import SentenceList from './SentenceList';
 import history from './history';
@@ -80,7 +79,7 @@ class WordWindow extends React.Component {
         let notesArea;
         if (word.notes) {
             notesArea = (
-                <Row className="mt-3">
+                <Row>
                     <Col>
                         <h5 className='text-center'>Notes</h5>
                         <p>{word.notes}</p>
@@ -93,7 +92,7 @@ class WordWindow extends React.Component {
         if (relatedWords.length > 0) {
             let listGroup = <ListGroup variant='flush'>{relatedWords}</ListGroup>;
             relatedWordsList = (
-                <Row className='mt-3'>
+                <Row>
                     <Col>
                         <h5 className='text-center'>See Also</h5>
                         {listGroup}
@@ -122,31 +121,34 @@ class WordWindow extends React.Component {
             );
         }
         
-        let wordBody = (
+        let imageSquare;
+        if (word.image != null && word.image.data != null) {
+            imageSquare = <Image className='mb-3' src={word.image.data} rounded style={{width: '100%'}} />;
+        }
+        
+        let audioPlayer;
+        if (word.audio != null && word.audio.data != null) {
+            audioPlayer = <audio src={word.audio.data} controls />;
+        }
+        
+        return (
             <Row>
-                <Col sm={12} md={4} className='md-border-right'>
+                <Col sm={12} md={4} className='md-border-right mt-2'>
                     {editButton}
-                    <Row>
-                        <Col>
-                            <h4>{word.text}</h4>
-                            <p><em>{(word.part_of_speech || 'UNKNOWN').toLowerCase().replace('_', ' ')}</em></p>
-                            <p>{word.definition}</p>
-                            {notesArea}
-                            {relatedWordsList}
-                        </Col>
-                    </Row>
+                    
+                    <h4>{word.text}</h4>
+                    <p><em>{(word.part_of_speech || 'UNKNOWN').toLowerCase().replace('_', ' ')}</em></p>
+                    <p>{word.definition}</p>
+                    {audioPlayer}
+                    
+                    {imageSquare}
+
+                    {notesArea}
+                    {relatedWordsList}
                 </Col>
-                <Col sm={12} md={8}>
+                <Col sm={12} md={4} className='mt-2'>
                     <h5 className='text-center'>Sentences</h5>
                     <SentenceList results={sentences} />
-                </Col>
-            </Row>
-        );
-
-        return (
-            <Row className='m-3'>
-                <Col>
-                    {wordBody}
                 </Col>
             </Row>
         );
