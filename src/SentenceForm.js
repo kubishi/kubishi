@@ -57,6 +57,11 @@ class SentenceForm extends React.Component {
             this.state.englishTokens = this.parseSentence(sentence.english || '');
         }
     }
+    
+    hasChanged() {
+        let newSentence = lodash.cloneDeep(lodash.pick(this.state, ['english', 'paiute', 'image', 'audio', 'notes', 'paiuteTokens', 'englishTokens']));
+        return Object.keys(getUpdates(this.props.sentence || {}, newSentence)).length > 0;
+    }
 
     /**
      * 
@@ -159,6 +164,7 @@ class SentenceForm extends React.Component {
         } = this.state;
 
         let sentence = this.props.sentence || {};
+        let hasChanged = this.hasChanged();
   
         let paiuteButtons = paiuteTokens.map((token, i) => {
             if (token.token_type == 'word') {
@@ -309,6 +315,8 @@ class SentenceForm extends React.Component {
                 <Col>
                     <Button 
                         block
+                        href="#"
+                        disabled={!hasChanged}
                         onClick={e => this.props.onSave(this.state)} variant='outline-primary'
                     >
                         Save
