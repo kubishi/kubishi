@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Form, InputGroup, Button, Image } from 'react-bootstrap';
+import { Form, InputGroup, Button, Image, DropdownButton, Dropdown } from 'react-bootstrap';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
@@ -14,8 +14,9 @@ class ImageInput extends React.Component {
         this.state = {
             image: {
                 data: null,
-                record: false
-            }
+                filename: null
+            },
+            urlMode: true
         };
     }
 
@@ -25,24 +26,64 @@ class ImageInput extends React.Component {
         });
     }
 
-    addImage(file) {
-        toBase64(file).then(res => {
-            this.setState({image: {data: res, filename: file.name}}, () => {
-                this.props.onSave(this.state.image);
-            });
-        }).catch(err => console.error(err));
+    addImage(file, isFile = false) {
+        if (isFile) {
+            toBase64(file).then(res => {
+                this.setState({image: {data: res, filename: file.name}}, () => this.props.onSave(this.state.image));
+            }).catch(err => console.error(err));
+        } else {
+            this.setState({ image: file }, () => this.props.onSave(this.state.image));
+        }
     }
 
     render() {
-        let { image } = this.state;
-        let removeImageButton;
+        let { image, urlMode } = this.state;
+        let prefix;
         if (image.data != null) {
-            removeImageButton = (
+            prefix = (
                 <InputGroup.Prepend>
                     <Button onClick={() => this.removeImage()} variant='outline-danger'>
                         <FontAwesomeIcon icon={faTrash} />
                     </Button>
                 </InputGroup.Prepend>
+            );
+        } else {
+            prefix = ( 
+                <DropdownButton
+                    as={InputGroup.Prepend}
+                    variant="outline-primary"
+                    title={urlMode ? "URL" : "File"}
+                    id="image-type-dropdown"
+                >
+                    <Dropdown.Item href="#" onClick={e => this.setState({ urlMode: true })}>
+                        URL
+                    </Dropdown.Item>
+                    <Dropdown.Item href="#" onClick={e => this.setState({ urlMode: false })}>
+                        File
+                    </Dropdown.Item>
+                </DropdownButton>
+            );
+        }
+
+        let imageControl;
+        if (urlMode) {
+            imageControl = (  
+                <Form.Control
+                    type="text"
+                    placeholder="URL"
+                    value={image.data}
+                    onChange={e => this.addImage({ filename: 'online', data: e.target.value })}
+                />
+            );
+        } else {
+            imageControl = (
+                <Form.File 
+                    id={`form-file-sentence-image-${this.props.key || "new"}`}
+                    accept='image/*'
+                    label='Image'
+                    onChange={e => this.addImage(e.target.files[0], true)}
+                    custom
+                />
             );
         }
         
@@ -56,15 +97,8 @@ class ImageInput extends React.Component {
                 <Form.Label>Image</Form.Label>
                 {imageSquare}                   
                 <InputGroup className="mb-3">
-                    {removeImageButton}
-                    
-                    <Form.File 
-                        id={`form-file-sentence-image-${this.props.key || "new"}`}
-                        accept='image/*'
-                        label={image.filename || "Image"}
-                        onChange={e => this.addImage(e.target.files[0])}
-                        custom
-                    />
+                    {prefix}
+                    {imageControl}
                 </InputGroup>
             </Form.Group>
         );
