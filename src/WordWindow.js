@@ -146,7 +146,7 @@ class WordWindow extends React.Component {
                     {notesArea}
                     {relatedWordsList}
                 </Col>
-                <Col sm={12} md={4} className='mt-2'>
+                <Col sm={12} md={8} className='mt-2'>
                     <h5 className='text-center'>Sentences</h5>
                     <SentenceList results={sentences} />
                 </Col>
