@@ -15,14 +15,14 @@ const SentenceSchema = new mongoose.Schema({
     paiuteTokens: [{
         token_type: String,
         text: String,
+        token_map: [Number],
         word: {type: mongoose.Types.ObjectId, ref: 'word'}
     }],
     englishTokens: [{
         token_type: String,
         text: String,
         word: {type: mongoose.Types.ObjectId, ref: 'word'}
-    }],
-    tokenMap: {Number: [Number]}
+    }]
 });
 
 module.exports = mongoose.model('sentence', SentenceSchema);

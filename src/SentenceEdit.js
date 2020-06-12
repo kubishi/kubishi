@@ -1,10 +1,10 @@
 import React from 'react';
 
-import { Row, Col, Spinner } from 'react-bootstrap';
+import { Row, Col, Spinner, Button } from 'react-bootstrap';
 
 import SentenceForm from './SentenceForm';
 import api from './Api';
-import { getUpdates, formatSentence } from './helpers';
+import { formatSentence } from './helpers';
 import history from './history';
 
 class SentenceEdit extends React.Component {
@@ -34,9 +34,7 @@ class SentenceEdit extends React.Component {
         let { sentence } = this.state;
         if (sentence == null) return; // sentence not yet loaded
 
-        let body = getUpdates(formatSentence(sentence), formatSentence(newSentence));
-        if (Object.keys(body).length <= 0) return; // no update
-
+        let body = formatSentence(newSentence);
         api.put(`/api/sentences/${sentence._id}`, body).then(res => {
             if (res.status == 200 && res.data.success) {
                 this.getSentence();
@@ -63,7 +61,22 @@ class SentenceEdit extends React.Component {
         let { sentence } = this.state;
         if (sentence == null) return <Spinner />;
 
-        return <SentenceForm sentence={sentence} onSave={sentence => this.saveSentence(sentence)} onDelete={() => this.onDelete()} />;
+        return (
+            <Row className='m-3'>
+                <Col>
+                    <Button variant='outline-primary' block className='mb-2' onClick={e => {
+                        return history.push(`/sentences/${sentence._id}`);
+                    }}>
+                        Back to Sentence
+                    </Button>
+                    <SentenceForm 
+                        sentence={sentence} 
+                        onSave={sentence => this.saveSentence(sentence)} 
+                        onDelete={() => this.deleteSentence()} 
+                    />
+                </Col>
+            </Row>
+        );
     }
 };
 

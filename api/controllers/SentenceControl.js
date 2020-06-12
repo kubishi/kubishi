@@ -71,6 +71,7 @@ function getSentence(req, res) {
         if (!sentence) res.status(404).json({success: false, result: sentence});
         else res.json({success: true, result: sentence});
     }).catch(err => {
+        console.log(err);
         res.status(500).json({success: false, result: err});
     });
 }

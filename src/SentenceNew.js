@@ -5,6 +5,8 @@ import SentenceForm from './SentenceForm';
 import api from './Api';
 import history from './history';
 
+import { formatSentence } from './helpers';
+
 class SentenceNew extends React.Component {
     constructor(props) {
         super(props);
@@ -13,7 +15,12 @@ class SentenceNew extends React.Component {
     addSentence(sentence) {
         if (sentence == null) return;
 
-        api.post('/api/sentences', sentence).then(res => {
+        let body = formatSentence(sentence);
+        if (Object.keys(body).length <= 0) return; // no update
+
+        console.log('Adding', body);
+
+        api.post('/api/sentences', body).then(res => {
             if (res.status == 200 && res.data.success) {
                 return history.push(`/sentences/${res.data.result._id}`);
             } else {

@@ -14,7 +14,7 @@ import { getUpdates, getPosLabel, setdefault, getdefault } from './helpers';
 
 import './SentenceForm.css';
 
-let REGEX = /([0-9a-zA-Zw̃W̃üÜ']+)([^\s]?\s?)?/g;
+let REGEX = /([0-9a-zA-Zw̃W̃üÜ']+)([^0-9a-zA-Zw̃W̃üÜ']+)?/g;
 
 class SentenceForm extends React.Component {
     constructor(props) {
@@ -35,16 +35,26 @@ class SentenceForm extends React.Component {
             query: null,
             options: [],
 
-            paiuteTokens: (!sentence.paiuteTokens || sentence.paiuteTokens.length <= 0) ? this.parseSentence(sentence.paiute || '') : sentence.paiuteTokens,
-            englishTokens: (!sentence.englishTokens || sentence.englishTokens.length <= 0) ? this.parseSentence(sentence.english || '') : sentence.englishTokens,
-    
-            tokenMap: {}
+            paiuteTokens: [],
+            englishTokens: [],
         };
-        
-        if (sentence.tokenMap != null) {
-            Object.entries(sentence.tokenMap).forEach(([key, value]) => {
-                this.state.tokenMap[key] = new Set(value || []);
-            });
+
+        if (sentence.paiuteTokens && sentence.paiuteTokens.length > 0) {
+            this.state.paiuteTokens = sentence.paiuteTokens.map(token => lodash.defaults(
+                lodash.pick(token, ['token_type', 'text', 'word', 'token_map']),
+                {'token_type': 'word', 'text': '', 'word': null, 'token_map': []}
+            ));
+        } else {
+            this.state.paiuteTokens = this.parseSentence(sentence.paiute || '');
+        }
+
+        if (sentence.englishTokens && sentence.englishTokens.length > 0) {
+            this.state.englishTokens = sentence.englishTokens.map(token => lodash.defaults(
+                lodash.pick(token, ['token_type', 'text']),
+                {'token_type': 'punc', 'text': ''}
+            ));
+        } else {
+            this.state.englishTokens = this.parseSentence(sentence.english || '');
         }
     }
 
@@ -57,8 +67,8 @@ class SentenceForm extends React.Component {
         let tokens = [];
         let match = REGEX.exec(text);
         while (match) {
-          tokens.push({token_type: 'word', text: match[1], word: null});
-          tokens.push({token_type: 'punc', text: match[2] || null});
+          tokens.push({token_type: 'word', text: match[1], word: null, token_map: []});
+          tokens.push({token_type: 'punc', text: match[2] || ''});
           match = REGEX.exec(text);
         }
         return tokens;
@@ -146,7 +156,6 @@ class SentenceForm extends React.Component {
             paiuteTokens,
             englishTokens,
             selectedButton,
-            tokenMap
         } = this.state;
 
         let sentence = this.props.sentence || {};
@@ -178,19 +187,22 @@ class SentenceForm extends React.Component {
         
         let englishButtons = englishTokens.map((token, i) => {
             if (token.token_type == 'word') {
+                let relatedSelected = selectedButton != null && (paiuteTokens[selectedButton].token_map || []).includes(i);
                 return (
                     <Button
                         key={`token-english-${i}`}
-                        variant={(getdefault(tokenMap, selectedButton) || new Set()).has(i) ? "secondary" : "outline-primary"}
+                        variant={relatedSelected ? "secondary" : "outline-primary"}
                         onClick={e => {
                             if (selectedButton == null) return;
-                            setdefault(tokenMap, selectedButton, new Set());
-                            if (!tokenMap[selectedButton].has(i)) {
-                                tokenMap[selectedButton].add(i);
-                            } else {
-                                tokenMap[selectedButton].delete(i);
+                            if (paiuteButtons[selectedButton].token_map == null) {
+                                paiuteTokens[selectedButton].token_map = [];
                             }
-                            this.setState({ tokenMap });
+                            if (!paiuteTokens[selectedButton].token_map.includes(i)) {
+                                paiuteTokens[selectedButton].token_map.push(i);
+                            } else {
+                                paiuteTokens[selectedButton].token_map = paiuteTokens[selectedButton].token_map.filter(x => x != i);
+                            }
+                            this.setState({ paiuteTokens });
                         }}
                     >
                         {token.text}
@@ -214,9 +226,28 @@ class SentenceForm extends React.Component {
             ]);
         }
 
+        let deleteButton;
+        if (this.props.onDelete != null) {
+            deleteButton = (
+                <Col className='mr-1'>
+                    <Button 
+                        block
+                        onClick={e => {
+                            if (window.confirm('Are you sure you want to delete this sentence?')) {
+                                this.props.onDelete();
+                            }
+                        }} variant='outline-danger'
+                    >
+                        <FontAwesomeIcon icon={faTrash} className='mr-2' />
+                        Delete
+                    </Button>
+                </Col>
+            );
+        }
+
         let wordSearch = this.getWordSearch();
         let wordTokenForm = [
-            <Row className='mt-2'>
+            <Row className='mt-3'>
                 <Col xs={12} md={6}>
                     <Row className="mb-2">
                         <Col className='text-center'>
@@ -259,14 +290,14 @@ class SentenceForm extends React.Component {
                     </Form>
                 </Col>
             </Row>,
-            <Row>
-                <Col>
+            <Row className='no-gutters'>
+                <Col className='mr-1'>
                     <Button 
                         block 
                         variant='outline-primary'
                         onClick={e =>{
                             if (window.confirm('Are you sure you want to go back to editing sentence text? If you do, all current word mappings will be lost.')) {
-                                this.setState({ editingText: true, tokenMap: {}, paiuteTokens: [], englishTokens: [], selectedButton: null });
+                                this.setState({ editingText: true, paiuteTokens: [], englishTokens: [], selectedButton: null });
                             }
                         }}
                     >
@@ -274,6 +305,7 @@ class SentenceForm extends React.Component {
                         Edit Sentence Text
                     </Button>
                 </Col>
+                {deleteButton}
                 <Col>
                     <Button 
                         block
@@ -286,7 +318,7 @@ class SentenceForm extends React.Component {
         ];
 
         let wordTextForm = (
-            <Form className='mt-2'>
+            <Form className='mt-3'>
                 <Form.Group>
                     <Form.Label>Paiute</Form.Label>
                     <Form.Control

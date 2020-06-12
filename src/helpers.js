@@ -27,9 +27,6 @@ export function formatSentence(sentence) {
         if (token.word != null) token.word = token.word._id;
         return token;
     });
-    Object.entries(fSentence.tokenMap).forEach(([key, value]) => {
-        fSentence.tokenMap[key] = Array.from(value);
-    });
     return fSentence;
 }
 

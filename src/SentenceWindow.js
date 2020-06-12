@@ -14,7 +14,8 @@ class SentenceWindow extends React.Component {
 
         this.state = {
             sentence: this.props.sentence || null,
-            popover: null,
+            tokenMap: {},
+            reverseTokenMap: {},
         };
 
         if (this.props.sentence != null) {
@@ -27,24 +28,18 @@ class SentenceWindow extends React.Component {
         if (sentence == null) {
             api.get(`/api/sentences/${sentenceId}`).then(res => {
                 if (res.status == 200 && res.data.success) {
-                    console.log(res.data.result);
                     let reverseTokenMap = {};
-                    let newTokenMap = {};
-                    if (res.data.result.tokenMap != null) {
-                        Object.entries(res.data.result.tokenMap).forEach(([key, values])=> {
-                            if (values != null) {
-                                newTokenMap[key] = new Set(values);
-                                values.forEach(value => {
-                                    setdefault(reverseTokenMap, value, new Set());
-                                    reverseTokenMap[value].add(Number.parseInt(key));
-                                });
-                            }
+                    let tokenMap = {};
+                    if (res.data.result.paiuteTokens != null) {
+                        res.data.result.paiuteTokens.forEach((token, i)=> {
+                            tokenMap[i] = token.token_map || [];
+                            tokenMap[i].forEach(j => {
+                                setdefault(reverseTokenMap, j, []);
+                                reverseTokenMap[j].push(i);
+                            })
                         })
                     }
-                    console.log(newTokenMap);
-                    console.log(reverseTokenMap);
-                    res.data.result.tokenMap = newTokenMap;
-                    this.setState({ reverseTokenMap, sentence: res.data.result });
+                    this.setState({ tokenMap, reverseTokenMap, sentence: res.data.result });
                 } else {
                     console.log(res.status, res.data);
                     this.setState({ sentence: false });
@@ -62,16 +57,14 @@ class SentenceWindow extends React.Component {
      * @param {Array} tokens 
      */
     getSentenceTokens(lang, tokens) {
-        let { sentence, hoverLang, hoverToken, reverseTokenMap } = this.state;
-
-        let tokenMap = sentence.tokenMap || {};
+        let { sentence, hoverLang, hoverToken, tokenMap, reverseTokenMap } = this.state;
 
         return tokens.map((token, i) => {
             if (token.token_type == 'word') {
                 let isHovering = hoverLang == lang && hoverToken == i;
                 let isRelatedHovering = false;
-                if (hoverLang != lang) {
-                    isRelatedHovering = getdefault(lang == 'english' ? tokenMap : reverseTokenMap, hoverToken, new Set()).has(i);
+                if (hoverLang != lang && hoverToken != null) {
+                    isRelatedHovering = getdefault(lang == 'english' ? tokenMap : reverseTokenMap, hoverToken, []).includes(i);
                 }
 
                 let tokenSpan = (
@@ -106,7 +99,7 @@ class SentenceWindow extends React.Component {
                                 <Popover id={`popover-${lang}-${i}`} show={false} placement='top'>
                                     <Popover.Title as="h5">
                                         {token.word.text}
-                                        <span className='float-right'><em>{getPosLabel(token.word.part_of_speech)}</em></span>
+                                        <span className='float-right'> <em>{getPosLabel(token.word.part_of_speech)}</em></span>
                                     </Popover.Title>
                                     <Popover.Content>
                                         {token.word.definition}
@@ -127,9 +120,7 @@ class SentenceWindow extends React.Component {
 
     getSentence() {
         let { sentence } = this.state;
-        console.log('here1', sentence);
         if (sentence.paiuteTokens.length <= 0 || sentence.englishTokens.length <= 0) {
-            console.log('here');
             return [
                 <b key={'sentence-paiute'}>{sentence.paiute}<br /></b>,
                 <p key={'sentence-paiute'}>{sentence.english}</p>
