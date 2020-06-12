@@ -76,6 +76,18 @@ class WordWindow extends React.Component {
                 </ListGroup.Item>
             );
         });
+
+        let notesArea;
+        if (word.notes) {
+            notesArea = (
+                <Row className="mt-3">
+                    <Col>
+                        <h5 className='text-center'>Notes</h5>
+                        <p>{word.notes}</p>
+                    </Col>
+                </Row>
+            );
+        }
         
         let relatedWordsList;
         if (relatedWords.length > 0) {
@@ -119,6 +131,7 @@ class WordWindow extends React.Component {
                             <h4>{word.text}</h4>
                             <p><em>{(word.part_of_speech || 'UNKNOWN').toLowerCase().replace('_', ' ')}</em></p>
                             <p>{word.definition}</p>
+                            {notesArea}
                             {relatedWordsList}
                         </Col>
                     </Row>

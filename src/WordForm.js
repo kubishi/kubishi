@@ -7,8 +7,9 @@ import { faPlus, faTrash, faCheck, faTimes } from '@fortawesome/free-solid-svg-i
 
 import PartOfSpeech from './PartOfSpeech';
 import Select from 'react-select';
+import lodash from 'lodash';
 
-import { remove_punctuation, toBase64 } from './helpers';
+import { remove_punctuation, toBase64, getUpdates } from './helpers';
 import ImageInput from './ImageInput';
 import AudioInput from './AudioInput';
 import api from './Api';
@@ -35,6 +36,7 @@ class WordForm extends React.Component {
             text: word.text || null,
             part_of_speech: word.part_of_speech || null,
             definition: word.definition || null,
+            notes: word.notes || null,
             audio: word.audio || {data: null, filename: null},
             image: word.image || {data: null, filename: null},
             words: word.words || [],
@@ -43,10 +45,9 @@ class WordForm extends React.Component {
     }
 
     submitWord() {
-        let { onSubmit } = this.props;
-        let { text, part_of_speech, definition, audio, image, words } = this.state;
-        words = words.map(word => word._id);
-        onSubmit({text, part_of_speech, definition, audio, image, words });
+        let newWord = lodash.cloneDeep(lodash.pick(this.state, ['text', 'part_of_speech', 'definition', 'audio', 'image', 'words', 'notes']));
+        newWord.words = newWord.words.map(word => word._id);
+        this.props.onSubmit(newWord);
     }
 
     deleteWord() {
@@ -94,27 +95,13 @@ class WordForm extends React.Component {
     }
 
     hasChanged() {
-        let { text, part_of_speech, definition, image, audio, words } = this.state;
-        let word = this.props.word || {};
-
-        return (
-            word.text != text || 
-            word.part_of_speech != part_of_speech || 
-            word.definition != definition || 
-
-            (word.image || {}).filename != (image || {}).filename || 
-            (word.image || {}).data != (image || {}).data || 
-
-            (word.audio || {}).filename != (audio || {}).filename || 
-            (word.audio || {}).data != (audio || {}).data || 
-
-            !arraysEqual(words, word.words)
-        );
+        let newWord = lodash.cloneDeep(lodash.pick(this.state, ['text', 'part_of_speech', 'definition', 'audio', 'image', 'words', 'notes']));
+        return Object.keys(getUpdates(this.props.word, newWord)).length > 0;
     }
 
     render() {
         let { submitText, deleteText, onDelete, word } = this.props;
-        let { text, part_of_speech, definition, audio, image, words } = this.state;
+        let { text, part_of_speech, definition, audio, image, words, notes } = this.state;
 
         let part_of_speech_option = 'unknown';
         if (part_of_speech != null) {
@@ -132,7 +119,6 @@ class WordForm extends React.Component {
         if (word != null) {
             saveDisabled = !this.hasChanged();
         }
-
 
         let buttons;
         if (onDelete != null) {
@@ -236,6 +222,7 @@ class WordForm extends React.Component {
                             onSave={audio => this.setState({audio})}
                         />
                     </Col>
+                    
                     <Col xs={12} md={6}>
                         <Form.Group>
                             <Form.Label>Related Words</Form.Label>
@@ -252,11 +239,15 @@ class WordForm extends React.Component {
                     </Col>
                 </Form.Row>
 
-                <Form.Row>
-                    <Col>
-                        {buttons}
-                    </Col>
-                </Form.Row>
+                <Form.Group>
+                    <Form.Label>Notes</Form.Label>
+                    <Form.Control
+                        as="textarea"
+                        value={notes}
+                        onChange={e => this.setState({ notes: e.target.value })}
+                    />
+                </Form.Group>
+                {buttons}
             </Form>
         );
 

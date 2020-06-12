@@ -36,8 +36,8 @@ class WordWindow extends React.Component {
     }
    
     saveWord(word) { 
-        console.log(this.props.wordId, word);
-        api.put('/api/words/' + this.props.wordId, word).then(res => {
+        console.log(`/api/words/${this.props.wordId}`)
+        api.put(`/api/words/${this.props.wordId}`, word).then(res => {
             if (res.status == 200) {
                 this.getWord()
             } else {
