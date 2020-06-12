@@ -152,6 +152,24 @@ class SentenceForm extends React.Component {
             />
         );
     }
+
+    /**
+     * 
+     * @param {Number} button 
+     */
+    handleEnglishClick(button) {
+        let { paiuteTokens, selectedButton } = this.state;
+        if (selectedButton == null) return;
+        if (paiuteTokens[selectedButton].token_map == null) {
+            paiuteTokens[selectedButton].token_map = [];
+        }
+        if (!paiuteTokens[selectedButton].token_map.includes(button)) {
+            paiuteTokens[selectedButton].token_map.push(button);
+        } else {
+            paiuteTokens[selectedButton].token_map = paiuteTokens[selectedButton].token_map.filter(x => x != button);
+        }
+        this.setState({ paiuteTokens });
+    }
   
     render() {
         let {
@@ -198,18 +216,7 @@ class SentenceForm extends React.Component {
                     <Button
                         key={`token-english-${i}`}
                         variant={relatedSelected ? "secondary" : "outline-primary"}
-                        onClick={e => {
-                            if (selectedButton == null) return;
-                            if (paiuteButtons[selectedButton].token_map == null) {
-                                paiuteTokens[selectedButton].token_map = [];
-                            }
-                            if (!paiuteTokens[selectedButton].token_map.includes(i)) {
-                                paiuteTokens[selectedButton].token_map.push(i);
-                            } else {
-                                paiuteTokens[selectedButton].token_map = paiuteTokens[selectedButton].token_map.filter(x => x != i);
-                            }
-                            this.setState({ paiuteTokens });
-                        }}
+                        onClick={e => this.handleEnglishClick(i)}
                     >
                         {token.text}
                     </Button>

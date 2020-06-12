@@ -125,10 +125,20 @@ class SentenceWindow extends React.Component {
             return (
                 <Row>
                     <Col style={{borderRight: '1px solid gray'}} className='text-right'>
-                        <b key={'sentence-paiute'}>{sentence.paiute}<br /></b>
+                        <span 
+                            key={'sentence-paiute'}
+                            style={{fontSize: '20px', fontWeight: "bold"}}
+                        >
+                            {sentence.paiute}
+                        </span>
                     </Col>
                     <Col>
-                        <p key={'sentence-paiute'}>{sentence.english}</p>
+                        <span 
+                            key={'sentence-english'}
+                            style={{fontSize: '20px'}}
+                        >
+                            {sentence.english}
+                        </span>
                     </Col>                
                 </Row>
             );
