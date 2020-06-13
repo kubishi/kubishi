@@ -7,9 +7,15 @@ const PartOfSpeech = [
     'PRONOUN',
     'ADJECTIVE',
     'NOUN_SUFFIX',
+    'NOUN_PREFIX',
     'VERB_SUFFIX',
+    'VERB_PREFIX',
     'PREPOSITION',
     'POSTPOSITION',
+    'CONJUNCTION',
+    'INTERJECTION',
+    'INSTRUMENTAL_PREFIX',
+    'ADVERBIAL_SUFFIX',
     'UNKNOWN',
 ];
 
