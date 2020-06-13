@@ -196,7 +196,7 @@ class SentenceWindow extends React.Component {
 
         let imageSquare;
         if (sentence.image != null && sentence.image.data != null) {
-            imageSquare = <Image src={sentence.image.data} rounded style={{maxHeight: '30vh', maxWidth: '100%'}} />;
+            imageSquare = <Image src={sentence.image.data} rounded style={{width: '100%'}} />;
         }
 
         let notesSquare;
@@ -225,12 +225,12 @@ class SentenceWindow extends React.Component {
                 <Row className='mt-3'>
                     <Col>
                         {this.getSentence()}
+                        {audioPlayer}
+                        {notesSquare}
                     </Col>
                     <Col>
                         {editButton}
                         {imageSquare}
-                        {audioPlayer}
-                        {notesSquare}
                     </Col>
                 </Row>
             );
