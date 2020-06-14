@@ -234,9 +234,9 @@ class SearchWindow extends React.Component {
                 <Col>
                     <SearchBar showRandomButtons className="mt-2" query={this.props.query}/>
                     <Row>     
-                        {articleCol}
                         {wordsCol}
                         {sentencesCol}
+                        {articleCol}
                     </Row>
                 </Col>
             </Row>
