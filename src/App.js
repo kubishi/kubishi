@@ -45,6 +45,8 @@ class App extends React.Component {
       addWordText: null,
       addWordPos: 'unknown',
       addWordDef: null,
+
+      redirect: null,
     }
   }
 
@@ -129,6 +131,20 @@ class App extends React.Component {
       });
     }
   }
+  
+  getRandom(path) {
+    api.get(`/api/random/${path}`, 
+        {params: {fields: ['_id']}}
+    ).then(res => {
+        if (res.status == 200) {
+            return history.push(`/${path}/${res.data.result._id}`);
+        } else {
+            console.log(res.status, res.data);
+        }
+    }).catch(err => console.error(err));
+
+    return <Spinner />;
+}
 
   render() {    
     let loginButton = null;
@@ -204,6 +220,9 @@ class App extends React.Component {
           <Container style={{paddingBottom: '65px'}}>
             {navbar}
             <Switch>
+              <Route path="/random/word" component={props => this.getRandom('words')} />
+              <Route path="/random/sentence" component={props => this.getRandom('sentences')} />
+              <Route path="/random/article" component={props => this.getRandom('articles')} />
               <Route path="/words/:id" component={(props) => {
                 let { id } = useParams();
                 let { mode } = qs.parse(props.location.search, { ignoreQueryPrefix: true });

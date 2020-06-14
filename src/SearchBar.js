@@ -62,18 +62,6 @@ class SearchBar extends React.Component {
             </InputGroup>
         );
     }
-
-    getRandom(path) {
-        api.get(`/api/random/${path}`, 
-            {params: {fields: ['_id']}}
-        ).then(res => {
-            if (res.status == 200) {
-                return history.push(`/${path}/${res.data.result._id}`);
-            } else {
-                console.log(res.status, res.data);
-            }
-        }).catch(err => console.error(err));
-    }
     
     render() {       
         let randomButtons;
@@ -81,13 +69,13 @@ class SearchBar extends React.Component {
             randomButtons = (
                 <Row className="mt-1">
                     <Col className='mb-1 pr-md-1' xs={12} md={4}>
-                        <Button type="submit" onClick={e => this.getRandom('articles')} block>Random Article</Button> 
+                        <Button type="submit" onClick={e => history.push('/random/article')} block>Random Article</Button> 
                     </Col>
                     <Col className='mb-1 pl-md-1 pr-md-1' xs={12} md={4}>
-                        <Button type="submit" onClick={e => this.getRandom('words')} block>Random Word</Button> 
+                        <Button type="submit" onClick={e => history.push('/random/word')} block>Random Word</Button> 
                     </Col>
                     <Col className='mb-1 pl-md-1' xs={12} md={4}>
-                        <Button type="submit" onClick={e => this.getRandom('sentences')} block>Random Sentence</Button> 
+                        <Button type="submit" onClick={e => history.push('/random/sentence')} block>Random Sentence</Button> 
                     </Col>
                 </Row> 
             );
