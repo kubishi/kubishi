@@ -42,7 +42,7 @@ class SearchBar extends React.Component {
                 <FormControl
                     placeholder=""
                     ref="searchBar"
-                    autoFocus
+                    autoFocus={this.props.autoFocus}
                     aria-label="Search"
                     aria-describedby="search-text"
                     name='query'
@@ -60,54 +60,57 @@ class SearchBar extends React.Component {
                     </Button>
                 </InputGroup.Append>
             </InputGroup>
-            );
-        }
+        );
+    }
 
-        getRandom(path) {
-            api.get(`/api/random/${path}`, 
-                {params: {fields: ['_id']}}
-            ).then(res => {
-                if (res.status == 200) {
-                    return history.push(`/${path}/${res.data.result._id}`);
-                } else {
-                    console.log(res.status, res.data);
-                }
-            }).catch(err => console.error(err));
-        }
-        
-        render() {       
-            let randomButtons;
-            if (this.props.showRandomButtons) {
-                randomButtons = (
-                    <Row  className="no-gutters mt-1">
-                        <Col className="no-gutters">
-                            <Button type="submit" onClick={e => this.getRandom('articles')} block>Random Article</Button> 
-                        </Col>
-                        <Col className="no-gutters ml-1 mr-1">
-                            <Button type="submit" onClick={e => this.getRandom('words')} block>Random Word</Button> 
-                        </Col>
-                        <Col className="no-gutters">
-                            <Button type="submit" onClick={e => this.getRandom('sentences')} block>Random Sentence</Button> 
+    getRandom(path) {
+        api.get(`/api/random/${path}`, 
+            {params: {fields: ['_id']}}
+        ).then(res => {
+            if (res.status == 200) {
+                return history.push(`/${path}/${res.data.result._id}`);
+            } else {
+                console.log(res.status, res.data);
+            }
+        }).catch(err => console.error(err));
+    }
+    
+    render() {       
+        let randomButtons;
+        if (this.props.showRandomButtons) {
+            randomButtons = (
+                <Row  className="no-gutters mt-1">
+                    <Col className="no-gutters">
+                        <Button type="submit" onClick={e => this.getRandom('articles')} block>Random Article</Button> 
+                    </Col>
+                    <Col className="no-gutters ml-1 mr-1">
+                        <Button type="submit" onClick={e => this.getRandom('words')} block>Random Word</Button> 
+                    </Col>
+                    <Col className="no-gutters">
+                        <Button type="submit" onClick={e => this.getRandom('sentences')} block>Random Sentence</Button> 
+                    </Col>
+                </Row> 
+            );
+        }     
+        return (
+            <Row className={this.props.className}>
+                <Col className='d-none d-lg-block d-xl-block' md={3}></Col>
+                <Col>
+                    <Row>
+                        <Col>
+                            {this.getSearchBar()}   
                         </Col>
                     </Row> 
-                );
-            }     
-            return (
-                <Row className={this.props.className}>
-                    <Col className='d-none d-lg-block d-xl-block' md={3}></Col>
-                    <Col>
-                        <Row>
-                            <Col>
-                                {this.getSearchBar()}   
-                            </Col>
-                        </Row> 
-                        {randomButtons}
-                    </Col>
-                    <Col className='d-none d-lg-block d-xl-block' md={3}></Col>
-                </Row>
-                );
-            }
-        };
+                    {randomButtons}
+                </Col>
+                <Col className='d-none d-lg-block d-xl-block' md={3}></Col>
+            </Row>
+        );
+    }
+};
         
+SearchBar.defaultProps = {
+    autoFocus: false,
+};
         
-        export default SearchBar;
+export default SearchBar;

@@ -267,7 +267,7 @@ class App extends React.Component {
               <Route path="/">
                 <Row style={{marginTop: "20vh"}}>
                   <Col>
-                    <SearchBar showRandomButtons />
+                    <SearchBar showRandomButtons autoFocus />
                   </Col>
                 </Row>
               </Route>
