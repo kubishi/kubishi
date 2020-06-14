@@ -94,7 +94,7 @@ class SearchBar extends React.Component {
             }     
             return (
                 <Row className={this.props.className}>
-                    <Col className='d-none d-md-block d-xl-block' md={3}></Col>
+                    <Col className='d-none d-lg-block d-xl-block' md={3}></Col>
                     <Col>
                         <Row>
                             <Col>
@@ -103,7 +103,7 @@ class SearchBar extends React.Component {
                         </Row> 
                         {randomButtons}
                     </Col>
-                    <Col className='d-none d-md-block d-xl-block' md={3}></Col>
+                    <Col className='d-none d-lg-block d-xl-block' md={3}></Col>
                 </Row>
                 );
             }

@@ -212,12 +212,12 @@ class SentenceWindow extends React.Component {
         if (!notesSquare && !imageSquare && !audioPlayer) {
             return (
                 <Row className='mt-3'>
-                    <Col className='d-none d-md-block d-xl-block' md={3}></Col>
+                    <Col className='d-none d-lg-block d-xl-block' md={3}></Col>
                     <Col>
                         {editButton}
                         {this.getSentence()}
                     </Col>
-                    <Col className='d-none d-md-block d-xl-block' md={3}></Col>
+                    <Col className='d-none d-lg-block d-xl-block' md={3}></Col>
                 </Row>
             );
         } else {

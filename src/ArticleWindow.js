@@ -120,7 +120,7 @@ class ArticleWindow extends React.Component {
                         {tagsList}
                     </div>
                 </Col>
-                <Col className='d-none d-md-block text-center' md={4}>
+                <Col className='d-none d-lg-block text-center' md={4}>
                     {editButton}
                     {imageSquare}
                     <h5 className='mt-2'>Keywords</h5>
