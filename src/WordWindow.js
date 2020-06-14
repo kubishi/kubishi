@@ -7,6 +7,7 @@ import { faEdit } from '@fortawesome/free-solid-svg-icons';
 
 import api from './Api';
 import SentenceList from './SentenceList';
+import SearchBar from './SearchBar';
 import history from './history';
 import './common.css';
 
@@ -131,12 +132,17 @@ class WordWindow extends React.Component {
             audioPlayer = <audio src={word.audio.data} controls />;
         }
         
-        return (
-            <Row>
+        return [
+            <Row className="mt-2">
+                <Col>
+                    <SearchBar showRandomButtons />
+                </Col>
+            </Row>,
+            <Row className='mt-2'>
                 <Col sm={12} md={4} className='md-border-right mt-2'>
                     {editButton}
                     
-                    <h4>{word.text}</h4>
+                    <h3>{word.text}</h3>
                     <p><em>{(word.part_of_speech || 'UNKNOWN').toLowerCase().replace('_', ' ')}</em></p>
                     <p>{word.definition}</p>
                     {audioPlayer}
@@ -151,7 +157,7 @@ class WordWindow extends React.Component {
                     <SentenceList results={sentences} />
                 </Col>
             </Row>
-        );
+        ];
     }
 }
 

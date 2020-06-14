@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit } from '@fortawesome/free-solid-svg-icons';
 import api from './Api';
 import history from './history';
+import SearchBar from './SearchBar';
 
 import { getPosLabel, getdefault, setdefault } from './helpers';
 
@@ -209,19 +210,24 @@ class SentenceWindow extends React.Component {
             );
         }
 
+        let rows = [
+            <Row className="mt-2">
+                <Col>
+                    <SearchBar showRandomButtons />
+                </Col>
+            </Row>
+        ]
         if (!notesSquare && !imageSquare && !audioPlayer) {
-            return (
+            rows.push(
                 <Row className='mt-3'>
-                    <Col className='d-none d-lg-block d-xl-block' md={3}></Col>
                     <Col>
                         {editButton}
                         {this.getSentence()}
                     </Col>
-                    <Col className='d-none d-lg-block d-xl-block' md={3}></Col>
                 </Row>
             );
         } else {
-            return (
+            rows.push(
                 <Row className='mt-3'>
                     <Col>
                         {this.getSentence()}
@@ -235,6 +241,8 @@ class SentenceWindow extends React.Component {
                 </Row>
             );
         }
+
+        return rows;
     }
 };
 

@@ -180,28 +180,28 @@ class App extends React.Component {
     }
 
     let navbar = (
-      <Navbar bg="light" expand="lg">
-      <Navbar.Brand href="/">Kubishi</Navbar.Brand>
-      <Navbar.Toggle aria-controls="basic-navbar-nav" />
-      <Navbar.Collapse id="basic-navbar-nav">
-        <Nav className="mr-auto">
-          <Nav.Item>
-            <Nav.Link href='/about'>About</Nav.Link>
-          </Nav.Item>
-          <Nav.Item>
-            <Nav.Link href='/pronunciation'>Pronunciation Guide</Nav.Link>
-          </Nav.Item>
-          {contributeButton}
-        </Nav>
-        {loginButton}
-      </Navbar.Collapse>
-    </Navbar>
+      <Navbar bg="light" expand="md">
+        <Navbar.Brand href="/">Kubishi</Navbar.Brand>
+        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Collapse id="basic-navbar-nav">
+          <Nav className="mr-auto">
+            <Nav.Item>
+              <Nav.Link href='/about'>About</Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link href='/pronunciation'>Pronunciation Guide</Nav.Link>
+            </Nav.Item>
+            {contributeButton}
+          </Nav>
+          {loginButton}
+        </Navbar.Collapse>
+      </Navbar>
     );
 
     return (
       <HttpsRedirect>
         <Router history={history}>
-          <Container style={{paddingBottom: '65px'}} fluid>
+          <Container style={{paddingBottom: '65px'}}>
             {navbar}
             <Switch>
               <Route path="/words/:id" component={(props) => {

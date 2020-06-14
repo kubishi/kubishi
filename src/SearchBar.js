@@ -79,14 +79,14 @@ class SearchBar extends React.Component {
         let randomButtons;
         if (this.props.showRandomButtons) {
             randomButtons = (
-                <Row  className="no-gutters mt-1">
-                    <Col className="no-gutters">
+                <Row className="mt-1">
+                    <Col className='mb-1 pr-md-1' xs={12} md={4}>
                         <Button type="submit" onClick={e => this.getRandom('articles')} block>Random Article</Button> 
                     </Col>
-                    <Col className="no-gutters ml-1 mr-1">
+                    <Col className='mb-1 pl-md-1 pr-md-1' xs={12} md={4}>
                         <Button type="submit" onClick={e => this.getRandom('words')} block>Random Word</Button> 
                     </Col>
-                    <Col className="no-gutters">
+                    <Col className='mb-1 pl-md-1' xs={12} md={4}>
                         <Button type="submit" onClick={e => this.getRandom('sentences')} block>Random Sentence</Button> 
                     </Col>
                 </Row> 
@@ -94,16 +94,10 @@ class SearchBar extends React.Component {
         }     
         return (
             <Row className={this.props.className}>
-                <Col className='d-none d-lg-block d-xl-block' md={3}></Col>
                 <Col>
-                    <Row>
-                        <Col>
-                            {this.getSearchBar()}   
-                        </Col>
-                    </Row> 
+                    {this.getSearchBar()}   
                     {randomButtons}
                 </Col>
-                <Col className='d-none d-lg-block d-xl-block' md={3}></Col>
             </Row>
         );
     }

@@ -232,7 +232,7 @@ class SearchWindow extends React.Component {
         return (
             <Row>
                 <Col>
-                    <SearchBar className="mt-2" query={this.props.query}/>
+                    <SearchBar showRandomButtons className="mt-2" query={this.props.query}/>
                     <Row>     
                         {articleCol}
                         {wordsCol}
