@@ -9,6 +9,8 @@ import SearchBar from './SearchBar';
 
 import { getPosLabel, getdefault, setdefault } from './helpers';
 
+import './common.css';
+
 class SentenceWindow extends React.Component {
     constructor(props) {
         super(props);
@@ -90,7 +92,7 @@ class SentenceWindow extends React.Component {
                                 this.setState({ hoverLang: null, hoverToken: null });
                             }
                         }}
-                        style={{fontSize: '20px', cursor: 'pointer', fontWeight: lang == "paiute" ? "bold" : "normal"}}
+                        style={{fontSize: '20px', cursor: 'pointer'}}
                         
                         onClick={e => {
                             if (token.word != null && token.word.text != null) {
@@ -109,9 +111,9 @@ class SentenceWindow extends React.Component {
                             placement='bottom'
                             overlay={
                                 <Popover id={`popover-${lang}-${i}`} show={false}>
-                                    <Popover.Title as="h5">
+                                    <Popover.Title as="h4">
                                         {token.word.text}
-                                        <span className='float-right'> <em>{getPosLabel(token.word.part_of_speech)}</em></span>
+                                        <span className='float-right'> <em>({getPosLabel(token.word.part_of_speech)})</em></span>
                                     </Popover.Title>
                                     <Popover.Content>
                                         {token.word.definition}
@@ -125,7 +127,7 @@ class SentenceWindow extends React.Component {
                 }
                 return tokenSpan;
             } else {
-                return <span style={{fontSize: '20px', fontWeight: lang == "paiute" ? "bold" : "normal"}} key={`span-token-${lang}-${i}`}>{token.text}</span>;
+                return <span style={{fontSize: '20px'}} key={`span-token-${lang}-${i}`}>{token.text}</span>;
             }
         });
     }
@@ -138,8 +140,10 @@ class SentenceWindow extends React.Component {
                     <Col style={{borderRight: '1px solid gray'}} className='text-right'>
                         <span 
                             key={'sentence-paiute'}
-                            style={{fontSize: '20px', fontWeight: "bold"}}
+                            style={{fontSize: '20px'}}
                         >
+                            <h4>Paiute</h4>
+                            <hr style={{margin: "0px", padding: "0px", paddingBottom: "5px"}} />
                             {sentence.paiute}
                         </span>
                     </Col>
@@ -148,6 +152,8 @@ class SentenceWindow extends React.Component {
                             key={'sentence-english'}
                             style={{fontSize: '20px'}}
                         >
+                            <h4>English</h4>
+                            <hr style={{margin: "0px", padding: "0px", paddingBottom: "5px"}} />
                             {sentence.english}
                         </span>
                     </Col>                
@@ -174,7 +180,7 @@ class SentenceWindow extends React.Component {
         let { sentence } = this.state;
         let { canEdit } = this.props;
         if (sentence == null) return <Spinner />;
-        else if (sentence == false) return <h5>We can't find the sentence you're looking for.</h5>;
+        else if (sentence == false) return <h4>We can't find the sentence you're looking for.</h4>;
 
         let audioPlayer;
         if (sentence.audio != null && sentence.audio.data != null) {
@@ -214,7 +220,8 @@ class SentenceWindow extends React.Component {
         if (sentence.notes) {
             notesSquare = (
                 <Col>
-                    <h5>Notes</h5>
+                    <h4>Notes</h4>
+                    <hr style={{margin: "0px", padding: "0px", paddingBottom: "5px"}} />
                     <p>{sentence.notes}</p>
                 </Col>
             );

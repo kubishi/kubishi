@@ -121,27 +121,31 @@ class ArticleWindow extends React.Component {
             </Row>,
             <Row className="mt-2">
                 <Col>
-                    <div className='d-block d-md-none text-center'>
+                    <div className='d-block d-lg-none text-center'>
                         {editButton}
                     </div>
                     <h1>{title}</h1>
-                    <div className='d-block d-md-none text-center'>
+                    <div className='d-block d-lg-none text-center'>
                         {imageSquare}
                     </div>
                     {Parser(content)}
-                    <div className='d-block d-md-none text-center'>
-                        <h5 className='mt-2'>Keywords</h5>
+                    <div className='d-block d-lg-none text-center'>
+                        <h4 className='mt-2'>Keywords</h4>
+                        <hr style={{margin: "0px", padding: "0px", paddingBottom: "5px"}} />
                         {keywordsList}
-                        <h5 className='mt-2'>Tags</h5>
+                        <h4 className='mt-2'>Tags</h4>
+                        <hr style={{margin: "0px", padding: "0px", paddingBottom: "5px"}} />
                         {tagsList}
                     </div>
                 </Col>
                 <Col className='d-none d-lg-block text-center' md={4}>
                     {editButton}
                     {imageSquare}
-                    <h5 className='mt-2'>Keywords</h5>
+                    <h4 className='mt-2'>Keywords</h4>
+                    <hr style={{margin: "0px", padding: "0px", paddingBottom: "5px"}} />
                     {keywordsList}
-                    <h5 className='mt-2'>Tags</h5>
+                    <h4 className='mt-2'>Tags</h4>
+                    <hr style={{margin: "0px", padding: "0px", paddingBottom: "5px"}} />
                     {tagsList}
                 </Col>
             </Row>

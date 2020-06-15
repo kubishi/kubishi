@@ -94,7 +94,8 @@ class WordWindow extends React.Component {
             notesArea = (
                 <Row>
                     <Col>
-                        <h5 className='text-center'>Notes</h5>
+                        <h4 className='text-center'>Notes</h4>
+                        <hr style={{margin: "0px", padding: "0px", paddingBottom: "5px"}} />
                         <p>{word.notes}</p>
                     </Col>
                 </Row>
@@ -107,7 +108,8 @@ class WordWindow extends React.Component {
             relatedWordsList = (
                 <Row>
                     <Col>
-                        <h5 className='text-center'>See Also</h5>
+                        <h4 className='text-center'>See Also</h4>
+                        <hr style={{margin: "0px", padding: "0px", paddingBottom: "5px"}} />
                         {listGroup}
                     </Col>
                 </Row>
@@ -165,7 +167,8 @@ class WordWindow extends React.Component {
                     {relatedWordsList}
                 </Col>
                 <Col sm={12} md={8} className='mt-2'>
-                    <h5 className='text-center'>Sentences</h5>
+                    <h4 className='text-center'>Sentences</h4>
+                    <hr style={{margin: "0px", padding: "0px", paddingBottom: "5px"}} />
                     <SentenceList results={sentences} />
                 </Col>
             </Row>
