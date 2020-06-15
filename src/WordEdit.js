@@ -2,8 +2,10 @@
 import React from 'react';
 import { Row, Col, Button, Spinner } from 'react-bootstrap';
 
-import WordForm from './WordForm';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
+import WordForm from './WordForm';
 import api from './Api';
 import history from './history';
 import './common.css';
@@ -15,6 +17,19 @@ class WordWindow extends React.Component {
         this.state = {
             word: null,
         };
+    }
+
+    popToast(message, isError=false) {
+        let toastFun = isError ? toast.error : toast.success;
+        return toastFun(message, {
+            position: "top-center",
+            autoClose: 2000,
+            hideProgressBar: true,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: false,
+            progress: undefined,
+        });
     }
 
     componentDidMount() {
@@ -40,10 +55,15 @@ class WordWindow extends React.Component {
         api.put(`/api/words/${this.props.wordId}`, word).then(res => {
             if (res.status == 200) {
                 this.getWord()
+                this.popToast('Succesfully updated word!');
             } else {
                 console.log(res.status, res.data);
+                this.popToast('Error updating word!', true);
             }
-        }).catch(err => console.error(err));
+        }).catch(err => {
+            this.popToast('Error updating word!', true);
+            console.error(err);
+        });
     }
 
     deleteWord() {
@@ -75,6 +95,7 @@ class WordWindow extends React.Component {
         return (
             <Row className='m-3'>
                 <Col>
+                    <ToastContainer />
                     <Button variant='outline-primary' block className='mb-2' onClick={e => {
                         return history.push(`/words/${word._id}`);
                     }}>

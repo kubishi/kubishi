@@ -2,6 +2,9 @@ import React from 'react';
 
 import { Row, Col, Button, Spinner } from 'react-bootstrap';
 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 import api from './Api';
 import history from './history';
 import ArticleForm from './ArticleForm';
@@ -14,6 +17,19 @@ class ArticleEdit extends React.Component {
         super(props);
 
         this.state = {article: null};
+    }
+    
+    popToast(message, isError=false) {
+        let toastFun = isError ? toast.error : toast.success;
+        return toastFun(message, {
+            position: "top-center",
+            autoClose: 2000,
+            hideProgressBar: true,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: false,
+            progress: undefined,
+        });
     }
     
     componentDidMount() {
@@ -44,11 +60,16 @@ class ArticleEdit extends React.Component {
         if (!body) return; // no updates
         api.put(`/api/articles/${article._id}`, body).then(res => {
             if (res.status == 200) {
+                this.popToast('Successfully updated article!');
                 this.getArticle();
             } else {
                 console.log(res.status, res.data);
+                this.popToast('Error updating article!', true);
             }
-        }).catch(err => console.error(err));
+        }).catch(err => {
+            this.popToast('Error updating article!', true);
+            console.error(err);
+        });
     }
 
     deleteArticle() {
@@ -65,14 +86,15 @@ class ArticleEdit extends React.Component {
     render() {
         let { article } = this.state;
         if (article == null) return <Spinner />;
-        return (
+        return [
+            <ToastContainer />,
             <ArticleForm
                 onSubmit={article => this.saveArticle(article)}
                 onDelete={() => this.deleteArticle()}
                 submitText='Save'
                 article={article}
             />
-        );
+        ];
     }
 };
 

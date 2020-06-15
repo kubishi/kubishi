@@ -2,6 +2,9 @@ import React from 'react';
 
 import { Row, Col, Spinner, Button } from 'react-bootstrap';
 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 import SentenceForm from './SentenceForm';
 import api from './Api';
 import { formatSentence } from './helpers';
@@ -14,6 +17,19 @@ class SentenceEdit extends React.Component {
         this.state = {
             sentence: null,
         };
+    }
+    
+    popToast(message, isError=false) {
+        let toastFun = isError ? toast.error : toast.success;
+        return toastFun(message, {
+            position: "top-center",
+            autoClose: 2000,
+            hideProgressBar: true,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: false,
+            progress: undefined,
+        });
     }
 
     componentDidMount() {
@@ -37,11 +53,16 @@ class SentenceEdit extends React.Component {
         let body = formatSentence(newSentence);
         api.put(`/api/sentences/${sentence._id}`, body).then(res => {
             if (res.status == 200 && res.data.success) {
+                this.popToast('Successfully updated sentence!');
                 this.getSentence();
             } else {
+                this.popToast('Error updating sentence', true);
                 console.log(res.status, res.data);
             }
-        }).catch(err => console.error(err));
+        }).catch(err => {
+            this.popToast('Error updating sentence', true);
+            console.error(err);
+        });
     }
 
     deleteSentence() {
@@ -64,6 +85,7 @@ class SentenceEdit extends React.Component {
         return (
             <Row className='m-3'>
                 <Col>
+                    <ToastContainer />
                     <Button variant='outline-primary' block className='mb-2' onClick={e => {
                         return history.push(`/sentences/${sentence._id}`);
                     }}>
