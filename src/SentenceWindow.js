@@ -234,12 +234,14 @@ class SentenceWindow extends React.Component {
                 </Col>
             </Row>
         ]
-        if (!notesSquare && !imageSquare && !audioPlayer) {
+        if (!imageSquare) {
             rows.push(
                 <Row className='mt-3'>
                     <Col>
                         {editButton}
                         {this.getSentencePanel()}
+                        {audioPlayer}
+                        {notesSquare}
                     </Col>
                 </Row>
             );
