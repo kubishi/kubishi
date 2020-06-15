@@ -25,12 +25,20 @@ class WordWindow extends React.Component {
         this.getSentences();
     }
 
+    componentDidUpdate(prevProps, prevState) {
+        if (this.props.wordId !== prevProps.wordId) { 
+            this.getWord();
+            this.getSentences();        
+        }
+    }
+
     getWord() {
         api.get(`/api/words/${this.props.wordId}`).then(res => {
             if (res.status == 200) {
                 this.setState({word: res.data.result});
             } else {
                 console.log(res.status, res.data);
+                this.setState({word: false});
             }
         }).catch(err => {
             console.error(err);
@@ -44,8 +52,12 @@ class WordWindow extends React.Component {
                 this.setState({sentences: res.data.result});
             } else {
                 console.log(res.status, res.data);
+                this.setState({sentences: []});
             }
-        }).catch(err => console.error(err));
+        }).catch(err => {
+            this.setState({sentences: []});
+            console.error(err);
+        });
     }
    
     render() {

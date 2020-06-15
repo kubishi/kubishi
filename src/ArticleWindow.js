@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit } from '@fortawesome/free-solid-svg-icons'
 
 import api from './Api';
+import SearchBar from './SearchBar';
 import Parser from 'html-react-parser';
 import history from './history';
 import qs from 'query-string';
@@ -26,6 +27,10 @@ class ArticleWindow extends React.Component {
     }
 
     componentDidMount() {
+        this.getArticle();
+    }
+
+    getArticle() {
         let { articleId } = this.props;
 
         api.get(`/api/articles/${articleId}`).then(res => {
@@ -37,6 +42,12 @@ class ArticleWindow extends React.Component {
                 console.log(res.status, res.data);
             }
         }).catch(err => console.error(err));
+    }
+    
+    componentDidUpdate(prevProps, prevState) {
+        if (this.props.articleId !== prevProps.articleId) { 
+            this.getArticle();      
+        }
     }
 
     render() {
@@ -102,7 +113,12 @@ class ArticleWindow extends React.Component {
             );
         }
         
-        return (
+        return [
+            <Row className='mt-2'>
+                <Col>
+                    <SearchBar showRandomButtons />
+                </Col>
+            </Row>,
             <Row className="mt-2">
                 <Col>
                     <div className='d-block d-md-none text-center'>
@@ -129,7 +145,7 @@ class ArticleWindow extends React.Component {
                     {tagsList}
                 </Col>
             </Row>
-        );
+        ];
     }
 };
 

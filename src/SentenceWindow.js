@@ -24,7 +24,7 @@ class SentenceWindow extends React.Component {
         }
     }
 
-    componentDidMount() {
+    getSentence() {
         let { sentence, sentenceId } = this.props;
         if (sentence == null) {
             api.get(`/api/sentences/${sentenceId}`).then(res => {
@@ -49,6 +49,16 @@ class SentenceWindow extends React.Component {
                 console.error(err);
                 this.setState({ sentence: false });
             });
+        }
+    }
+ 
+    componentDidMount() {
+        this.getSentence();
+    }
+    
+    componentDidUpdate(prevProps, prevState) {
+        if (this.props.sentenceId !== prevProps.sentenceId) { 
+            this.getSentence();
         }
     }
 
@@ -120,7 +130,7 @@ class SentenceWindow extends React.Component {
         });
     }
 
-    getSentence() {
+    getSentencePanel() {
         let { sentence } = this.state;
         if (sentence.paiuteTokens.length <= 0 || sentence.englishTokens.length <= 0) {
             return (
@@ -222,7 +232,7 @@ class SentenceWindow extends React.Component {
                 <Row className='mt-3'>
                     <Col>
                         {editButton}
-                        {this.getSentence()}
+                        {this.getSentencePanel()}
                     </Col>
                 </Row>
             );
@@ -230,7 +240,7 @@ class SentenceWindow extends React.Component {
             rows.push(
                 <Row className='mt-3'>
                     <Col>
-                        {this.getSentence()}
+                        {this.getSentencePanel()}
                         {audioPlayer}
                         {notesSquare}
                     </Col>

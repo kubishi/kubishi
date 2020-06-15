@@ -137,7 +137,7 @@ class App extends React.Component {
         {params: {fields: ['_id']}}
     ).then(res => {
         if (res.status == 200) {
-            return history.push(`/${path}/${res.data.result._id}`);
+            return history.replace(`/${path}/${res.data.result._id}`);
         } else {
             console.log(res.status, res.data);
         }
