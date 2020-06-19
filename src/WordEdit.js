@@ -29,6 +29,7 @@ class WordWindow extends React.Component {
             pauseOnHover: true,
             draggable: false,
             progress: undefined,
+            className: isError ? 'bg-danger' : 'bg-success'
         });
     }
 
