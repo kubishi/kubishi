@@ -7,6 +7,7 @@ import { faEdit } from '@fortawesome/free-solid-svg-icons';
 
 import api from './Api';
 import SentenceList from './SentenceList';
+import WordList from './WordList';
 import SearchBar from './SearchBar';
 import history from './history';
 import './common.css';
@@ -74,21 +75,6 @@ class WordWindow extends React.Component {
             );
         }
 
-        let relatedWords = word.words.map((word, i) => {
-            return (
-                <ListGroup.Item action href={'/words/' + word._id}>
-                    <Row>
-                        <Col className='text-right xs-border-right'>
-                            <p>{word.text}</p>
-                        </Col>
-                        <Col>
-                            <em>{word.part_of_speech.toLowerCase().replace('_', ' ')}</em>
-                        </Col>
-                    </Row>
-                </ListGroup.Item>
-            );
-        });
-
         let notesArea;
         if (word.notes) {
             notesArea = (
@@ -103,14 +89,13 @@ class WordWindow extends React.Component {
         }
         
         let relatedWordsList;
-        if (relatedWords.length > 0) {
-            let listGroup = <ListGroup variant='flush'>{relatedWords}</ListGroup>;
+        if ((word.words || []).length > 0) {
             relatedWordsList = (
                 <Row>
                     <Col>
                         <h4 className='text-center'>See Also</h4>
                         <hr style={{margin: "0px", padding: "0px", paddingBottom: "5px"}} />
-                        {listGroup}
+                        <WordList results={word.words} />
                     </Col>
                 </Row>
             );
