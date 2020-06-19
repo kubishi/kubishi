@@ -16,6 +16,8 @@ const PartOfSpeech = [
     'INTERJECTION',
     'INSTRUMENTAL_PREFIX',
     'ADVERBIAL_SUFFIX',
+    'PARTICLE',
+    'POSSESSIVE PRONOUN',
     'UNKNOWN',
 ];
 
