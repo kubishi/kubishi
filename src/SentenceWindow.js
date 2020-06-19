@@ -92,7 +92,7 @@ class SentenceWindow extends React.Component {
                                 this.setState({ hoverLang: null, hoverToken: null });
                             }
                         }}
-                        style={{fontSize: '20px', cursor: 'pointer'}}
+                        style={{cursor: 'pointer'}}
                         
                         onClick={e => {
                             if (token.word != null && token.word.text != null) {
@@ -127,47 +127,25 @@ class SentenceWindow extends React.Component {
                 }
                 return tokenSpan;
             } else {
-                return <span style={{fontSize: '20px'}} key={`span-token-${lang}-${i}`}>{token.text}</span>;
+                return <span key={`span-token-${lang}-${i}`}>{token.text}</span>;
             }
         });
     }
 
     getSentencePanel() {
         let { sentence } = this.state;
-        if (sentence.paiuteTokens.length <= 0 || sentence.englishTokens.length <= 0) {
-            return (
-                <Row>
-                    <Col style={{borderRight: '1px solid gray'}} className='text-right'>
-                        <span 
-                            key={'sentence-paiute'}
-                            style={{fontSize: '20px'}}
-                        >
-                            <h4>Paiute</h4>
-                            <hr style={{margin: "0px", padding: "0px", paddingBottom: "5px"}} />
-                            {sentence.paiute}
-                        </span>
-                    </Col>
-                    <Col>
-                        <span 
-                            key={'sentence-english'}
-                            style={{fontSize: '20px'}}
-                        >
-                            <h4>English</h4>
-                            <hr style={{margin: "0px", padding: "0px", paddingBottom: "5px"}} />
-                            {sentence.english}
-                        </span>
-                    </Col>                
-                </Row>
-            );
-        }
 
         return (
-            <Row>
-                <Col style={{borderRight: '1px solid gray'}} className='text-right'>
-                    {this.getSentenceTokens('paiute', sentence.paiuteTokens)}
+            <Row style={{fontSize: '20px'}}>
+                <Col className='text-right xs-border-right'>
+                    <h4>English</h4>
+                    <hr style={{margin: "0px", padding: "0px", paddingBottom: "5px"}} />
+                    {sentence.paiuteTokens.length <= 0 ? sentence.paiute : this.getSentenceTokens('paiute', sentence.paiuteTokens)}
                 </Col>
                 <Col>
-                    {this.getSentenceTokens('english', sentence.englishTokens)}
+                    <h4>Paiute</h4>
+                    <hr style={{margin: "0px", padding: "0px", paddingBottom: "5px"}} />
+                    {sentence.englishTokens.length <= 0 ? sentence.english : this.getSentenceTokens('english', sentence.englishTokens)}
                 </Col>                
             </Row>
         );
