@@ -5,6 +5,8 @@ import WordForm from './WordForm';
 import api from './Api';
 import history from './history';
 
+import { Row, Col } from 'react-bootstrap';
+
 class WordNew extends React.Component {
     constructor(props) {
         super(props);
@@ -43,7 +45,13 @@ class WordNew extends React.Component {
     }
 
     render() {
-        return <WordForm onSubmit={word => this.addWord(word)} />;
+        return (
+            <Row className='mt-3'>
+                <Col>
+                    <WordForm onSubmit={word => this.addWord(word)} />
+                </Col>
+            </Row>
+        );
     }
 };
 

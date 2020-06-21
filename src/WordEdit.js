@@ -94,7 +94,7 @@ class WordWindow extends React.Component {
         }
 
         return (
-            <Row className='m-3'>
+            <Row className='mt-3'>
                 <Col>
                     <ToastContainer />
                     <Button variant='outline-primary' block className='mb-2' onClick={e => {

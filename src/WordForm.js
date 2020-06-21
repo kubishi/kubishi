@@ -9,23 +9,11 @@ import PartOfSpeech from './PartOfSpeech';
 import Select from 'react-select';
 import lodash from 'lodash';
 
-import { remove_punctuation, toBase64, getUpdates } from './helpers';
+import { getPosLabel, getUpdates } from './helpers';
 import ImageInput from './ImageInput';
 import AudioInput from './AudioInput';
 import api from './Api';
 import './common.css';
-
-function arraysEqual(a, b) {
-    // Source: https://stackoverflow.com/questions/3115982/how-to-check-if-two-arrays-are-equal-with-javascript
-    if (a === b) return true;
-    if (a == null || b == null) return false;
-    if (a.length != b.length) return false;
-  
-    for (var i = 0; i < a.length; ++i) {
-      if (a[i] !== b[i]) return false;
-    }
-    return true;
-}
 
 class WordForm extends React.Component {
     constructor(props) {
@@ -74,9 +62,9 @@ class WordForm extends React.Component {
         api.get('/api/search/words', 
             {
                 params: { 
-                    query: query + '.*', 
-                    mode: 'regex',
-                    searchFields: ['text']
+                    query: query, 
+                    mode: 'fuzzy',
+                    searchFields: ['text', 'definition']
                 }
             }
         ).then(res => {
@@ -86,12 +74,19 @@ class WordForm extends React.Component {
             } else if (res.data.result.length <= 0) {
                 this.setState({related_options: []});
             } else {
-                let options = res.data.result.map((word, i) => {
-                    return {value: word, label: word.text};
-                });
+                let options = res.data.result.map(word => this.getWordOption(word));
+                this.setState({ options });
                 this.setState({related_options: options});
             }
         }).catch(err => console.error(err));
+    }
+     
+    getWordOption(word) { 
+        if (word == null) return null;
+        return {
+            label: `${word.text} (${getPosLabel(word.part_of_speech)}): ${word.definition}`,
+            value: word
+        };
     }
 
     hasChanged() {
