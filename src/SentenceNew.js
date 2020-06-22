@@ -18,8 +18,6 @@ class SentenceNew extends React.Component {
         let body = formatSentence(sentence);
         if (Object.keys(body).length <= 0) return; // no update
 
-        console.log('Adding', body);
-
         api.post('/api/sentences', body).then(res => {
             if (res.status == 200 && res.data.success) {
                 return history.push(`/sentences/${res.data.result._id}`);

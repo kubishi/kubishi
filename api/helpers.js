@@ -42,12 +42,9 @@ function parseSignedRequest(signedRequest) {
  * 
  * @returns {[Object]}
  */
-function getSearchPipeline(query, mode, field, limit, offset, project) {
-    /**
-     * @type {mongoose.DocumentQuery} prom
-     */
-    // project['_id'] = 1; // always include _id
+function getSearchPipeline(query, mode, field, limit, offset, project, match = null) {
     let pipeline = [];
+
     if (mode == "text") {
         pipeline.push({
             $search: {$text: query, $language: "none" }
@@ -97,6 +94,10 @@ function getSearchPipeline(query, mode, field, limit, offset, project) {
         });
     } else {
         throw "Invalid search mode";
+    }
+    
+    if (match) {
+        pipeline.push({$match: match});
     }
 
     pipeline.push({$project: project});

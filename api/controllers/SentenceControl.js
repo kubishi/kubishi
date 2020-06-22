@@ -128,7 +128,8 @@ function search(req, res) {
     let fields = req.query.fields || allFields;
     let project = {};
     fields.forEach(field => project[field] = 1);
-    let pipeline = helpers.getSearchPipeline(req.query.query, mode, searchFields, limit, offset, project);
+    let match = req.query.match ? JSON.parse(req.query.match) : null;
+    let pipeline = helpers.getSearchPipeline(req.query.query, mode, searchFields, limit, offset, project, match);
     
     SentenceModel.aggregate(pipeline).then(result => {
         if (!result || result.length <= 0) {

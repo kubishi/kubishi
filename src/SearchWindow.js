@@ -61,6 +61,7 @@ class SearchWindow extends React.Component {
     
     searchSentences(pageSentences=null) {
         let { query, resultsPerPage } = this.props;
+        let filterSentences = this.props.filterSentences || false;
 
         api.get('/api/search/sentences', 
             {
@@ -70,6 +71,7 @@ class SearchWindow extends React.Component {
                     fields: ['english', 'paiute'],
                     offset: ((pageSentences || 1) - 1) * resultsPerPage,
                     limit: resultsPerPage,
+                    match: filterSentences ? JSON.stringify({paiuteTokens: {$exists: true}}) : null,
                 },
             }
         ).then(res => {
