@@ -1,3 +1,3 @@
 ## Yaduha
 
-The unofficial online dictionary for the Owen's Valley Paiute language, hosted at [kubishi.com](https://kubishi.com).
+A dictionary and encyclopedia for Owens Valley Paiute Language and Culture
