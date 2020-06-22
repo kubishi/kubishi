@@ -61,40 +61,51 @@ class ArticleWindow extends React.Component {
             imageSquare = <Image src={image.data} rounded style={{maxHeight: '30vh', maxWidth: '100%'}} />;
         }
 
-        // let keywordsListItems = keywords.map((keyword, i) => {
-        //     return <ListGroup.Item key={`keyword-${i}`}>{keyword}</ListGroup.Item>;
-        // });
-        let keywordsListItems = keywords.map((keyword, i) => {
-            return (
-                <a key={`keyword-${i}`} href='#' onClick={e => {
-                    history.push({
-                        pathname: '/search',
-                        search: qs.stringify({query: keyword}),
-                    });
-                }}>
-                    {keyword}
-                </a>
-            );
-        }).reduce((acc, x) => {
-            return acc === null ? x: <>{acc}, {x} </>;
-        });
-        let keywordsList = <p>{keywordsListItems}</p>;
+        let keywordsList;
+        if (keywords.length > 0) {
+            let keywordsListItems = keywords.map((keyword, i) => {
+                return (
+                    <a key={`keyword-${i}`} href='#' onClick={e => {
+                        history.push({
+                            pathname: '/search',
+                            search: qs.stringify({query: keyword}),
+                        });
+                    }}>
+                        {keyword}
+                    </a>
+                );
+            }).reduce((acc, x) => {
+                return acc === null ? x: <>{acc}, {x} </>;
+            });
+            keywordsList = [
+                <h4 className='mt-2'>Keywords</h4>,
+                <hr style={{margin: "0px", padding: "0px", paddingBottom: "5px"}} />,
+                <p>{keywordsListItems}</p>,
+            ];
+        }
 
-        let tagsListItems = tags.map((tag, i) => {
-            return (
-                <a key={`tag-${i}`} href='#' onClick={e => {
-                    history.push({
-                        pathname: '/search',
-                        search: qs.stringify({query: tag}),
-                    });
-                }}>
-                    {getTagLabel(tag)}
-                </a>
-            );
-        }).reduce((acc, x) => {
-            return acc === null ? x: <>{acc}, {x} </>;
-        });
-        let tagsList = <p>{tagsListItems}</p>;
+        let tagsList;
+        if (tags.length > 0) {
+            let tagsListItems = tags.map((tag, i) => {
+                return (
+                    <a key={`tag-${i}`} href='#' onClick={e => {
+                        history.push({
+                            pathname: '/search',
+                            search: qs.stringify({query: tag}),
+                        });
+                    }}>
+                        {getTagLabel(tag)}
+                    </a>
+                );
+            }).reduce((acc, x) => {
+                return acc === null ? x: <>{acc}, {x} </>;
+            })
+            tagsList = [
+                <h4 className='mt-2'>Tags</h4>,
+                <hr style={{margin: "0px", padding: "0px", paddingBottom: "5px"}} />,
+                <p>{tagsListItems}</p>,
+            ];
+        }
 
         let editButton;
         if (canEdit) {
@@ -141,11 +152,7 @@ class ArticleWindow extends React.Component {
                 <Col className='d-none d-lg-block text-center' md={4}>
                     {editButton}
                     {imageSquare}
-                    <h4 className='mt-2'>Keywords</h4>
-                    <hr style={{margin: "0px", padding: "0px", paddingBottom: "5px"}} />
                     {keywordsList}
-                    <h4 className='mt-2'>Tags</h4>
-                    <hr style={{margin: "0px", padding: "0px", paddingBottom: "5px"}} />
                     {tagsList}
                 </Col>
             </Row>

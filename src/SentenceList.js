@@ -14,7 +14,7 @@ function SentenceList(props) {
         }
         return (
             <ListGroup.Item 
-                className="py-2"
+                className="p-1"
                 key={'sentence-list-' + sentence._id}
                 action
                 href={`/sentences/${sentence._id}`}

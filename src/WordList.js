@@ -9,7 +9,7 @@ function WordList(props) {
         part_of_speech = part_of_speech.toLowerCase().replace('_', ' ');
         return (
             <ListGroup.Item 
-                className="py-2"
+                className="p-1"
                 key={'word-list-' + word._id}
                 action href={'/words/' + word._id}
             >
