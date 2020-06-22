@@ -132,10 +132,13 @@ class App extends React.Component {
     }
   }
   
-  getRandom(path) {
-    api.get(`/api/random/${path}`, 
-        {params: {fields: ['_id']}}
-    ).then(res => {
+  getRandom(path, filterSentences = false) {
+    let params = {fields: ['_id']};
+    if (filterSentences && path == 'sentences') {
+      params.match = JSON.stringify({paiuteTokens: {$exists: true}});
+    }
+
+    api.get(`/api/random/${path}`, {params: params}).then(res => {
         if (res.status == 200) {
             return history.replace(`/${path}/${res.data.result._id}`);
         } else {
@@ -221,7 +224,7 @@ class App extends React.Component {
             {navbar}
             <Switch>
               <Route path="/random/word" component={props => this.getRandom('words')} />
-              <Route path="/random/sentence" component={props => this.getRandom('sentences')} />
+              <Route path="/random/sentence" component={props => this.getRandom('sentences', !canEdit)} />
               <Route path="/random/article" component={props => this.getRandom('articles')} />
               <Route path="/words/:id" component={(props) => {
                 let { id } = useParams();

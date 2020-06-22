@@ -85,7 +85,11 @@ function getRandomSentence(req, res) {
     let fields = req.query.fields || allFields;
     let project = {};
     fields.forEach(field => project[field] = 1);
-    SentenceModel.aggregate([{$sample: {size: 1}}, {$project: project}]).then(result => {
+    let pipeline = [{$sample: {size: 1}}, {$project: project}];
+    if (req.query.match) {
+        pipeline.splice(0, 0, {$match: JSON.parse(req.query.match)});
+    }
+    SentenceModel.aggregate(pipeline).then(result => {
         if (!result) {
             return res.status(404).json({success: false, result: "Sentences is empty"});
         } else {
