@@ -141,11 +141,7 @@ class ArticleWindow extends React.Component {
                     </div>
                     {Parser(content)}
                     <div className='d-block d-lg-none text-center'>
-                        <h4 className='mt-2'>Keywords</h4>
-                        <hr style={{margin: "0px", padding: "0px", paddingBottom: "5px"}} />
                         {keywordsList}
-                        <h4 className='mt-2'>Tags</h4>
-                        <hr style={{margin: "0px", padding: "0px", paddingBottom: "5px"}} />
                         {tagsList}
                     </div>
                 </Col>
