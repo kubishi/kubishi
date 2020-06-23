@@ -12,6 +12,7 @@ import SearchWindow from './SearchWindow';
 import WordWindow from './WordWindow';
 import UserType from './UserType';
 import HttpsRedirect from 'react-https-redirect';
+import { SocialIcon } from 'react-social-icons';
 
 import PrivacyPolicy from './PrivacyPolicy';
 import About from './About';
@@ -217,6 +218,13 @@ class App extends React.Component {
       </Navbar>
     );
 
+    let socialSize = 35;
+    let socialIcons = [
+      <SocialIcon url="https://facebook.com/kubishi" className="m-1" style={{ height: socialSize, width: socialSize }} />,
+      <SocialIcon url="https://instagram.com/ovkubishi" className="m-1" style={{ height: socialSize, width: socialSize }} />,
+      <SocialIcon url="https://twitter.com/ovkubishi" className="m-1" style={{ height: socialSize, width: socialSize }} />,
+    ];
+
     return (
       <HttpsRedirect>
         <Router history={history}>
@@ -298,8 +306,11 @@ class App extends React.Component {
               <Nav>
                 <Nav.Link href="/privacy">Privacy Policy</Nav.Link>
               </Nav>
-              <Nav>
+              <Nav className='mr-auto'>
                 <Nav.Link href="mailto:help@kubishi.com">Contact</Nav.Link>
+              </Nav>
+              <Nav>
+                {socialIcons}
               </Nav>
             </Navbar>
           </Container>
