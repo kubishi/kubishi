@@ -11,6 +11,7 @@ import WordList from './WordList';
 import SearchBar from './SearchBar';
 import history from './history';
 import './common.css';
+import ShareButtons from './ShareButtons';
 
 class WordWindow extends React.Component {
     constructor(props) {
@@ -131,6 +132,14 @@ class WordWindow extends React.Component {
             audioPlayer = <audio src={word.audio.data} controls />;
         }
         
+        let quote = `Check out this word in nanüümüyadohana!\n${word.text}: ${word.definition}`;
+        let shareButtons = (
+            <Row>
+                <Col>
+                    <ShareButtons title={word.text} quote={quote} url={`https://kubishi.com/words/${word._id}`} />
+                </Col>
+            </Row>
+        );
         return [
             <Row className="mt-2">
                 <Col>
@@ -140,7 +149,7 @@ class WordWindow extends React.Component {
             <Row className='mt-2'>
                 <Col sm={12} md={4} className='md-border-right mt-2'>
                     {editButton}
-                    
+                                        
                     <h3>{word.text}</h3>
                     <p><em>{(word.part_of_speech || 'UNKNOWN').toLowerCase().replace('_', ' ')}</em></p>
                     <p>{word.definition}</p>
@@ -150,6 +159,8 @@ class WordWindow extends React.Component {
 
                     {notesArea}
                     {relatedWordsList}
+                    
+                    {shareButtons}
                 </Col>
                 <Col sm={12} md={8} className='mt-2'>
                     <h4 className='text-center'>Sentences</h4>

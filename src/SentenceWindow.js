@@ -6,6 +6,7 @@ import { faEdit } from '@fortawesome/free-solid-svg-icons';
 import api from './Api';
 import history from './history';
 import SearchBar from './SearchBar';
+import ShareButtons from './ShareButtons';
 
 import { getPosLabel, getdefault, setdefault } from './helpers';
 
@@ -198,48 +199,39 @@ class SentenceWindow extends React.Component {
         if (sentence.notes) {
             notesSquare = (
                 <Col>
-                    <h4>Notes</h4>
+                    <h4 className='text-center'>Notes</h4>
                     <hr style={{margin: "0px", padding: "0px", paddingBottom: "5px"}} />
                     <p>{sentence.notes}</p>
                 </Col>
             );
         }
+        
+        let quote = `Check out this sentence in nanüümüyadohana!\n${sentence.paiute}\n${sentence.english}`;
+        let shareButtons = (
+            <Col>
+                <ShareButtons title={sentence.paiute} quote={quote} url={`https://kubishi.com/sentences/${sentence._id}`} />
+            </Col>
+        );
 
-        let rows = [
+        return [
             <Row className="mt-2">
                 <Col>
                     <SearchBar showRandomButtons />
                 </Col>
+            </Row>,
+            <Row className='mt-3'>
+                <Col xs={8}>
+                    {this.getSentencePanel()}
+                    {audioPlayer}
+                </Col>
+                <Col>
+                    {editButton}
+                    {imageSquare}
+                    {notesSquare}
+                    {shareButtons}
+                </Col>
             </Row>
         ]
-        if (!imageSquare) {
-            rows.push(
-                <Row className='mt-3'>
-                    <Col>
-                        {editButton}
-                        {this.getSentencePanel()}
-                        {audioPlayer}
-                        {notesSquare}
-                    </Col>
-                </Row>
-            );
-        } else {
-            rows.push(
-                <Row className='mt-3'>
-                    <Col>
-                        {this.getSentencePanel()}
-                        {audioPlayer}
-                        {notesSquare}
-                    </Col>
-                    <Col>
-                        {editButton}
-                        {imageSquare}
-                    </Col>
-                </Row>
-            );
-        }
-
-        return rows;
     }
 };
 

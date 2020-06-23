@@ -12,6 +12,7 @@ import history from './history';
 import qs from 'query-string';
 
 import { getTagLabel } from './helpers';
+import ShareButtons from './ShareButtons';
 
 class ArticleWindow extends React.Component {
     constructor(props) {
@@ -36,7 +37,6 @@ class ArticleWindow extends React.Component {
         api.get(`/api/articles/${articleId}`).then(res => {
             if (res.status == 200 && res.data.success) {
                 let { title, tags, keywords, content, image } = res.data.result;
-                console.log({ title, tags, keywords, content, image });
                 this.setState({ title, tags, keywords, content, image });
             } else {
                 console.log(res.status, res.data);
@@ -106,6 +106,9 @@ class ArticleWindow extends React.Component {
                 <p>{tagsListItems}</p>,
             ];
         }
+        
+        let quote = `Check out this article on Kubishi, "${title}"!`;
+        let shareButtons = <ShareButtons title={title} quote={quote} url={`https://kubishi.com/articles/${articleId}`} />;
 
         let editButton;
         if (canEdit) {
@@ -143,6 +146,7 @@ class ArticleWindow extends React.Component {
                     <div className='d-block d-lg-none text-center'>
                         {keywordsList}
                         {tagsList}
+                        {shareButtons}
                     </div>
                 </Col>
                 <Col className='d-none d-lg-block text-center' md={4}>
@@ -150,6 +154,7 @@ class ArticleWindow extends React.Component {
                     {imageSquare}
                     {keywordsList}
                     {tagsList}
+                    {shareButtons}
                 </Col>
             </Row>
         ];
