@@ -228,7 +228,7 @@ class App extends React.Component {
     return (
       <HttpsRedirect>
         <Router history={history}>
-          <Container style={{paddingBottom: '65px'}}>
+          <Container style={{paddingBottom: '75px'}}>
             {navbar}
             <Switch>
               <Route path="/random/word" component={props => this.getRandom('words')} />
