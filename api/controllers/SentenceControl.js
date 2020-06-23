@@ -178,6 +178,9 @@ function retrieveContainsWord(req, res) {
         if (!result || result.total <= 0) {
             return res.json({success: true, result: [], total: 0});
         } else {
+            if (result.length <= 0) {
+                return res.json({success: true, result: [], total: 0});
+            }
             SentenceModel.populate(result[0].result, {path: 'paiuteTokens.word', select: 'text definition part_of_speech'}).then(_result => {
                 return res.json({success: true, result: _result, total: result.total});
             }).catch(err => {
@@ -186,6 +189,7 @@ function retrieveContainsWord(req, res) {
             })
         }
     }).catch(err => {
+        console.log(err);
         return res.status(500).json({success: false, result: err, total: 0});
     });
 }
