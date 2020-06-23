@@ -220,7 +220,7 @@ class SentenceWindow extends React.Component {
                 </Col>
             </Row>,
             <Row className='mt-3'>
-                <Col xs={8}>
+                <Col xs={12} lg={8}>
                     {this.getSentencePanel()}
                     {audioPlayer}
                 </Col>
