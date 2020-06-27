@@ -18,7 +18,7 @@ class SentenceForm extends React.Component {
         super(props);
     
         let sentence = this.props.sentence || {};
-        this.state = lodash.cloneDeep(this.props.sentence);
+        this.state = lodash.cloneDeep(this.props.sentence) || {};
 
         this.state.editingText = sentence.paiuteTokens == null;
         this.state.selectedButton = null
