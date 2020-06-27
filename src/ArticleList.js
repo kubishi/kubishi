@@ -9,7 +9,7 @@ function WordList(props) {
         let { title, keywords, tags } = article;
         return (
             <ListGroup.Item 
-                className="p-1"
+                className="p-1 pb-2 pt-2"
                 key={'article-list-' + article._id}
                 action href={'/articles/' + article._id}
             >

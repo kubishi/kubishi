@@ -205,25 +205,32 @@ class SentenceWindow extends React.Component {
             </Col>
         );
 
-        return [
+        return <>
             <Row className="mt-2">
                 <Col>
                     <SearchBar showRandomButtons />
                 </Col>
-            </Row>,
-            <Row className='mt-3'>
-                <Col xs={12} lg={8}>
+            </Row>
+            <Row className='d-block d-lg-none text-center'>
+                <Col className='mt-2'>
+                    {editButton}
+                </Col>
+            </Row>
+            <Row>
+                <Col xs={12} lg={8} className='mt-2'>
                     {this.getSentencePanel()}
                     {audioPlayer}
                 </Col>
-                <Col>
-                    {editButton}
+                <Col className='mt-2'>
+                    <div className='d-none d-lg-block text-center'>
+                        {editButton}
+                    </div>
                     {imageSquare}
                     {notesSquare}
                     {shareButtons}
                 </Col>
             </Row>
-        ]
+        </>
     }
 };
 

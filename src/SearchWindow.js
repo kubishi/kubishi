@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Col, Row, Spinner } from 'react-bootstrap';
+import { Col, Row, Spinner, Tabs, Tab } from 'react-bootstrap';
 import Pagination from "react-js-pagination";
 import api from './Api';
 import ArticleList from './ArticleList';
@@ -8,7 +8,6 @@ import SearchBar from './SearchBar';
 import './SearchWindow.css';
 import SentenceList from './SentenceList';
 import WordList from './WordList';
-
 
 class SearchWindow extends React.Component {
     constructor(props) {
@@ -154,11 +153,10 @@ class SearchWindow extends React.Component {
             contentArticles = <span className='text-center'>No matching articles</span>;
         }
         let articleCol= (
-            <Col sm={12} md={4}>
-                <h4 className="mt-2">Articles</h4>
+            <Tab eventKey='Articles' title='Articles' disabled={totalArticles <= 0}>
                 {contentArticles}
                 {paginateArticles}
-            </Col>
+            </Tab>
         );
 
         let contentWords, paginateWords;
@@ -186,11 +184,10 @@ class SearchWindow extends React.Component {
             contentWords= <span className='text-center'>No matching words</span>;
         }
         let wordsCol= (
-            <Col sm={12} md={4}>
-                <h4 className="mt-2">Words</h4>
+            <Tab eventKey='Words' title='Words' disabled={totalWords <= 0}>
                 {contentWords}
                 {paginateWords}
-            </Col>
+            </Tab>
         );
 
         let contentSentences, paginateSentences;
@@ -219,22 +216,21 @@ class SearchWindow extends React.Component {
         }
         
         let sentencesCol= (
-            <Col sm={12} md={4}>
-                <h4 className="mt-2">Sentences</h4>
+            <Tab eventKey='Sentences' title='Sentences' disabled={totalSentences <= 0}>
                 {contentSentences}
                 {paginateSentences}
-            </Col>
+            </Tab>
         );
 
         return (
             <Row>
                 <Col>
                     <SearchBar showRandomButtons className="mt-2" query={this.props.query}/>
-                    <Row>     
+                    <Tabs defaultActiveKey="Words">     
                         {wordsCol}
                         {sentencesCol}
                         {articleCol}
-                    </Row>
+                    </Tabs>
                 </Col>
             </Row>
         );
@@ -242,7 +238,7 @@ class SearchWindow extends React.Component {
 };
 
 SearchWindow.defaultProps = {
-    resultsPerPage: 10,
+    resultsPerPage: 25,
 };
 
 export default SearchWindow;

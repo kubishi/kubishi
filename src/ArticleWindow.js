@@ -118,7 +118,7 @@ class ArticleWindow extends React.Component {
                     <SearchBar showRandomButtons />
                 </Col>
             </Row>,
-            <Row className="mt-2">
+            <Row className='mt-2'>
                 <Col>
                     <div className='d-block d-lg-none text-center'>
                         {editButton}

@@ -141,7 +141,7 @@ class WordWindow extends React.Component {
                     <SearchBar showRandomButtons />
                 </Col>
             </Row>,
-            <Row className='mt-2'>
+            <Row>
                 <Col sm={12} md={4} className='md-border-right mt-2'>
                     {editButton}
                                         
