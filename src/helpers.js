@@ -1,4 +1,4 @@
-import { updatedDiff } from 'deep-object-diff';
+import { diff } from 'deep-object-diff';
 import _ from 'lodash';
 
 export function remove_punctuation (str) {
@@ -14,7 +14,10 @@ export const toBase64 = file => new Promise((resolve, reject) => {
 });
 
 export function getUpdates(prevObj, obj) {
-    return updatedDiff(prevObj, obj)
+    let updates = diff(prevObj, obj);
+    try { delete updates._id; } catch(e) {}
+    
+    return updates;
 }
 
 export function formatSentence(sentence) {

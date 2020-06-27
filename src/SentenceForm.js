@@ -7,7 +7,7 @@ import { Button, Col, Form, Row } from 'react-bootstrap';
 import Select from 'react-select';
 import api from './Api';
 import AudioInput from './AudioInput';
-import { getPosLabel, getUpdates } from './helpers';
+import { getPosLabel, getUpdates, formatSentence } from './helpers';
 import ImageInput from './ImageInput';
 
 
@@ -18,39 +18,20 @@ class SentenceForm extends React.Component {
         super(props);
     
         let sentence = this.props.sentence || {};
-        this.state = {
-            english: sentence.english || null,
-            paiute: sentence.paiute || null,
-            image: sentence.image || {filename: null, data: null},
-            audio: sentence.audio || {filename: null, data: null},
-            notes: sentence.notes || null,
+        this.state = lodash.cloneDeep(this.props.sentence);
 
-            editingText: sentence.paiuteTokens == null,
-            selectedButton: null,
-            defaultQuery: null,
-            selected: null,
-            query: null,
-            options: [],
+        this.state.editingText = sentence.paiuteTokens == null;
+        this.state.selectedButton = null
+        this.state.defaultQuery = null
+        this.state.selected = null
+        this.state.query = null
+        this.state.options = []
 
-            paiuteTokens: [],
-            englishTokens: [],
-        };
-
-        if (sentence.paiuteTokens && sentence.paiuteTokens.length > 0) {
-            this.state.paiuteTokens = sentence.paiuteTokens.map(token => lodash.defaults(
-                lodash.pick(token, ['token_type', 'text', 'word', 'token_map']),
-                {'token_type': 'word', 'text': '', 'word': null, 'token_map': []}
-            ));
-        } else {
+        if (!sentence.paiuteTokens || sentence.paiuteTokens.length <= 0) {
             this.state.paiuteTokens = this.parseSentence(sentence.paiute || '');
         }
 
-        if (sentence.englishTokens && sentence.englishTokens.length > 0) {
-            this.state.englishTokens = sentence.englishTokens.map(token => lodash.defaults(
-                lodash.pick(token, ['token_type', 'text']),
-                {'token_type': 'punc', 'text': ''}
-            ));
-        } else {
+        if (!sentence.englishTokens || sentence.englishTokens.length <= 0) {
             this.state.englishTokens = this.parseSentence(sentence.english || '');
         }
     }
@@ -321,7 +302,7 @@ class SentenceForm extends React.Component {
                         block
                         href="#"
                         disabled={!hasChanged}
-                        onClick={e => this.props.onSave(this.state)} variant='outline-primary'
+                        onClick={e => this.props.onSave(this.state)} variant='outline-success'
                     >
                         Save
                     </Button>

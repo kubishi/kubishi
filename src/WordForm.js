@@ -17,17 +17,8 @@ class WordForm extends React.Component {
     constructor(props) {
         super(props);
 
-        let word = this.props.word || {};
-        this.state = {
-            text: word.text || null,
-            part_of_speech: word.part_of_speech || null,
-            definition: word.definition || null,
-            notes: word.notes || null,
-            audio: word.audio || {data: null, filename: null},
-            image: word.image || {data: null, filename: null},
-            words: word.words || [],
-            related_options: [],
-        };
+        this.state = lodash.cloneDeep(this.props.word) || {};
+        this.state.related_options = [];
     }
 
     submitWord() {
@@ -88,7 +79,7 @@ class WordForm extends React.Component {
     }
 
     hasChanged() {
-        let newWord = lodash.cloneDeep(lodash.pick(this.state, ['text', 'part_of_speech', 'definition', 'audio', 'image', 'words', 'notes']));
+        let newWord = lodash.pick(this.state, ['text', 'part_of_speech', 'definition', 'audio', 'image', 'words', 'notes']);
         return Object.keys(getUpdates(this.props.word, newWord)).length > 0;
     }
 
@@ -154,7 +145,7 @@ class WordForm extends React.Component {
             );
         }
 
-        let wordList = words.map((rWord, i) => {
+        let wordList = (words || []).map((rWord, i) => {
             return (
                 <ListGroup.Item>
                     <Button className='mr-2' variant='outline-danger' onClick={e => this.removeRelatedWord(rWord)} >
