@@ -8,10 +8,11 @@ class ImageInput extends React.Component {
     constructor(props) {
         super(props);
 
+        const image = this.props.image || {};
         this.state = {
             image: {
-                data: null,
-                filename: null
+                data: image.data || null,
+                filename: image.filename || null
             },
             urlMode: true
         };
