@@ -1,18 +1,13 @@
 
 import React from 'react';
-import { 
-    Row, Col, Spinner
-} from 'react-bootstrap';
+import { Col, Row, Spinner } from 'react-bootstrap';
 import Pagination from "react-js-pagination";
-
-
-import './SearchWindow.css';
-
 import api from './Api';
+import ArticleList from './ArticleList';
 import SearchBar from './SearchBar';
-import WordList from './WordList';
+import './SearchWindow.css';
 import SentenceList from './SentenceList';
-import ArticleList from './ArticleList'
+import WordList from './WordList';
 
 
 class SearchWindow extends React.Component {

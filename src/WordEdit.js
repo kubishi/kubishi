@@ -1,14 +1,13 @@
 
 import React from 'react';
-import { Row, Col, Button, Spinner } from 'react-bootstrap';
-
-import { ToastContainer, toast } from 'react-toastify';
+import { Button, Col, Row, Spinner } from 'react-bootstrap';
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
-import WordForm from './WordForm';
 import api from './Api';
-import history from './history';
 import './common.css';
+import history from './history';
+import WordForm from './WordForm';
+
 
 class WordWindow extends React.Component {
     constructor(props) {
@@ -97,9 +96,7 @@ class WordWindow extends React.Component {
             <Row className='mt-3'>
                 <Col>
                     <ToastContainer />
-                    <Button variant='outline-primary' block className='mb-2' onClick={e => {
-                        return history.push(`/words/${word._id}`);
-                    }}>
+                    <Button variant='outline-primary' block className='mb-2' href={`/words/${word._id}`}>
                         Back to Word
                     </Button>
                     <WordForm 

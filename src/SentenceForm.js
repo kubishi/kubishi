@@ -1,18 +1,15 @@
 
-import React from 'react';
-import { Row, Col, ListGroup, Form, Button, ButtonGroup, InputGroup, FormControl } from 'react-bootstrap';
-import Select from 'react-select';
-import lodash from 'lodash';
-
+import { faAngleLeft, faAngleRight, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash, faAngleRight, faAngleLeft, faLock, faLockOpen } from '@fortawesome/free-solid-svg-icons';
-
+import lodash from 'lodash';
+import React from 'react';
+import { Button, Col, Form, Row } from 'react-bootstrap';
+import Select from 'react-select';
 import api from './Api';
 import AudioInput from './AudioInput';
+import { getPosLabel, getUpdates } from './helpers';
 import ImageInput from './ImageInput';
-import { getUpdates, getPosLabel, setdefault, getdefault } from './helpers';
 
-import './SentenceForm.css';
 
 let REGEX = /([0-9a-zA-Zw̃W̃üÜ']+)([^0-9a-zA-Zw̃W̃üÜ']+)?/g;
 

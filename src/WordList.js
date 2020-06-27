@@ -1,5 +1,5 @@
 import React from 'react';
-import { Row, Col, ListGroup } from 'react-bootstrap';
+import { ListGroup } from 'react-bootstrap';
 
 function WordList(props) {
     let { results } = props;

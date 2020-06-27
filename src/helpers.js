@@ -1,6 +1,5 @@
-import lodash from 'lodash';
-import deepdash from 'deepdash-es';
-const _ = deepdash(lodash);
+import { updatedDiff } from 'deep-object-diff';
+import _ from 'lodash';
 
 export function remove_punctuation (str) {
     // FROM: https://stackoverflow.com/a/31777931
@@ -15,14 +14,11 @@ export const toBase64 = file => new Promise((resolve, reject) => {
 });
 
 export function getUpdates(prevObj, obj) {
-    return _.pick(obj, _.paths(obj, {leavesOnly: true}).filter(path => {
-        let val = _.get(obj, path);
-        return val == null || !lodash.isEqual(val, _.get(prevObj, path));
-    }));
+    return updatedDiff(prevObj, obj)
 }
 
 export function formatSentence(sentence) {
-    let fSentence = lodash.cloneDeep(lodash.pick(sentence, ['english', 'paiute', 'image', 'audio', 'notes', 'englishTokens', 'paiuteTokens', 'tokenMap']));
+    let fSentence = _.cloneDeep(_.pick(sentence, ['english', 'paiute', 'image', 'audio', 'notes', 'englishTokens', 'paiuteTokens', 'tokenMap']));
     fSentence.paiuteTokens = fSentence.paiuteTokens.map(token => {
         if (token.word != null) token.word = token.word._id;
         return token;

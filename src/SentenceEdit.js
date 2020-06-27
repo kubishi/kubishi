@@ -1,14 +1,12 @@
 import React from 'react';
-
-import { Row, Col, Spinner, Button } from 'react-bootstrap';
-
-import { ToastContainer, toast } from 'react-toastify';
+import { Button, Col, Row, Spinner } from 'react-bootstrap';
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
-import SentenceForm from './SentenceForm';
 import api from './Api';
 import { formatSentence } from './helpers';
 import history from './history';
+import SentenceForm from './SentenceForm';
+
 
 class SentenceEdit extends React.Component {
     constructor(props) {
@@ -87,9 +85,7 @@ class SentenceEdit extends React.Component {
             <Row className='m-3'>
                 <Col>
                     <ToastContainer />
-                    <Button variant='outline-primary' block className='mb-2' onClick={e => {
-                        return history.push(`/sentences/${sentence._id}`);
-                    }}>
+                    <Button variant='outline-primary' block className='mb-2' href={`/sentences/${sentence._id}`}>
                         Back to Sentence
                     </Button>
                     <SentenceForm 

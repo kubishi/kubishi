@@ -1,12 +1,8 @@
 import React from 'react';
-
-import { Row, Col, Button, Table } from 'react-bootstrap';
-
-import api from './Api';
-import history from './history';
-import ArticleForm from './ArticleForm';
-
 import 'react-quill/dist/quill.snow.css';
+import api from './Api';
+import ArticleForm from './ArticleForm';
+import history from './history';
 
 class ArticleNew extends React.Component {
     constructor(props) {
@@ -19,11 +15,11 @@ class ArticleNew extends React.Component {
         }
     
         api.post('/api/articles', article).then(res => {
-          if (res.status == 200) {
-            history.push(`/articles/${res.data.result._id}`);
-          } else {
-            console.log(res.status, res.data);
-          }
+            if (res.status == 200) {
+                history.push(`/articles/${res.data.result._id}`);
+            } else {
+                console.log(res.status, res.data);
+            }
         }).catch(err => console.error(err));
     }
     

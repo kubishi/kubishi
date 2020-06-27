@@ -1,11 +1,8 @@
 import React from 'react';
-
-import SentenceForm from './SentenceForm';
-
 import api from './Api';
-import history from './history';
-
 import { formatSentence } from './helpers';
+import history from './history';
+import SentenceForm from './SentenceForm';
 
 class SentenceNew extends React.Component {
     constructor(props) {

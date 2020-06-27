@@ -1,19 +1,17 @@
 
-import React from 'react';
-import { Row, Col, ListGroup, Form, Button, ButtonGroup, Spinner, InputGroup } from 'react-bootstrap';
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus, faTrash, faCheck, faTimes } from '@fortawesome/free-solid-svg-icons'
-
-import PartOfSpeech from './PartOfSpeech';
-import Select from 'react-select';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import lodash from 'lodash';
-
+import React from 'react';
+import { Button, ButtonGroup, Col, Form, ListGroup, Row } from 'react-bootstrap';
+import Select from 'react-select';
+import api from './Api';
+import AudioInput from './AudioInput';
+import './common.css';
 import { getPosLabel, getUpdates } from './helpers';
 import ImageInput from './ImageInput';
-import AudioInput from './AudioInput';
-import api from './Api';
-import './common.css';
+import PartOfSpeech from './PartOfSpeech';
+
 
 class WordForm extends React.Component {
     constructor(props) {

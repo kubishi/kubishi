@@ -1,17 +1,14 @@
 
-import React from 'react';
-import { Row, Col, ListGroup, Button, Spinner, Image, InputGroup } from 'react-bootstrap';
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit } from '@fortawesome/free-solid-svg-icons';
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import React from 'react';
+import { Button, Col, Image, Row, Spinner } from 'react-bootstrap';
 import api from './Api';
-import SentenceList from './SentenceList';
-import WordList from './WordList';
-import SearchBar from './SearchBar';
-import history from './history';
 import './common.css';
+import SearchBar from './SearchBar';
+import SentenceList from './SentenceList';
 import ShareButtons from './ShareButtons';
+import WordList from './WordList';
 
 class WordWindow extends React.Component {
     constructor(props) {
@@ -109,9 +106,7 @@ class WordWindow extends React.Component {
                     <Col>
                         <Button 
                             variant='outline-primary'
-                            onClick={e => {
-                                return history.push(`/words/${wordId}?mode=edit`);
-                            }}
+                            href={`/words/${wordId}?mode=edit`}
                             block
                         >
                             <FontAwesomeIcon icon={faEdit} className='mr-2' />

@@ -1,10 +1,7 @@
-import React from 'react';
-
-import { Form, InputGroup, Button, Image, DropdownButton, Dropdown } from 'react-bootstrap';
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import React from 'react';
+import { Button, Dropdown, DropdownButton, Form, Image, InputGroup } from 'react-bootstrap';
 import { toBase64 } from './helpers';
 
 class ImageInput extends React.Component {

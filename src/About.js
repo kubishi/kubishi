@@ -1,7 +1,7 @@
 import React from 'react';
-import { Row, Col, Button } from 'react-bootstrap';
+import { Button, Col, Row } from 'react-bootstrap';
 
-function DonationButton(props) {
+function DonationButton() {
     return (
         <div>
             <span style={{display: "none"}}>

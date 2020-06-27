@@ -1,16 +1,13 @@
-import React from 'react';
-import { Spinner, Row, Col, Button, Image, Popover, OverlayTrigger } from 'react-bootstrap';
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import React from 'react';
+import { Button, Col, Image, OverlayTrigger, Popover, Row, Spinner } from 'react-bootstrap';
 import api from './Api';
-import history from './history';
+import './common.css';
+import { getdefault, getPosLabel, setdefault } from './helpers';
 import SearchBar from './SearchBar';
 import ShareButtons from './ShareButtons';
 
-import { getPosLabel, getdefault, setdefault } from './helpers';
-
-import './common.css';
 
 class SentenceWindow extends React.Component {
     constructor(props) {
@@ -94,12 +91,7 @@ class SentenceWindow extends React.Component {
                             }
                         }}
                         style={{cursor: 'pointer'}}
-                        
-                        onClick={e => {
-                            if (token.word != null && token.word.text != null) {
-                                history.push(`/words/${token.word._id}`)
-                            }
-                        }}
+                        href={(token.word != null && token.word.text != null) ? `/words/${token.word._id}` : '#'}
                     >
                         {token.text}
                     </span>
@@ -179,7 +171,7 @@ class SentenceWindow extends React.Component {
                     <Col>
                         <Button 
                             variant='outline-primary'
-                            onClick={e => history.push(`/sentences/${sentence._id}?mode=edit`)}
+                            href={`/sentences/${sentence._id}?mode=edit`}
                             block
                         >
                             <FontAwesomeIcon icon={faEdit} className='mr-2' />

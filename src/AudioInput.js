@@ -1,10 +1,7 @@
-import React from 'react';
-
-import { Form, InputGroup, Button } from 'react-bootstrap';
-
+import { faMicrophone, faPause, faPlay, faStop, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMicrophone, faStop, faTrash, faPlay, faPause } from '@fortawesome/free-solid-svg-icons';
-
+import React from 'react';
+import { Button, Form, InputGroup } from 'react-bootstrap';
 import { ReactMic } from 'react-mic';
 import { toBase64 } from './helpers';
 

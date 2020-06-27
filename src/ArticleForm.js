@@ -1,19 +1,15 @@
-import React from 'react';
-
-import { Form, Row, Col, Button } from 'react-bootstrap';
-import ReactQuill, { Quill } from 'react-quill';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import ImageResize from 'quill-image-resize-module-react';
-
-import TagsInput from 'react-tagsinput'
-
+import React from 'react';
+import { Button, Col, Form, Row } from 'react-bootstrap';
+import ReactQuill, { Quill } from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import './ArticleForm.css' // If using WebPack and style-loader.
- 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTrash } from '@fortawesome/free-solid-svg-icons'
-import { toBase64, getUpdates, getTagLabel } from './helpers';
+import TagsInput from 'react-tagsinput';
+import './ArticleForm.css'; // If using WebPack and style-loader.
+import { getTagLabel, getUpdates } from './helpers';
 import ImageInput from './ImageInput';
-import history from './history';
+ 
 
 Quill.register('modules/imageResize', ImageResize);
 
@@ -177,8 +173,7 @@ class ArticleForm extends React.Component {
                     <Col>
                         <Button 
                             block variant='outline-primary' 
-                            href='#' 
-                            onClick={e => history.push(`/articles/${article._id}`)}
+                            href={`/articles/${article._id}`} 
                         >
                             Back to Article
                         </Button>

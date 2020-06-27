@@ -1,38 +1,34 @@
-import React from 'react';
-import './App.css';
-import { 
-  Button, Container, Navbar, Nav, 
-  Col, Row, Spinner, NavDropdown
-} from 'react-bootstrap';
-
-import cookie from 'react-cookies';
-
-import FacebookLogin from 'react-facebook-login';
-import SearchWindow from './SearchWindow';
-import WordWindow from './WordWindow';
-import UserType from './UserType';
-import HttpsRedirect from 'react-https-redirect';
-import { SocialIcon } from 'react-social-icons';
-
-import PrivacyPolicy from './PrivacyPolicy';
-import About from './About';
-
-import Pronunciation from './Pronunciation';
-import api from './Api';
-
-import { Switch, useParams, Router, Route, Link, Redirect } from 'react-router-dom';
-import history from './history';
-
-import SearchBar from './SearchBar';
 import qs from 'query-string';
-import WordNew from './WordNew';
-import WordEdit from './WordEdit';
+import React from 'react';
+import {
+  Button,
+  Col, Container, Nav, Navbar,
+  NavDropdown, Row, Spinner
+} from 'react-bootstrap';
+import cookie from 'react-cookies';
+import FacebookLogin from 'react-facebook-login';
+import HttpsRedirect from 'react-https-redirect';
+import { Redirect, Route, Router, Switch, useParams } from 'react-router-dom';
+import { SocialIcon } from 'react-social-icons';
+import About from './About';
+import api from './Api';
+import './App.css';
+import ArticleEdit from './ArticleEdit';
 import ArticleNew from './ArticleNew';
 import ArticleWindow from './ArticleWindow';
-import ArticleEdit from './ArticleEdit';
-import SentenceWindow from './SentenceWindow';
+import history from './history';
+import PrivacyPolicy from './PrivacyPolicy';
+import Pronunciation from './Pronunciation';
+import SearchBar from './SearchBar';
+import SearchWindow from './SearchWindow';
 import SentenceEdit from './SentenceEdit';
 import SentenceNew from './SentenceNew';
+import SentenceWindow from './SentenceWindow';
+import UserType from './UserType';
+import WordEdit from './WordEdit';
+import WordNew from './WordNew';
+import WordWindow from './WordWindow';
+
 
 const { REACT_APP_FACEBOOK_APP_ID } = process.env;
 
@@ -192,9 +188,9 @@ class App extends React.Component {
     if (canEdit) {
       contributeButton = (
         <NavDropdown title="Contribute" id="nav-dropdown">
-          <NavDropdown.Item onClick={e => history.push('/create/article')}>New Article</NavDropdown.Item>
-          <NavDropdown.Item onClick={e => history.push('/create/word')}>New Word</NavDropdown.Item>
-          <NavDropdown.Item onClick={e => history.push('/create/sentence')}>New Sentence</NavDropdown.Item>
+          <NavDropdown.Item href='/create/article'>New Article</NavDropdown.Item>
+          <NavDropdown.Item href='/create/word'>New Word</NavDropdown.Item>
+          <NavDropdown.Item href='/create/sentence'>New Sentence</NavDropdown.Item>
         </NavDropdown>
       );
     }
@@ -228,8 +224,8 @@ class App extends React.Component {
     return (
       <HttpsRedirect>
         <Router history={history}>
+          {navbar}
           <Container style={{paddingBottom: '75px'}}>
-            {navbar}
             <Switch>
               <Route path="/random/word" component={props => this.getRandom('words')} />
               <Route path="/random/sentence" component={props => this.getRandom('sentences', !canEdit)} />

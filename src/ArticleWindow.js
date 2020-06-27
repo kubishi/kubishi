@@ -1,17 +1,13 @@
 
-import React from 'react';
-import { Row, Col, ListGroup, Form, Button, ButtonGroup, Spinner, Image } from 'react-bootstrap';
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faEdit } from '@fortawesome/free-solid-svg-icons'
-
-import api from './Api';
-import SearchBar from './SearchBar';
+import { faEdit } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Parser from 'html-react-parser';
-import history from './history';
 import qs from 'query-string';
-
+import React from 'react';
+import { Button, Col, Image, Row, Spinner } from 'react-bootstrap';
+import api from './Api';
 import { getTagLabel } from './helpers';
+import SearchBar from './SearchBar';
 import ShareButtons from './ShareButtons';
 
 class ArticleWindow extends React.Component {
@@ -64,13 +60,9 @@ class ArticleWindow extends React.Component {
         let keywordsList;
         if (keywords.length > 0) {
             let keywordsListItems = keywords.map((keyword, i) => {
+                console.log(qs.stringify({query: keyword}))
                 return (
-                    <a key={`keyword-${i}`} href='#' onClick={e => {
-                        history.push({
-                            pathname: '/search',
-                            search: qs.stringify({query: keyword}),
-                        });
-                    }}>
+                    <a key={`keyword-${i}`} href={`/search?${qs.stringify({query: keyword})}`}>
                         {keyword}
                     </a>
                 );
@@ -88,12 +80,7 @@ class ArticleWindow extends React.Component {
         if (tags.length > 0) {
             let tagsListItems = tags.map((tag, i) => {
                 return (
-                    <a key={`tag-${i}`} href='#' onClick={e => {
-                        history.push({
-                            pathname: '/search',
-                            search: qs.stringify({query: tag}),
-                        });
-                    }}>
+                    <a key={`tag-${i}`} href={`/search?${qs.stringify({query: tag})}`}>
                         {getTagLabel(tag)}
                     </a>
                 );
@@ -116,9 +103,7 @@ class ArticleWindow extends React.Component {
                 <Button 
                     className="mb-2"
                     variant='outline-primary'
-                    onClick={e => {
-                        return history.push(`/articles/${articleId}?mode=edit`);
-                    }}
+                    href={`/articles/${articleId}?mode=edit`}
                     block
                 >
                     <FontAwesomeIcon icon={faEdit} className='mr-2' />

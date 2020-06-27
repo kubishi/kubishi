@@ -1,11 +1,9 @@
 import React from 'react';
-
-import WordForm from './WordForm';
-
+import { Col, Row } from 'react-bootstrap';
 import api from './Api';
 import history from './history';
+import WordForm from './WordForm';
 
-import { Row, Col } from 'react-bootstrap';
 
 class WordNew extends React.Component {
     constructor(props) {

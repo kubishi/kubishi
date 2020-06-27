@@ -1,7 +1,7 @@
 import React from 'react';
-import { Row, Col, ListGroup } from 'react-bootstrap';
-
+import { ListGroup } from 'react-bootstrap';
 import './SentenceList.css';
+
 
 function SentenceList(props) {
     let { results } = props;
