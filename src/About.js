@@ -36,13 +36,13 @@ function About(props) {
 
                     <p>
                         <b>Before there was English, there was nanüümüyadohana</b>.
-                        According to mythology, the nüümü (people) originally learned the Paiute language from the animals.
-                        For thousands of years, they used it to communicate - to sing, to tell stories, to mourn, to celebrate, to educate, and to heal.
+                        According to mythology, the Nüümü (people) originally learned the language from the animals.
+                        For thousands of years, they used it to talk, sing, and tell stories.
                         They gave names to all the places in Payahuunadü and to all the plants and animals it was home to.
                         Due to the <a href='https://en.wikipedia.org/wiki/California_Genocide'>California Genocide</a> and <a href='https://en.wikipedia.org/wiki/Cultural_assimilation_of_Native_Americans'>forced assimilation</a>, many of these names are no longer used.
                         Some stories are forgotten.
                         Some songs, already sung for the last time. 
-                        <b> The language <a href='http://www.endangeredlanguages.com/lang/4692'>is dying</a>, but it is not dead and it can be healed. </b>
+                        <b> The language <a href='http://www.endangeredlanguages.com/lang/4692'>is dying</a>, but it can be healed. </b>
                         The Tribes of the Owens Valley <a href='http://www.ovcdc.com/blog/language/'>are fighting</a> to preserve the language and culture.
                         Kubishi is proud to be a part of that fight.
                     </p>
