@@ -31,7 +31,7 @@ function About(props) {
             <Row className='mt-3'>
                 <Col sm={12} lg={8}>
                     <h3 className='text-center'>
-                        Do you know <strike>The Owens Valley</strike> Payahuunadü?
+                        Do you know Payahuunadü?
                     </h3>
 
                     <p>
@@ -49,7 +49,7 @@ function About(props) {
 
                     <h4 className='text-center'><a href='/words/5eacb4f3dca21c60a0a90dde'>Kubishi</a> means brain in <a href='/words/5eacb4f7dca21c60a0a91b42'>nanüümüyadohana</a></h4>
                     <p>
-                        Kubishi's mission is to help preserve and protect Owens Valley Paiute history, language, and culture.
+                        Our mission is to help preserve and protect Owens Valley Paiute history, language, and culture.
                         This website is an online dictionary and encyclopedia dedicated to Payahuunadü and its first people.
                     </p>
                     <p>
