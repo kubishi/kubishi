@@ -23,7 +23,7 @@ class WordForm extends React.Component {
 
     submitWord() {
         let newWord = lodash.cloneDeep(lodash.pick(this.state, ['text', 'part_of_speech', 'definition', 'audio', 'image', 'words', 'notes']));
-        newWord.words = newWord.words.map(word => word._id);
+        newWord.words = (newWord.words || []).map(word => word._id);
         this.props.onSubmit(newWord);
     }
 
