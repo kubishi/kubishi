@@ -91,7 +91,6 @@ class SentenceWindow extends React.Component {
                             }
                         }}
                         style={{cursor: 'pointer'}}
-                        href={(token.word != null && token.word.text != null) ? `/words/${token.word._id}` : '#'}
                     >
                         {token.text}
                     </span>
@@ -100,7 +99,7 @@ class SentenceWindow extends React.Component {
                     tokenSpan = (
                         <OverlayTrigger
                             key={`overlay-token-paiute-${i}`}
-                            trigger='hover'
+                            trigger={['hover', 'focus']}
                             placement='bottom'
                             overlay={
                                 <Popover id={`popover-${lang}-${i}`} show={false}>
@@ -117,6 +116,7 @@ class SentenceWindow extends React.Component {
                             {tokenSpan}
                         </OverlayTrigger>
                     );
+                    return <a className='deco-none' href={`/words/${token.word._id}`}>{tokenSpan}</a>;
                 }
                 return tokenSpan;
             } else {

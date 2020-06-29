@@ -34,7 +34,7 @@ class WordForm extends React.Component {
     }
 
     addRelatedWord(word) {
-        let words = this.state.words.slice();
+        let words = (this.state.words || []).slice();
         if (!words.map(word => word._id).includes(word._id)) {
             words.push(word);
         }
@@ -42,7 +42,7 @@ class WordForm extends React.Component {
     }
 
     removeRelatedWord(word) {
-        let words = this.state.words.slice().filter(w => w._id != word._id);
+        let words = (this.state.words || []).slice().filter(w => w._id != word._id);
         this.setState({ words });
     }
 

@@ -33,6 +33,7 @@ function createWord(req, res) {
         part_of_speech: req.body.part_of_speech,
         words: req.body.words,
         sentences: req.body.sentences,
+        notes: req.body.notes,
     });
 
     word.save().then((result => {
