@@ -286,8 +286,8 @@ class App extends React.Component {
               </Route>
               <Route path="/search" 
                 component={(props) => {
-                  let { query } = qs.parse(props.location.search, { ignoreQueryPrefix: true });
-                  return <SearchWindow query={query} timestamp={Date.now()} filterSentences={!canEdit} />;
+                  let { query, defaultTab } = qs.parse(props.location.search, { ignoreQueryPrefix: true });
+                  return <SearchWindow query={query} timestamp={Date.now()} filterSentences={!canEdit} defaultTab={defaultTab} />;
                 }} 
               />
               <Route path="/">

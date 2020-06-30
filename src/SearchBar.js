@@ -5,7 +5,7 @@ import {
 } from 'react-bootstrap';
 
 
-export default function SearchBar({ query, autoFocus, showRandomButtons, className }) {
+export default function SearchBar({ query, autoFocus, showRandomButtons, className, defaultTab }) {
     const randomButtons = !showRandomButtons ? null : (
         <Row className="mt-1">
             <Col className='mb-1 pr-md-1' xs={12} md={4}>
@@ -20,11 +20,13 @@ export default function SearchBar({ query, autoFocus, showRandomButtons, classNa
         </Row> 
     )
 
+    const defaultTabInput = defaultTab ? <input type="hidden" name="defaultTab" value={defaultTab} /> : null;
     return (
         <Row className={className}>
             <Col>
                 <Form action='/search'>
                     <InputGroup>
+                        {defaultTabInput}
                         <FormControl
                             placeholder="Type in English or Paiute"
                             autoFocus={autoFocus}

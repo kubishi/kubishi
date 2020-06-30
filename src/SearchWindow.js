@@ -25,6 +25,8 @@ class SearchWindow extends React.Component {
             resultSentences: null,
             totalSentences: 0,
             pageSentences: 1,
+
+            selectedTab: this.props.defaultTab
         };
     }
 
@@ -123,7 +125,8 @@ class SearchWindow extends React.Component {
         let { 
             resultWords, resultSentences, resultArticles,
             pageWords, pageSentences, pageArticles,
-            totalWords, totalSentences, totalArticles
+            totalWords, totalSentences, totalArticles,
+            selectedTab
         } = this.state;
 
         let { resultsPerPage } = this.props;
@@ -153,7 +156,7 @@ class SearchWindow extends React.Component {
             contentArticles = <span className='text-center'>No matching articles</span>;
         }
         let articleCol= (
-            <Tab eventKey='Articles' title='Articles' disabled={totalArticles <= 0}>
+            <Tab eventKey='articles' title='Articles' disabled={totalArticles <= 0}>
                 {contentArticles}
                 {paginateArticles}
             </Tab>
@@ -184,7 +187,7 @@ class SearchWindow extends React.Component {
             contentWords= <span className='text-center'>No matching words</span>;
         }
         let wordsCol= (
-            <Tab eventKey='Words' title='Words' disabled={totalWords <= 0}>
+            <Tab eventKey='words' title='Words' disabled={totalWords <= 0}>
                 {contentWords}
                 {paginateWords}
             </Tab>
@@ -216,17 +219,20 @@ class SearchWindow extends React.Component {
         }
         
         let sentencesCol= (
-            <Tab eventKey='Sentences' title='Sentences' disabled={totalSentences <= 0}>
+            <Tab eventKey='sentences' title='Sentences' disabled={totalSentences <= 0}>
                 {contentSentences}
                 {paginateSentences}
             </Tab>
+        );
+        const defaultTab = selectedTab || (
+            this.props.defaultTab || (totalWords > 0 ? "words" : (totalSentences > 0 ? "sentences" : (totalArticles > 0 ? "articles" : "words")))
         );
 
         return (
             <Row>
                 <Col>
-                    <SearchBar showRandomButtons className="mt-2" query={this.props.query}/>
-                    <Tabs defaultActiveKey="Words">     
+                    <SearchBar showRandomButtons className="mt-2" query={this.props.query} defaultTab={selectedTab}/>
+                    <Tabs activeKey={defaultTab} onSelect={selectedTab => this.setState({ selectedTab })} >     
                         {wordsCol}
                         {sentencesCol}
                         {articleCol}
