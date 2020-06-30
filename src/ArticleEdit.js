@@ -53,9 +53,7 @@ class ArticleEdit extends React.Component {
             console.error('articles must havea title and content');
         }
 
-        let body = getUpdates(article, new_article);
-        if (!body) return; // no updates
-        api.put(`/api/articles/${article._id}`, body).then(res => {
+        api.put(`/api/articles/${article._id}`, new_article).then(res => {
             if (res.status == 200) {
                 this.popToast('Successfully updated article!');
                 this.getArticle();
@@ -88,6 +86,7 @@ class ArticleEdit extends React.Component {
             <ArticleForm
                 onSubmit={article => this.saveArticle(article)}
                 onDelete={() => this.deleteArticle()}
+                user={this.props.user}
                 submitText='Save'
                 article={article}
             />

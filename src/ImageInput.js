@@ -92,7 +92,7 @@ class ImageInput extends React.Component {
 
         return (
             <Form.Group controlId={`form-sentence-image-${this.props.key || "new"}`}>
-                <Form.Label>Image</Form.Label>
+                <Form.Label>{this.props.label || 'Image'}</Form.Label>
                 {imageSquare}                   
                 <InputGroup className="mb-3">
                     {prefix}

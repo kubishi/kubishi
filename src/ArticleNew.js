@@ -24,7 +24,7 @@ class ArticleNew extends React.Component {
     }
     
     render() {
-        return <ArticleForm onSubmit={article => this.addArticle(article)} />;
+        return <ArticleForm onSubmit={article => this.addArticle(article)} user={this.props.user} />;
     }
 };
 

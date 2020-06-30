@@ -59,6 +59,7 @@ function updateArticle(req, res) {
             res.json({success: true, result: article});
         }
     }).catch(err => {
+        console.log(err);
         res.status(500).json({success: false, result: err});
     });
 }

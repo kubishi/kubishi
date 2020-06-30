@@ -247,7 +247,7 @@ class App extends React.Component {
                 let { mode } = qs.parse(props.location.search, { ignoreQueryPrefix: true });
                 if (mode == "edit") {
                   if (canEdit) {
-                    return <ArticleEdit articleId={id} />
+                    return <ArticleEdit articleId={id} user={this.state.user} />
                   } else {
                     return history.push(`/article/${id}`);
                   }
@@ -270,7 +270,7 @@ class App extends React.Component {
                 return canEdit ? <WordNew /> : <Redirect path='/' />;
               }} />
               <Route path="/create/article" component={(props) => {
-                return canEdit ? <ArticleNew /> : <Redirect path='/' />;
+                return canEdit ? <ArticleNew user={this.state.user} /> : <Redirect path='/' />;
               }} />
               <Route path="/create/sentence" component={(props) => {
                 return canEdit ? <SentenceNew /> : <Redirect path='/' />;
