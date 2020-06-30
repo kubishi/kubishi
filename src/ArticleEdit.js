@@ -1,11 +1,9 @@
 import React from 'react';
 import { Spinner } from 'react-bootstrap';
-import 'react-quill/dist/quill.snow.css';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import api from './Api';
 import ArticleForm from './ArticleForm';
-import { getUpdates } from './helpers';
 import history from './history';
 
 class ArticleEdit extends React.Component {

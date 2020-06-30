@@ -1,5 +1,4 @@
 import React from 'react';
-import 'react-quill/dist/quill.snow.css';
 import api from './Api';
 import ArticleForm from './ArticleForm';
 import history from './history';
