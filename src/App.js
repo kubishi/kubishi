@@ -197,14 +197,14 @@ class App extends React.Component {
 
     let navbar = (
       <Navbar bg="light" expand="md">
-        <Navbar.Brand href="/">Kubishi</Navbar.Brand>
+        <Navbar.Brand key='nav-brand' href="/">Kubishi</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="mr-auto">
-            <Nav.Item>
+            <Nav.Item key='nav-about'>
               <Nav.Link href='/about'>About</Nav.Link>
             </Nav.Item>
-            <Nav.Item>
+            <Nav.Item key='nav-pronunciation'>
               <Nav.Link href='/pronunciation'>Pronunciation Guide</Nav.Link>
             </Nav.Item>
             {contributeButton}
@@ -216,9 +216,9 @@ class App extends React.Component {
 
     let socialSize = 35;
     let socialIcons = [
-      <SocialIcon url="https://facebook.com/kubishi" className="m-1" style={{ height: socialSize, width: socialSize }} />,
-      <SocialIcon url="https://instagram.com/ovkubishi" className="m-1" style={{ height: socialSize, width: socialSize }} />,
-      <SocialIcon url="https://twitter.com/ovkubishi" className="m-1" style={{ height: socialSize, width: socialSize }} />,
+      <SocialIcon key='social-facebook' url="https://facebook.com/kubishi" className="m-1" style={{ height: socialSize, width: socialSize }} />,
+      <SocialIcon key='social-instagram' url="https://instagram.com/ovkubishi" className="m-1" style={{ height: socialSize, width: socialSize }} />,
+      <SocialIcon key='social-twitter' url="https://twitter.com/ovkubishi" className="m-1" style={{ height: socialSize, width: socialSize }} />,
     ];
 
     return (
@@ -227,10 +227,10 @@ class App extends React.Component {
           {navbar}
           <Container style={{paddingBottom: '75px'}}>
             <Switch>
-              <Route path="/random/word" component={props => this.getRandom('words')} />
-              <Route path="/random/sentence" component={props => this.getRandom('sentences', !canEdit)} />
-              <Route path="/random/article" component={props => this.getRandom('articles')} />
-              <Route path="/words/:id" component={(props) => {
+              <Route key='route-random-word' path="/random/word" component={props => this.getRandom('words')} />
+              <Route key='route-random-sentence' path="/random/sentence" component={props => this.getRandom('sentences', !canEdit)} />
+              <Route key='route-random-article' path="/random/article" component={props => this.getRandom('articles')} />
+              <Route key='route-word' path="/words/:id" component={(props) => {
                 let { id } = useParams();
                 let { mode } = qs.parse(props.location.search, { ignoreQueryPrefix: true });
                 if (mode == "edit") {
@@ -242,7 +242,7 @@ class App extends React.Component {
                 }
                 return <WordWindow wordId={id} canEdit={canEdit}/>;
               }} />
-              <Route path="/articles/:id" component={(props) => {
+              <Route key='route-article' path="/articles/:id" component={(props) => {
                 let { id } = useParams();
                 let { mode } = qs.parse(props.location.search, { ignoreQueryPrefix: true });
                 if (mode == "edit") {
@@ -254,7 +254,7 @@ class App extends React.Component {
                 }
                 return <ArticleWindow canEdit={canEdit} articleId={id} getUser={() => this.state.user} />;
               }} />
-              <Route path="/sentences/:id" component={(props) => {
+              <Route key='route-sentence' path="/sentences/:id" component={(props) => {
                 let { id } = useParams();
                 let { mode } = qs.parse(props.location.search, { ignoreQueryPrefix: true });
                 if (mode == "edit") {
@@ -266,31 +266,31 @@ class App extends React.Component {
                 }
                 return <SentenceWindow canEdit={canEdit} sentenceId={id} getUser={() => this.state.user} />;
               }} />
-              <Route path="/create/word" component={(props) => {
+              <Route key='route-create-word' path="/create/word" component={(props) => {
                 return canEdit ? <WordNew /> : <Redirect path='/' />;
               }} />
-              <Route path="/create/article" component={(props) => {
+              <Route key='route-create-article' path="/create/article" component={(props) => {
                 return canEdit ? <ArticleNew user={this.state.user} /> : <Redirect path='/' />;
               }} />
-              <Route path="/create/sentence" component={(props) => {
+              <Route key='route-create-sentence' path="/create/sentence" component={(props) => {
                 return canEdit ? <SentenceNew /> : <Redirect path='/' />;
               }} />
-              <Route path="/privacy">
+              <Route key='route-privacy' path="/privacy">
                 <PrivacyPolicy />
               </Route>
-              <Route path="/about">
+              <Route key='route-about' path="/about">
                 <About />
               </Route>
-              <Route path="/pronunciation">
+              <Route key='route-pronunciation' path="/pronunciation">
                 <Pronunciation />
               </Route>
-              <Route path="/search" 
+              <Route key='route-search' path="/search" 
                 component={(props) => {
                   let { query, defaultTab } = qs.parse(props.location.search, { ignoreQueryPrefix: true });
                   return <SearchWindow query={query} timestamp={Date.now()} filterSentences={!canEdit} defaultTab={defaultTab} />;
                 }} 
               />
-              <Route path="/">
+              <Route key='route-home' path="/">
                 <Row style={{marginTop: "20vh"}}>
                   <Col>
                     <SearchBar showRandomButtons autoFocus />
@@ -299,10 +299,10 @@ class App extends React.Component {
               </Route>
             </Switch>
             <Navbar fixed="bottom" style={{opacity: "1", backgroundColor: "white"}} >
-              <Nav>
+              <Nav key='nav-privacy'>
                 <Nav.Link href="/privacy">Privacy Policy</Nav.Link>
               </Nav>
-              <Nav className='mr-auto'>
+              <Nav key='nav-contact' className='mr-auto'>
                 <Nav.Link href="mailto:help@kubishi.com">Contact</Nav.Link>
               </Nav>
               <Nav>

@@ -60,7 +60,6 @@ class ArticleWindow extends React.Component {
         let keywordsList;
         if (keywords.length > 0) {
             let keywordsListItems = keywords.map((keyword, i) => {
-                console.log(qs.stringify({query: keyword}))
                 return (
                     <a key={`keyword-${i}`} href={`/search?${qs.stringify({query: keyword})}`}>
                         {keyword}
@@ -69,11 +68,13 @@ class ArticleWindow extends React.Component {
             }).reduce((acc, x) => {
                 return acc === null ? x: <>{acc}, {x} </>;
             });
-            keywordsList = [
-                <h4 className='mt-2'>Keywords</h4>,
-                <hr style={{margin: "0px", padding: "0px", paddingBottom: "5px"}} />,
-                <p>{keywordsListItems}</p>,
-            ];
+            keywordsList = (
+                <>
+                    <h4 className='mt-2'>Keywords</h4>
+                    <hr style={{margin: "0px", padding: "0px", paddingBottom: "5px"}} />
+                    <p>{keywordsListItems}</p>
+                </>
+            );
         }
 
         let tagsList;
@@ -87,11 +88,13 @@ class ArticleWindow extends React.Component {
             }).reduce((acc, x) => {
                 return acc === null ? x: <>{acc}, {x} </>;
             })
-            tagsList = [
-                <h4 className='mt-2'>Tags</h4>,
-                <hr style={{margin: "0px", padding: "0px", paddingBottom: "5px"}} />,
-                <p>{tagsListItems}</p>,
-            ];
+            tagsList = (
+                <>
+                    <h4 className='mt-2'>Tags</h4>
+                    <hr style={{margin: "0px", padding: "0px", paddingBottom: "5px"}} />
+                    <p>{tagsListItems}</p>
+                </>
+            );
         }
         
         let quote = `Check out this article on Kubishi, "${title}"!`;
@@ -112,37 +115,39 @@ class ArticleWindow extends React.Component {
             );
         }
         
-        return [
-            <Row className='mt-2'>
-                <Col>
-                    <SearchBar showRandomButtons />
-                </Col>
-            </Row>,
-            <Row className='mt-2'>
-                <Col>
-                    <div className='d-block d-lg-none text-center'>
+        return (
+            <>
+                <Row className='mt-2'>
+                    <Col>
+                        <SearchBar showRandomButtons />
+                    </Col>
+                </Row>
+                <Row className='mt-2'>
+                    <Col>
+                        <div className='d-block d-lg-none text-center'>
+                            {editButton}
+                        </div>
+                        <h1>{title}</h1>
+                        <div className='d-block d-lg-none text-center'>
+                            {imageSquare}
+                        </div>
+                        {Parser(content)}
+                        <div className='d-block d-lg-none text-center'>
+                            {keywordsList}
+                            {tagsList}
+                            {shareButtons}
+                        </div>
+                    </Col>
+                    <Col className='d-none d-lg-block text-center' md={4}>
                         {editButton}
-                    </div>
-                    <h1>{title}</h1>
-                    <div className='d-block d-lg-none text-center'>
                         {imageSquare}
-                    </div>
-                    {Parser(content)}
-                    <div className='d-block d-lg-none text-center'>
                         {keywordsList}
                         {tagsList}
                         {shareButtons}
-                    </div>
-                </Col>
-                <Col className='d-none d-lg-block text-center' md={4}>
-                    {editButton}
-                    {imageSquare}
-                    {keywordsList}
-                    {tagsList}
-                    {shareButtons}
-                </Col>
-            </Row>
-        ];
+                    </Col>
+                </Row>
+            </>
+        );
     }
 };
 

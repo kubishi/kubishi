@@ -135,35 +135,37 @@ class WordWindow extends React.Component {
                 </Col>
             </Row>
         );
-        return [
-            <Row className="mt-2">
-                <Col>
-                    <SearchBar showRandomButtons />
-                </Col>
-            </Row>,
-            <Row>
-                <Col sm={12} md={4} className='md-border-right mt-2'>
-                    {editButton}
-                                        
-                    <h3>{word.text}</h3>
-                    <p><em>{(word.part_of_speech || 'UNKNOWN').toLowerCase().replace('_', ' ')}</em></p>
-                    <p>{word.definition}</p>
-                    {audioPlayer}
-                    
-                    {imageSquare}
+        return (
+            <>
+                <Row className="mt-2">
+                    <Col>
+                        <SearchBar showRandomButtons />
+                    </Col>
+                </Row>
+                <Row>
+                    <Col sm={12} md={4} className='md-border-right mt-2'>
+                        {editButton}
+                                            
+                        <h3>{word.text}</h3>
+                        <p><em>{(word.part_of_speech || 'UNKNOWN').toLowerCase().replace('_', ' ')}</em></p>
+                        <p>{word.definition}</p>
+                        {audioPlayer}
+                        
+                        {imageSquare}
 
-                    {notesArea}
-                    {relatedWordsList}
-                    
-                    {shareButtons}
-                </Col>
-                <Col sm={12} md={8} className='mt-2'>
-                    <h4 className='text-center'>Sentences</h4>
-                    <hr style={{margin: "0px", padding: "0px", paddingBottom: "5px"}} />
-                    <SentenceList results={sentences} />
-                </Col>
-            </Row>
-        ];
+                        {notesArea}
+                        {relatedWordsList}
+                        
+                        {shareButtons}
+                    </Col>
+                    <Col sm={12} md={8} className='mt-2'>
+                        <h4 className='text-center'>Sentences</h4>
+                        <hr style={{margin: "0px", padding: "0px", paddingBottom: "5px"}} />
+                        <SentenceList results={sentences} />
+                    </Col>
+                </Row>
+            </>
+        );
     }
 }
 
