@@ -1,5 +1,5 @@
 import React from 'react';
-import { ListGroup } from 'react-bootstrap';
+import { ListGroup, Col, Row } from 'react-bootstrap';
 import './SentenceList.css';
 
 
@@ -8,9 +8,26 @@ function SentenceList(props) {
 
     let listItems = results.map((sentence, i) => {
         let { paiute, english, audio } = sentence;
-        let audioPlayer;
-        if (audio != null && audio.data != null) {
-            audioPlayer = <audio src={audio.data} controls />;
+        let item = (
+            <>
+                <b>{paiute}</b>
+                <br />
+                {english}
+            </>
+        );
+        if (audio != null && audio.data != null) {   
+            item = (
+                <Row>
+                    <Col xs={12} lg={5} className="align-self-center">
+                        {item}
+                    </Col>
+                    <Col xs={12} lg={7}>
+                        <div style={{margin: '0 auto', display: 'table'}}>
+                            <audio src={audio.data} controls />
+                        </div>
+                    </Col>
+                </Row>
+            );
         }
         return (
             <ListGroup.Item 
@@ -19,11 +36,7 @@ function SentenceList(props) {
                 action
                 href={`/sentences/${sentence._id}`}
             >   
-                <b>{paiute}</b>
-                <br />
-                {english}
-                <br />
-                {audioPlayer}
+                {item}
             </ListGroup.Item>
         );
     });

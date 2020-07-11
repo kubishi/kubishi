@@ -158,7 +158,9 @@ class SentenceWindow extends React.Component {
             audioPlayer = (
                 <Row>
                     <Col>
-                        <audio src={sentence.audio.data} controls />
+                        <div style={{margin: '0 auto', display: 'table'}}>
+                            <audio src={sentence.audio.data} controls />
+                        </div>
                     </Col>
                 </Row>
             );
@@ -219,7 +221,9 @@ class SentenceWindow extends React.Component {
             <Row>
                 <Col xs={12} lg={8} className='mt-2'>
                     {this.getSentencePanel()}
-                    {audioPlayer}
+                    <div className='mt-2'>
+                        {audioPlayer}
+                    </div>
                 </Col>
                 <Col className='mt-2'>
                     <div className='d-none d-lg-block text-center'>

@@ -124,7 +124,11 @@ class WordWindow extends React.Component {
         
         let audioPlayer;
         if (word.audio != null && word.audio.data != null) {
-            audioPlayer = <audio src={word.audio.data} controls />;
+            audioPlayer = (
+                <div style={{margin: '0 auto', display: 'table'}}>
+                    <audio src={word.audio.data} controls />
+                </div>
+            );
         }
         
         let quote = `Check out this word in nanüümüyadohana!\n${word.text}: ${word.definition}`;
@@ -143,7 +147,7 @@ class WordWindow extends React.Component {
                     </Col>
                 </Row>
                 <Row>
-                    <Col sm={12} md={4} className='md-border-right mt-2'>
+                    <Col sm={12} lg={4} className='lg-border-right mt-2'>
                         {editButton}
                                             
                         <h3>{word.text}</h3>
@@ -158,7 +162,7 @@ class WordWindow extends React.Component {
                         
                         {shareButtons}
                     </Col>
-                    <Col sm={12} md={8} className='mt-2'>
+                    <Col sm={12} lg={8} className='mt-2'>
                         <h4 className='text-center'>Sentences</h4>
                         <hr style={{margin: "0px", padding: "0px", paddingBottom: "5px"}} />
                         <SentenceList results={sentences} />
