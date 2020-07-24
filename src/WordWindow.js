@@ -9,6 +9,9 @@ import SearchBar from './SearchBar';
 import SentenceList from './SentenceList';
 import ShareButtons from './ShareButtons';
 import WordList from './WordList';
+import { getTagLabel } from './helpers';
+import qs from 'query-string';
+
 
 class WordWindow extends React.Component {
     constructor(props) {
@@ -139,6 +142,28 @@ class WordWindow extends React.Component {
                 </Col>
             </Row>
         );
+        
+        
+        let tagsList;
+        if (word.tags != null && word.tags.length > 0) {
+            let tagsListItems = word.tags.map((tag, i) => {
+                return (
+                    <a key={`tag-${i}`} href={`/search?${qs.stringify({query: tag})}`}>
+                        {getTagLabel(tag)}
+                    </a>
+                );
+            }).reduce((acc, x) => {
+                return acc === null ? x: <>{acc}, {x} </>;
+            })
+            tagsList = (
+                <>
+                    <h4 className='mt-2'>Tags</h4>
+                    <hr style={{margin: "0px", padding: "0px", paddingBottom: "5px"}} />
+                    <p>{tagsListItems}</p>
+                </>
+            );
+        }
+
         return (
             <>
                 <Row className="mt-2">
@@ -160,6 +185,7 @@ class WordWindow extends React.Component {
                         {notesArea}
                         {relatedWordsList}
                         
+                        {tagsList}
                         {shareButtons}
                     </Col>
                     <Col sm={12} lg={8} className='mt-2'>

@@ -21,7 +21,7 @@ export function getUpdates(prevObj, obj) {
 }
 
 export function formatSentence(sentence) {
-    let fSentence = _.cloneDeep(_.pick(sentence, ['english', 'paiute', 'image', 'audio', 'notes', 'englishTokens', 'paiuteTokens', 'tokenMap']));
+    let fSentence = _.cloneDeep(_.pick(sentence, ['english', 'paiute', 'image', 'audio', 'tags', 'notes', 'englishTokens', 'paiuteTokens', 'tokenMap']));
     fSentence.paiuteTokens = fSentence.paiuteTokens.map(token => {
         if (token.word != null) token.word = token.word._id;
         return token;

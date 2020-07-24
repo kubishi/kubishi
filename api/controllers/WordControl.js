@@ -5,9 +5,9 @@ const lodash = require('lodash');
 const helpers = require('../helpers');
 
 
-const allFields = ['text', 'image', 'audio', 'definition', 'part_of_speech', 'notes', 'words'];
+const allFields = ['text', 'image', 'audio', 'definition', 'part_of_speech', 'notes', 'words', 'tags'];
 const requiredFields = ['text', 'definition', 'part_of_speech'];
-const defaultSearchFields = ['text', 'definition'];
+const defaultSearchFields = ['text', 'definition', 'tags'];
 
 /** 
  * Adds a word to the database.
@@ -34,6 +34,7 @@ function createWord(req, res) {
         words: req.body.words,
         sentences: req.body.sentences,
         notes: req.body.notes,
+        tags: req.body.tags,
     });
 
     word.save().then((result => {

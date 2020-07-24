@@ -4,9 +4,9 @@ const lodash = require('lodash');
 const helpers = require('../helpers');
 
 
-const allFields = ['english', 'paiute', 'image', 'audio', 'notes', 'paiuteTokens', 'englishTokens', 'tokenMap'];
+const allFields = ['english', 'paiute', 'image', 'audio', 'notes', 'paiuteTokens', 'englishTokens', 'tokenMap', 'tags'];
 const requiredFields = ['english', 'paiute'];
-const defaultSearchFields = ['english', 'paiute'];
+const defaultSearchFields = ['english', 'paiute', 'tags'];
 
 const ObjectId = require('mongoose').Types.ObjectId;
 

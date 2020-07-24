@@ -4,9 +4,10 @@ import React from 'react';
 import { Button, Col, Image, OverlayTrigger, Popover, Row, Spinner } from 'react-bootstrap';
 import api from './Api';
 import './common.css';
-import { getdefault, getPosLabel, setdefault } from './helpers';
+import { getdefault, getPosLabel, setdefault, getTagLabel } from './helpers';
 import SearchBar from './SearchBar';
 import ShareButtons from './ShareButtons';
+import qs from 'query-string';
 
 
 class SentenceWindow extends React.Component {
@@ -206,6 +207,26 @@ class SentenceWindow extends React.Component {
                 <ShareButtons title={sentence.paiute} quote={quote} url={`https://kubishi.com/sentences/${sentence._id}`} />
             </Col>
         );
+        
+        let tagsList;
+        if (sentence.tags != null && sentence.tags.length > 0) {
+            let tagsListItems = sentence.tags.map((tag, i) => {
+                return (
+                    <a key={`tag-${i}`} href={`/search?${qs.stringify({query: tag})}`}>
+                        {getTagLabel(tag)}
+                    </a>
+                );
+            }).reduce((acc, x) => {
+                return acc === null ? x: <>{acc}, {x} </>;
+            })
+            tagsList = (
+                <>
+                    <h4 className='mt-2'>Tags</h4>
+                    <hr style={{margin: "0px", padding: "0px", paddingBottom: "5px"}} />
+                    <p>{tagsListItems}</p>
+                </>
+            );
+        }
 
         return <>
             <Row className="mt-2">
@@ -231,6 +252,7 @@ class SentenceWindow extends React.Component {
                     </div>
                     {imageSquare}
                     {notesSquare}
+                    {tagsList}
                     {shareButtons}
                 </Col>
             </Row>

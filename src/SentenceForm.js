@@ -7,8 +7,9 @@ import { Button, Col, Form, Row } from 'react-bootstrap';
 import Select from 'react-select';
 import api from './Api';
 import AudioInput from './AudioInput';
-import { getPosLabel, getUpdates, formatSentence } from './helpers';
+import { getPosLabel, getUpdates, getTagLabel } from './helpers';
 import ImageInput from './ImageInput';
+import ReactTagInput from "@pathofdev/react-tag-input";
 
 
 let REGEX = /([0-9a-zA-Zw̃W̃üÜ']+)([^0-9a-zA-Zw̃W̃üÜ']+)?/g;
@@ -37,7 +38,7 @@ class SentenceForm extends React.Component {
     }
     
     hasChanged() {
-        let newSentence = lodash.cloneDeep(lodash.pick(this.state, ['english', 'paiute', 'image', 'audio', 'notes', 'paiuteTokens', 'englishTokens']));
+        let newSentence = lodash.cloneDeep(lodash.pick(this.state, ['english', 'paiute', 'image', 'audio', 'tags', 'notes', 'paiuteTokens', 'englishTokens']));
         return Object.keys(getUpdates(this.props.sentence || {}, newSentence)).length > 0;
     }
 
@@ -97,7 +98,7 @@ class SentenceForm extends React.Component {
                     query: query, 
                     mode: 'fuzzy',
                     fields: ['text', 'part_of_speech', 'definition'],
-                    searchFields: ['text', 'definition']
+                    searchFields: ['text', 'definition', 'tags']
                 }
             }
         ).then(res => {
@@ -157,6 +158,7 @@ class SentenceForm extends React.Component {
             paiuteTokens,
             englishTokens,
             selectedButton,
+            tags,
         } = this.state;
 
         let sentence = this.props.sentence || {};
@@ -258,6 +260,15 @@ class SentenceForm extends React.Component {
                 </Col>
                 <Col>
                     <Form>
+                        <Form.Group>
+                            <Form.Label>Tags</Form.Label>
+                            <ReactTagInput 
+                                tags={(tags || []).map(tag => getTagLabel(tag))} 
+                                placeholder="Type and press enter"
+                                onChange={newTags => this.setState({tags: newTags.map(tag => `tag:${tag}`)})}
+                            />
+                        </Form.Group>
+
                         <Form.Group>
                             <Form.Label>Notes</Form.Label>
                             <Form.Control

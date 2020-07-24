@@ -22,7 +22,8 @@ const SentenceSchema = new mongoose.Schema({
         token_type: String,
         text: String,
         word: {type: mongoose.Types.ObjectId, ref: 'word'}
-    }]
+    }],
+    tags: [String],
 });
 
 module.exports = mongoose.model('sentence', SentenceSchema);

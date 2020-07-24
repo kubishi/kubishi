@@ -8,9 +8,10 @@ import Select from 'react-select';
 import api from './Api';
 import AudioInput from './AudioInput';
 import './common.css';
-import { getPosLabel, getUpdates } from './helpers';
+import { getPosLabel, getUpdates, getTagLabel } from './helpers';
 import ImageInput from './ImageInput';
 import PartOfSpeech from './PartOfSpeech';
+import ReactTagInput from "@pathofdev/react-tag-input";
 
 
 class WordForm extends React.Component {
@@ -22,7 +23,7 @@ class WordForm extends React.Component {
     }
 
     submitWord() {
-        let newWord = lodash.cloneDeep(lodash.pick(this.state, ['text', 'part_of_speech', 'definition', 'audio', 'image', 'words', 'notes']));
+        let newWord = lodash.cloneDeep(lodash.pick(this.state, ['text', 'part_of_speech', 'definition', 'audio', 'image', 'words', 'notes', 'tags']));
         newWord.words = (newWord.words || []).map(word => word._id);
         this.props.onSubmit(newWord);
     }
@@ -85,7 +86,7 @@ class WordForm extends React.Component {
 
     render() {
         let { submitText, deleteText, onDelete, word } = this.props;
-        let { text, part_of_speech, definition, audio, image, words, notes } = this.state;
+        let { text, part_of_speech, definition, audio, image, words, notes, tags } = this.state;
 
         let part_of_speech_option = 'unknown';
         if (part_of_speech != null) {
@@ -192,10 +193,26 @@ class WordForm extends React.Component {
                         </Form.Group>
                     </Col>
                     <Col xs={12} md={6}>
-                        <ImageInput 
-                            image={image}
-                            onSave={image => this.setState({image})}
-                        />
+                        <Row>
+                            <Col>
+                                <Form.Group>
+                                    <Form.Label>Tags</Form.Label>
+                                    <ReactTagInput 
+                                        tags={(tags || []).map(tag => getTagLabel(tag))} 
+                                        placeholder="Type and press enter"
+                                        onChange={newTags => this.setState({tags: newTags.map(tag => `tag:${tag}`)})}
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col>
+                                <ImageInput 
+                                    image={image}
+                                    onSave={image => this.setState({image})}
+                                />
+                            </Col>
+                        </Row>
                     </Col>
                 </Form.Row>
                 
