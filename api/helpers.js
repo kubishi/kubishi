@@ -42,7 +42,7 @@ function parseSignedRequest(signedRequest) {
  * 
  * @returns {[Object]}
  */
-function getSearchPipeline(query, mode, field, limit, offset, project, match = null) {
+function getSearchPipeline(query, mode, field, limit, offset, project, match = null, count_pos = false) {
     let pipeline = [];
 
     if (mode == "text") {
@@ -100,7 +100,6 @@ function getSearchPipeline(query, mode, field, limit, offset, project, match = n
         pipeline.push({$match: match});
     }
 
-    pipeline.push({$project: project});
     if (project['sentences']) {
         pipeline.push(
             {
@@ -127,22 +126,60 @@ function getSearchPipeline(query, mode, field, limit, offset, project, match = n
         );
     }
 
+    let facet = {};
+    facet.result = [
+        { $skip: offset },
+        { $limit: limit },
+        {$project: project}
+    ];
+    facet.total = [{ $count: 'count' }];
+    facet.tags = [
+        {
+            $project: {
+                tags: 1
+            }
+        }, 
+        {
+            $unwind: {
+                path: '$tags'
+            }
+        },
+        {
+            $group: {
+                _id: '$tags',
+                count: {$sum: 1}
+            }
+        }
+    ];
+
+    if (count_pos) {
+        facet.pos = [
+            {
+                $project: {
+                    part_of_speech: {$toUpper: '$part_of_speech'}
+                }
+            }, 
+            {
+                $group: {
+                    _id: '$part_of_speech',
+                    count: {$sum: 1}
+                }
+            }
+        ];
+    }
+
     // Get total and limit
     pipeline = pipeline.concat([
         {
-            $facet: {
-                result: [
-                    { $skip: offset },
-                    { $limit: limit },
-                ],
-                total: [{ $count: 'count' }]
-            }
+            $facet: facet
         },
         {$unwind: {path: '$total'}},
         {
             $project: {
                 result: 1,
-                total: '$total.count'
+                total: '$total.count',
+                tags: '$tags',
+                pos: count_pos ? '$pos' : undefined
             }
         }
     ]);

@@ -7,7 +7,7 @@ const helpers = require('../helpers');
 
 const allFields = ['text', 'image', 'audio', 'definition', 'part_of_speech', 'notes', 'words', 'tags'];
 const requiredFields = ['text', 'definition', 'part_of_speech'];
-const defaultSearchFields = ['text', 'definition', 'tags'];
+const defaultSearchFields = ['text', 'definition'];
 
 /** 
  * Adds a word to the database.
@@ -244,13 +244,34 @@ function search(req, res) {
     let fields = req.query.fields || allFields;
     let project = {};
     fields.forEach(field => project[field] = 1);
-    let pipeline = helpers.getSearchPipeline(req.query.query, mode, searchFields, limit, offset, project);
+    let pipeline = helpers.getSearchPipeline(
+        req.query.query, 
+        mode, 
+        searchFields, 
+        limit, 
+        offset, 
+        project,
+        null,
+        true
+    );
 
     WordModel.aggregate(pipeline).then(result => {
         if (!result || result.length <= 0) {
-            return res.json({success: true, result: [], total: 0});
+            return res.json({
+                success: true, 
+                result: [], 
+                tags: {},
+                pos: {},
+                total: 0
+            });
         } else {
-            return res.json({success: true, result: result[0].result, total: result[0].total});
+            return res.json({
+                success: true, 
+                result: result[0].result, 
+                total: result[0].total,
+                tags: result[0].tags,
+                pos: result[0].pos
+            });
         }
     }).catch(result => {
         return res.status(500).json({success: false, result: result});

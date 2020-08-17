@@ -17,6 +17,8 @@ class SearchWindow extends React.Component {
             resultWords: null,
             totalWords: 0,
             pageWords: 1,
+            tagsWords: {},
+            posWords: {},
 
             resultArticles: null,
             totalArticles: 0,
@@ -46,11 +48,19 @@ class SearchWindow extends React.Component {
         ).then(res => {
             if (res.status != 200 || !res.data.success) {
                 console.log(res.status, res.data);
-                this.setState({resultWords: [], totalWords: 0});
+                this.setState({resultWords: [], totalWords: 0, tagsWords: {}, posWords: {}});
             } else if (res.data.result.length <= 0) {;
-                this.setState({resultWords: [], totalWords: 0});
+                this.setState({resultWords: [], totalWords: 0, tagsWords: {}, posWords: {}});
             } else {
-                this.setState({resultWords: res.data.result, totalWords: res.data.total, pageWords: pageWords || 1});
+                console.log(res.data);
+                this.setState({
+                    resultWords: res.data.result, 
+                    totalWords: res.data.total, 
+                    pageWords: pageWords || 1,
+                    tagsWords: res.data.tags, 
+                    posWords: res.data.pos
+                }, () => console.log(this.state.tagsWords));
+
             }
         }).catch(err => console.error(err));
     }
