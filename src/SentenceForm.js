@@ -7,9 +7,9 @@ import { Button, Col, Form, Row } from 'react-bootstrap';
 import Select from 'react-select';
 import api from './Api';
 import AudioInput from './AudioInput';
-import { getPosLabel, getUpdates, getTagLabel } from './helpers';
 import ImageInput from './ImageInput';
 import ReactTagInput from "@pathofdev/react-tag-input";
+import { getUpdates } from './helpers';
 
 
 let REGEX = /([0-9a-zA-Zw̃W̃üÜ']+)([^0-9a-zA-Zw̃W̃üÜ']+)?/g;
@@ -78,13 +78,13 @@ class SentenceForm extends React.Component {
 
     getWordLabel(word) { 
         if (word == null) return '';
-        return `${word.text} (${getPosLabel(word.part_of_speech)}): ${word.definition}`;
+        return `${word.text} (${word.part_of_speech}): ${word.definition}`;
     }
 
     getWordOption(word) { 
         if (word == null) return null;
         return {
-            label: `${word.text} (${getPosLabel(word.part_of_speech)}): ${word.definition}`,
+            label: `${word.text} (${word.part_of_speech}): ${word.definition}`,
             value: word
         };
     }
@@ -263,9 +263,9 @@ class SentenceForm extends React.Component {
                         <Form.Group>
                             <Form.Label>Tags</Form.Label>
                             <ReactTagInput 
-                                tags={(tags || []).map(tag => getTagLabel(tag))} 
+                                tags={(tags || [])} 
                                 placeholder="Type and press enter"
-                                onChange={newTags => this.setState({tags: newTags.map(tag => `tag:${tag}`)})}
+                                onChange={newTags => this.setState({tags: newTags})}
                             />
                         </Form.Group>
 

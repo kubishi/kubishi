@@ -37,6 +37,9 @@ const WordControl = require('./api/controllers/WordControl');
 const SentenceControl = require('./api/controllers/SentenceControl');
 const UserControl = require('./api/controllers/UserControl');
 const ArticleControl = require('./api/controllers/ArticleControl');
+const WordModel = require('./api/models/WordModel');
+const SentenceModel = require('./api/models/SentenceModel');
+const ArticleModel = require('./api/models/ArticleModel');
 
 /**
  * 
@@ -138,6 +141,32 @@ app.get('/api/search/words', WordControl.search);
 app.get('/api/search/sentences', SentenceControl.search);
 app.get('/api/search/articles', ArticleControl.search);
 
+// tags
+app.get('/api/tags/words', WordControl.retrieveTags);
+app.get('/api/tags/articles', ArticleControl.retrieveTags);
+app.get('/api/tags/sentences', SentenceControl.retrieveTags);
+app.get('/api/tags', (req, res) => {
+    Promise.all([
+        WordModel.aggregate(helpers.tagsPipeline),
+        SentenceModel.aggregate(helpers.tagsPipeline),
+        ArticleModel.aggregate(helpers.tagsPipeline)
+    ]).then(results => {
+        return res.status(200).json({
+            success: true,
+            result: [
+                ...new Set([].concat(
+                    ...results.map(result => result.length > 0 ? result[0].tags: [])
+                ))
+            ]
+        });
+    }).catch(err => {
+        console.error(err);
+        res.json({success: false, result: err});
+    })
+});
+
+// pos
+app.get('/api/pos', WordControl.retrievePartsOfSpeech);
 
 // crud - users
 app.post('/api/users', ensureAuthenticated, (req, res) => {

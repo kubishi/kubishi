@@ -6,7 +6,7 @@ const helpers = require('../helpers');
 
 const allFields = ['title', 'image', 'tags', 'keywords', 'content'];
 const requiredFields = ['title', 'content'];
-const defaultSearchFields = ['title', 'tags', 'content'];
+const defaultSearchFields = ['title', 'content'];
 
 /** 
  * Adds an article to the database.
@@ -144,7 +144,22 @@ function search(req, res) {
     let fields = req.query.fields || allFields;
     let project = {};
     fields.forEach(field => project[field] = 1);
-    let pipeline = helpers.getSearchPipeline(req.query.query, mode, searchFields, limit, offset, project);
+    
+    let match = JSON.parse(req.query.match || null);
+    if (req.query.tags) {
+        match = match || {};
+        match.tags = {'$in': req.query.tags};
+    }
+
+    let pipeline = helpers.getSearchPipeline(
+        req.query.query, 
+        mode, 
+        searchFields, 
+        limit, 
+        offset, 
+        project, 
+        match
+    );
 
     
     ArticleModel.aggregate(pipeline).then(result => {
@@ -158,6 +173,23 @@ function search(req, res) {
     });
 }
 
+/** 
+ * Get tags
+ * @param {express.Request} req
+ * @param {express.Response} res
+ */
+function getTags(req, res) {
+    ArticleModel.aggregate(helpers.tagsPipeline).then(result => {
+        if (result.length < 1) {
+            return res.status(500).json({success: false, result: result});
+        }
+        return res.status(200).json({success: true, result: result[0].tags});
+    }).catch(err => {
+        console.error(err);
+        return res.status(500).json({success: false, result: err});
+    })
+}
+
 module.exports = {
     create: createArticle,
     update: updateArticle,
@@ -165,4 +197,5 @@ module.exports = {
     delete: deleteArticle,
     search: search,
     random: getRandomArticle,
+    retrieveTags: getTags
 };

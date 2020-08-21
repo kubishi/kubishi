@@ -1,6 +1,5 @@
 import React from 'react';
 import { ListGroup } from 'react-bootstrap';
-import { getTagLabel } from './helpers';
 
 function WordList(props) {
     let { results } = props;
@@ -15,7 +14,7 @@ function WordList(props) {
             >
                 <b>{title}</b>
                 <br />
-                {tags.map(tag => getTagLabel(tag)).join(", ")}
+                {tags.join(", ")}
             </ListGroup.Item>
         );
     });

@@ -8,7 +8,7 @@ import Select from 'react-select';
 import api from './Api';
 import AudioInput from './AudioInput';
 import './common.css';
-import { getPosLabel, getUpdates, getTagLabel } from './helpers';
+import { getUpdates } from './helpers';
 import ImageInput from './ImageInput';
 import PartOfSpeech from './PartOfSpeech';
 import ReactTagInput from "@pathofdev/react-tag-input";
@@ -74,7 +74,7 @@ class WordForm extends React.Component {
     getWordOption(word) { 
         if (word == null) return null;
         return {
-            label: `${word.text} (${getPosLabel(word.part_of_speech)}): ${word.definition}`,
+            label: `${word.text} (${word.part_of_speech}): ${word.definition}`,
             value: word
         };
     }
@@ -88,14 +88,10 @@ class WordForm extends React.Component {
         let { submitText, deleteText, onDelete, word } = this.props;
         let { text, part_of_speech, definition, audio, image, words, notes, tags } = this.state;
 
-        let part_of_speech_option = 'unknown';
-        if (part_of_speech != null) {
-            part_of_speech_option = part_of_speech.toLowerCase().replace('_', ' ');
-        }
+        let part_of_speech_option = part_of_speech || 'unknown';
         let posOptions = PartOfSpeech.map((part_of_speech, i) => {
-            let pos = part_of_speech.toLowerCase().replace('_', ' ');
             return (
-                <option key={'option-pos-' + i}>{pos}</option>
+                <option key={'option-pos-' + i}>{part_of_speech}</option>
             );
         });
         
@@ -152,7 +148,7 @@ class WordForm extends React.Component {
                     <Button className='mr-2' variant='outline-danger' onClick={e => this.removeRelatedWord(rWord)} >
                         <FontAwesomeIcon icon={faTrash} />
                     </Button>
-                    {rWord.text} <em>({rWord.part_of_speech.toLowerCase().replace('_', ' ')})</em>
+                    {rWord.text} <em>({rWord.part_of_speech})</em>
                 </ListGroup.Item>
             );
         });
@@ -198,9 +194,9 @@ class WordForm extends React.Component {
                                 <Form.Group>
                                     <Form.Label>Tags</Form.Label>
                                     <ReactTagInput 
-                                        tags={(tags || []).map(tag => getTagLabel(tag))} 
+                                        tags={(tags || [])} 
                                         placeholder="Type and press enter"
-                                        onChange={newTags => this.setState({tags: newTags.map(tag => `tag:${tag}`)})}
+                                        onChange={newTags => this.setState({tags: newTags})}
                                     />
                                 </Form.Group>
                             </Col>

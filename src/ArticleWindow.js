@@ -6,7 +6,6 @@ import qs from 'query-string';
 import React from 'react';
 import { Button, Col, Image, Row, Spinner } from 'react-bootstrap';
 import api from './Api';
-import { getTagLabel } from './helpers';
 import SearchBar from './SearchBar';
 import ShareButtons from './ShareButtons';
 
@@ -61,7 +60,7 @@ class ArticleWindow extends React.Component {
         if (keywords.length > 0) {
             let keywordsListItems = keywords.map((keyword, i) => {
                 return (
-                    <a key={`keyword-${i}`} href={`/search?${qs.stringify({query: keyword})}`}>
+                    <a key={`keyword-${i}`} href={`/search?${qs.stringify({tags: keyword})}`}>
                         {keyword}
                     </a>
                 );
@@ -81,8 +80,8 @@ class ArticleWindow extends React.Component {
         if (tags.length > 0) {
             let tagsListItems = tags.map((tag, i) => {
                 return (
-                    <a key={`tag-${i}`} href={`/search?${qs.stringify({query: tag})}`}>
-                        {getTagLabel(tag)}
+                    <a key={`tag-${i}`} href={`/search?${qs.stringify({tags: tag})}`}>
+                        {tag}
                     </a>
                 );
             }).reduce((acc, x) => {

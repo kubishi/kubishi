@@ -33,8 +33,13 @@ class SearchWindow extends React.Component {
     }
 
     searchWords(pageWords=null) {
-        let { query, resultsPerPage } = this.props;
-
+        let { query, resultsPerPage, tags, pos } = this.props;
+        if (tags) {
+            tags = Array.isArray(tags) ? tags : [tags];
+        }
+        if (pos) {
+            pos = Array.isArray(pos) ? pos : [pos];
+        }
         api.get('/api/search/words', 
             {
                 params: { 
@@ -43,6 +48,8 @@ class SearchWindow extends React.Component {
                     fields: ['text', 'definition', 'part_of_speech'],
                     offset: ((pageWords || 1) - 1) * resultsPerPage,
                     limit: resultsPerPage,
+                    tags: tags,
+                    pos: pos
                 },
             }
         ).then(res => {
@@ -66,8 +73,11 @@ class SearchWindow extends React.Component {
     }
     
     searchSentences(pageSentences=null) {
-        let { query, resultsPerPage } = this.props;
+        let { query, resultsPerPage, tags } = this.props;
         let filterSentences = this.props.filterSentences || false;
+        if (tags) {
+            tags = Array.isArray(tags) ? tags : [tags];
+        }
 
         api.get('/api/search/sentences', 
             {
@@ -78,6 +88,7 @@ class SearchWindow extends React.Component {
                     offset: ((pageSentences || 1) - 1) * resultsPerPage,
                     limit: resultsPerPage,
                     match: filterSentences ? JSON.stringify({paiuteTokens: {$exists: true}}) : null,
+                    tags: tags
                 },
             }
         ).then(res => {
@@ -93,17 +104,20 @@ class SearchWindow extends React.Component {
     }
 
     searchArticles(pageArticles) {
-        let { query, resultsPerPage } = this.props;
-
+        let { query, resultsPerPage, tags } = this.props;
+        if (tags) {
+            tags = Array.isArray(tags) ? tags : [tags];
+        }
         api.get('/api/search/articles', 
             {
                 params: { 
                     query: query, 
                     mode: 'fuzzy', 
-                    searchFields: ["title", "keywords", "tags"],
+                    searchFields: ["title", "keywords"],
                     fields: ["title", "tags"],
                     offset: ((pageArticles || 1) - 1) * resultsPerPage,
                     limit: resultsPerPage,
+                    tags: tags
                 },
             }
         ).then(res => {
@@ -138,6 +152,7 @@ class SearchWindow extends React.Component {
             totalWords, totalSentences, totalArticles,
             selectedTab
         } = this.state;
+        const { tags, pos } = this.props;
 
         let { resultsPerPage } = this.props;
 
@@ -241,7 +256,14 @@ class SearchWindow extends React.Component {
         return (
             <Row>
                 <Col>
-                    <SearchBar showRandomButtons className="mt-2" query={this.props.query} defaultTab={selectedTab}/>
+                    <SearchBar 
+                        showRandomButtons 
+                        className="mt-1 mb-2" 
+                        query={this.props.query} 
+                        defaultTab={selectedTab}
+                        tags={tags}
+                        pos={pos}
+                    />
                     <Tabs activeKey={defaultTab} onSelect={selectedTab => this.setState({ selectedTab })} >     
                         {wordsCol}
                         {sentencesCol}

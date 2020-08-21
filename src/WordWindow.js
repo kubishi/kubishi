@@ -9,7 +9,6 @@ import SearchBar from './SearchBar';
 import SentenceList from './SentenceList';
 import ShareButtons from './ShareButtons';
 import WordList from './WordList';
-import { getTagLabel } from './helpers';
 import qs from 'query-string';
 
 
@@ -148,8 +147,8 @@ class WordWindow extends React.Component {
         if (word.tags != null && word.tags.length > 0) {
             let tagsListItems = word.tags.map((tag, i) => {
                 return (
-                    <a key={`tag-${i}`} href={`/search?${qs.stringify({query: tag})}`}>
-                        {getTagLabel(tag)}
+                    <a key={`tag-${i}`} href={`/search?${qs.stringify({tags: tag})}`}>
+                        {tag}
                     </a>
                 );
             }).reduce((acc, x) => {
@@ -176,7 +175,7 @@ class WordWindow extends React.Component {
                         {editButton}
                                             
                         <h3>{word.text}</h3>
-                        <p><em>{(word.part_of_speech || 'UNKNOWN').toLowerCase().replace('_', ' ')}</em></p>
+                        <p><em>{word.part_of_speech || 'unknown'}</em></p>
                         <p>{word.definition}</p>
                         {audioPlayer}
                         

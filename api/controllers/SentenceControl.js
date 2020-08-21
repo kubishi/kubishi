@@ -6,7 +6,7 @@ const helpers = require('../helpers');
 
 const allFields = ['english', 'paiute', 'image', 'audio', 'notes', 'paiuteTokens', 'englishTokens', 'tokenMap', 'tags'];
 const requiredFields = ['english', 'paiute'];
-const defaultSearchFields = ['english', 'paiute', 'tags'];
+const defaultSearchFields = ['english', 'paiute'];
 
 const ObjectId = require('mongoose').Types.ObjectId;
 
@@ -132,8 +132,20 @@ function search(req, res) {
     let fields = req.query.fields || allFields;
     let project = {};
     fields.forEach(field => project[field] = 1);
-    let match = req.query.match ? JSON.parse(req.query.match) : null;
-    let pipeline = helpers.getSearchPipeline(req.query.query, mode, searchFields, limit, offset, project, match);
+    let match = JSON.parse(req.query.match || null);
+    if (req.query.tags) {
+        match = match || {};
+        match.tags = {'$in': req.query.tags};
+    }
+    let pipeline = helpers.getSearchPipeline(
+        req.query.query, 
+        mode, 
+        searchFields, 
+        limit, 
+        offset, 
+        project, 
+        match
+    );
     
     SentenceModel.aggregate(pipeline).then(result => {
         if (!result || result.length <= 0) {
@@ -194,6 +206,23 @@ function retrieveContainsWord(req, res) {
     });
 }
 
+/** 
+ * Get tags
+ * @param {express.Request} req
+ * @param {express.Response} res
+ */
+function getTags(req, res) {
+    SentenceModel.aggregate(helpers.tagsPipeline).then(result => {
+        if (result.length < 1) {
+            return res.status(500).json({success: false, result: result});
+        }
+        return res.status(200).json({success: true, result: result[0].tags});
+    }).catch(err => {
+        console.error(err);
+        return res.status(500).json({success: false, result: err});
+    })
+}
+
 module.exports = {
     create: createSentence,
     update: updateSentence,
@@ -202,4 +231,5 @@ module.exports = {
     search: search,
     random: getRandomSentence,
     retrieveContainsWord: retrieveContainsWord,
+    retrieveTags: getTags
 };

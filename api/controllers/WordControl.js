@@ -244,14 +244,26 @@ function search(req, res) {
     let fields = req.query.fields || allFields;
     let project = {};
     fields.forEach(field => project[field] = 1);
+
+    let match = JSON.parse(req.query.match || null);
+    if (req.query.tags) {
+        match = match || {};
+        match.tags = {'$in': req.query.tags};
+    }
+
+    if (req.query.pos) {
+        match = match || {};
+        match.part_of_speech = {'$in': req.query.pos};
+    }
+
     let pipeline = helpers.getSearchPipeline(
-        req.query.query, 
+        req.query.query || null, 
         mode, 
         searchFields, 
         limit, 
         offset, 
         project,
-        null,
+        match,
         true
     );
 
@@ -278,6 +290,60 @@ function search(req, res) {
     });
 }
 
+/** 
+ * Get tags
+ * @param {express.Request} req
+ * @param {express.Response} res
+ */
+function getTags(req, res) {
+    WordModel.aggregate(helpers.tagsPipeline).then(result => {
+        if (result.length < 1) {
+            return res.status(500).json({success: false, result: result});
+        }
+        return res.status(200).json({success: true, result: result[0].tags});
+    }).catch(err => {
+        console.error(err);
+        return res.status(500).json({success: false, result: err});
+    })
+}
+
+/** 
+ * Get pos
+ * @param {express.Request} req
+ * @param {express.Response} res
+ */
+function getPos(req, res) {
+    const pipeline = [
+        {
+            '$match': {
+                'part_of_speech': {'$exists': true}
+            }
+        },
+        {
+            '$match': {
+                'part_of_speech': {'$ne': null}
+            }
+        },
+        {
+            '$group': {
+                '_id': null, 
+                'pos': {
+                    '$addToSet': '$part_of_speech'
+                }
+            }
+        }
+    ];
+    WordModel.aggregate(pipeline).then(result => {
+        if (result.length < 1) {
+            return res.status(500).json({success: false, result: result});
+        }
+        return res.status(200).json({success: true, result: result[0].pos});
+    }).catch(err => {
+        console.error(err);
+        return res.status(500).json({success: false, result: err});
+    })
+}
+
 module.exports = {
     create: createWord,
     update: updateWord,
@@ -289,4 +355,6 @@ module.exports = {
     addRelatedWord: addRelatedWord,
     deleteRelatedWord: deleteRelatedWord,
     random: getRandomWord,
+    retrieveTags: getTags,
+    retrievePartsOfSpeech: getPos
 };

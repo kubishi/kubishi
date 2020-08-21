@@ -45,55 +45,57 @@ function parseSignedRequest(signedRequest) {
 function getSearchPipeline(query, mode, field, limit, offset, project, match = null, count_pos = false) {
     let pipeline = [];
 
-    if (mode == "text") {
-        pipeline.push({
-            $search: {$text: query, $language: "none" }
-        });
-        pipeline.push({
-            $sort: { score: { $meta: "textScore" } } 
-        });
-    } else if (mode == "words") {
-        pipeline.push({
-            $search: {
-                regex: {
-                    query: query, 
-                    path: field,
-                    allowAnalyzedField: true
+    if (query) {
+        if (mode == "text") {
+            pipeline.push({
+                $search: {$text: query, $language: "none" }
+            });
+            pipeline.push({
+                $sort: { score: { $meta: "textScore" } } 
+            });
+        } else if (mode == "words") {
+            pipeline.push({
+                $search: {
+                    regex: {
+                        query: query, 
+                        path: field,
+                        allowAnalyzedField: true
+                    }
                 }
-            }
-        });
-    } else if (mode == "contains") {
-        pipeline.push({
-            $search: {
-                regex: {
-                    query: '.*' + lodash.escapeRegExp(query) + '.*',
-                    path: field,
-                    allowAnalyzedField: true
+            });
+        } else if (mode == "contains") {
+            pipeline.push({
+                $search: {
+                    regex: {
+                        query: '.*' + lodash.escapeRegExp(query) + '.*',
+                        path: field,
+                        allowAnalyzedField: true
+                    }
                 }
-            }
-        });
-    } else if (mode == "regex") {
-        pipeline.push({
-            $search: {
-                regex: {
-                    query: query,
-                    path: field,
-                    allowAnalyzedField: true
+            });
+        } else if (mode == "regex") {
+            pipeline.push({
+                $search: {
+                    regex: {
+                        query: query,
+                        path: field,
+                        allowAnalyzedField: true
+                    }
                 }
-            }
-        });
-    } else if (mode == "fuzzy") {
-        pipeline.push({
-            $search: {
-                text: {
-                    query: query, 
-                    path: field, 
-                    fuzzy: {}
+            });
+        } else if (mode == "fuzzy") {
+            pipeline.push({
+                $search: {
+                    text: {
+                        query: query, 
+                        path: field, 
+                        fuzzy: {}
+                    }
                 }
-            }
-        });
-    } else {
-        throw "Invalid search mode";
+            });
+        } else {
+            throw "Invalid search mode";
+        }
     }
     
     if (match) {
@@ -188,8 +190,28 @@ function getSearchPipeline(query, mode, field, limit, offset, project, match = n
     
 }
 
+const tagsPipeline = [
+    {
+        '$match': {
+            'tags': {
+                '$exists': true
+            }
+        }
+    }, {
+        '$unwind': '$tags'
+    }, {
+        '$group': {
+            '_id': null, 
+            'tags': {
+                '$addToSet': '$tags'
+            }
+        }
+    }
+];
+
 module.exports = {
     DEFAULT_LIMIT: 10,
     parseSignedRequest: parseSignedRequest,
     getSearchPipeline: getSearchPipeline,
+    tagsPipeline: tagsPipeline
 }

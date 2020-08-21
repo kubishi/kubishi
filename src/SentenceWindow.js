@@ -4,7 +4,7 @@ import React from 'react';
 import { Button, Col, Image, OverlayTrigger, Popover, Row, Spinner } from 'react-bootstrap';
 import api from './Api';
 import './common.css';
-import { getdefault, getPosLabel, setdefault, getTagLabel } from './helpers';
+import { getdefault, setdefault } from './helpers';
 import SearchBar from './SearchBar';
 import ShareButtons from './ShareButtons';
 import qs from 'query-string';
@@ -106,7 +106,7 @@ class SentenceWindow extends React.Component {
                                 <Popover id={`popover-${lang}-${i}`} show={false}>
                                     <Popover.Title as="h4">
                                         {token.word.text}
-                                        <span className='float-right'> <em>({getPosLabel(token.word.part_of_speech)})</em></span>
+                                        <span className='float-right'> <em>({token.word.part_of_speech})</em></span>
                                     </Popover.Title>
                                     <Popover.Content>
                                         {token.word.definition}
@@ -212,8 +212,8 @@ class SentenceWindow extends React.Component {
         if (sentence.tags != null && sentence.tags.length > 0) {
             let tagsListItems = sentence.tags.map((tag, i) => {
                 return (
-                    <a key={`tag-${i}`} href={`/search?${qs.stringify({query: tag})}`}>
-                        {getTagLabel(tag)}
+                    <a key={`tag-${i}`} href={`/search?${qs.stringify({tags: tag})}`}>
+                        {tag}
                     </a>
                 );
             }).reduce((acc, x) => {

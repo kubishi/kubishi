@@ -2,7 +2,7 @@ import React from 'react';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Editor } from '@tinymce/tinymce-react';
-import { getTagLabel, getUpdates } from './helpers';
+import { getUpdates } from './helpers';
 import { Form, Row, Col, Button } from 'react-bootstrap'; 
 import ReactTagInput from "@pathofdev/react-tag-input";
 import ImageInput from './ImageInput';
@@ -196,9 +196,9 @@ class App extends React.Component {
                     <Form.Group>
                         <Form.Label>Tags</Form.Label>
                         <ReactTagInput 
-                            tags={tags.map(tag => getTagLabel(tag))} 
+                            tags={tags} 
                             placeholder="Type and press enter"
-                            onChange={newTags => this.setState({tags: newTags.map(tag => `tag:${tag}`)})}
+                            onChange={newTags => this.setState({tags: newTags})}
                         />
                     </Form.Group>
                     {editor}

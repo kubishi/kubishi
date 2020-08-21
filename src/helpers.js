@@ -29,26 +29,6 @@ export function formatSentence(sentence) {
     return fSentence;
 }
 
-export function getTagLabel(tag) {
-    return tag.startsWith("tag:") ? tag.slice(4) : tag;
-}  
-
-/**
- * 
- * @param {String} part_of_speech 
- */
-export function getPosLabel(part_of_speech) {
-    return part_of_speech.toLowerCase().replace('_', ' ');
-}
-
-/**
- * 
- * @param {String} part_of_speech 
- */
-export function getPosValue(part_of_speech) {
-    return part_of_speech.toUpperCase().replace(' ', '_');
-}
-
 
 export function setdefault(obj, key, value) {
     if (!obj.hasOwnProperty(key)) {

@@ -6,7 +6,7 @@ function WordList(props) {
 
     let listItems = results.map((word, i) => {
         let { text, definition, part_of_speech } = word;
-        part_of_speech = (word.part_of_speech || 'UNKNOWN').toLowerCase().replace('_', ' ');
+        part_of_speech = word.part_of_speech || 'unknown';
         return (
             <ListGroup.Item 
                 className="p-1 pb-2 pt-2"
