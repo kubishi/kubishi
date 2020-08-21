@@ -8,6 +8,7 @@ import SearchBar from './SearchBar';
 import './SearchWindow.css';
 import SentenceList from './SentenceList';
 import WordList from './WordList';
+import cookie from 'react-cookies';
 
 class SearchWindow extends React.Component {
     constructor(props) {
@@ -74,7 +75,6 @@ class SearchWindow extends React.Component {
     
     searchSentences(pageSentences=null) {
         let { query, resultsPerPage, tags } = this.props;
-        let filterSentences = this.props.filterSentences || false;
         if (tags) {
             tags = Array.isArray(tags) ? tags : [tags];
         }
@@ -87,7 +87,7 @@ class SearchWindow extends React.Component {
                     fields: ['english', 'paiute'],
                     offset: ((pageSentences || 1) - 1) * resultsPerPage,
                     limit: resultsPerPage,
-                    match: filterSentences ? JSON.stringify({paiuteTokens: {$exists: true}}) : null,
+                    match: cookie.load('can_edit') ? null : JSON.stringify({paiuteTokens: {$exists: true}}),
                     tags: tags
                 },
             }

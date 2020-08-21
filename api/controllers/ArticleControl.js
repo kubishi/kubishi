@@ -93,23 +93,19 @@ function getRandomArticle(req, res) {
     let fields = req.query.fields || allFields;
     let project = {};
     fields.forEach(field => project[field] = 1);
-    ArticleModel.aggregate(
-        [
-            {
-                $sample: {size: 1}
-            },
-            {
-                $project: project
-            }
-        ],
-    ).then(result => {
-        if (result == null || result.length <= 0) {
-            res.status(404).json({success: false, result: "Articles is empty"});
-        } else {
-            return res.json({success: true, result: result[0]});
-        }
-    }).catch(err => {
-        return res.status(500).json({success: false, result: err});
+    
+    const match = JSON.parse(req.query.match || null);
+    
+    ArticleModel.countDocuments(match, (err, count) => {
+        if (count <= 0) {
+            return res.status(404).json({success: false, result: "Sentences is empty"});
+        } 
+        var random = Math.floor(Math.random() * count)
+        ArticleModel.findOne(match, project).skip(random).then(result => {
+            return res.json({success: true, result: result});
+        }).catch(err => {
+            return res.status(500).json({success: false, result: err});
+        });
     });
 }
 

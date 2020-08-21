@@ -7,7 +7,8 @@ import Select from 'react-select';
 import { faFilter } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import api from './Api';
-
+import history from './history';
+import cookie from 'react-cookies';
 
 export default class SearchBar extends React.Component {
     constructor(props) {
@@ -61,17 +62,33 @@ export default class SearchBar extends React.Component {
         });
     }
 
+    getRandom(path) {
+        let params = {fields: ['_id']};
+        if (path == 'sentences' && !cookie.load('can_edit')) {
+            params.match = JSON.stringify({paiuteTokens: {$exists: true}});
+        }
+
+        api.get(`/api/random/${path}`, {params: params}).then(res => {
+            if (res.status == 200) {
+                console.log(`/${path}/${res.data.result._id}`);
+                return history.push(`/${path}/${res.data.result._id}`);
+            } else {
+                console.log(res.status, res.data);
+            }
+        }).catch(err => console.error(err));
+    }
+
     randomButtons() { 
         return (
             <Row>
                 <Col className='mb-1 pr-md-1' xs={12} md={4}>
-                    <Button type="submit" href='/random/word' block>Random Word</Button> 
+                    <Button type="submit" onClick={() => this.getRandom('words')} block>Random Word</Button> 
                 </Col>
                 <Col className='mb-1 pl-md-1 pr-md-1' xs={12} md={4}>
-                    <Button type="submit" href='/random/sentence' block>Random Sentence</Button> 
+                    <Button type="submit" onClick={() => this.getRandom('sentences')} block>Random Sentence</Button> 
                 </Col>
                 <Col className='mb-1 pl-md-1' xs={12} md={4}>
-                    <Button type="submit" href='/random/article' block>Random Article</Button> 
+                    <Button type="submit" onClick={() => this.getRandom('articles')} block>Random Article</Button> 
                 </Col>
             </Row> 
         );

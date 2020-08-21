@@ -58,12 +58,14 @@ class App extends React.Component {
     }
     cookie.remove('user_id',  { path: '/' });
     cookie.remove('signed_request',  { path: '/' });
+    cookie.remove('can_edit', { path: '/' });
     this.setState({user: false});
   }
 
   setUser(user, signed_request) {
     cookie.save('signed_request', signed_request, { path: '/' });
     cookie.save('user_id', user.ids[0], { path: '/' });
+    cookie.save('can_edit', (UserType[user.type] || UserType.USER) >= UserType.EDITOR, { path: '/' });
     this.setState({user: user});
   }
 
@@ -128,30 +130,13 @@ class App extends React.Component {
       });
     }
   }
-  
-  getRandom(path, filterSentences = false) {
-    let params = {fields: ['_id']};
-    if (filterSentences && path == 'sentences') {
-      params.match = JSON.stringify({paiuteTokens: {$exists: true}});
-    }
-
-    api.get(`/api/random/${path}`, {params: params}).then(res => {
-        if (res.status == 200) {
-            return history.replace(`/${path}/${res.data.result._id}`);
-        } else {
-            console.log(res.status, res.data);
-        }
-    }).catch(err => console.error(err));
-
-    return <Spinner />;
-}
 
   render() {    
     let loginButton = null;
     let { user } = this.state;
     if (user == null) return <Spinner />; // page is loading
 
-    let canEdit = (UserType[user.type] || UserType.USER) >= UserType.EDITOR;
+    let canEdit = cookie.load('can_edit');
 
     if (user == false) {
       loginButton = ( 
@@ -227,9 +212,9 @@ class App extends React.Component {
           {navbar}
           <Container style={{paddingBottom: '75px'}}>
             <Switch>
-              <Route key='route-random-word' path="/random/word" component={props => this.getRandom('words')} />
+              {/* <Route key='route-random-word' path="/random/word" component={props => this.getRandom('words')} />
               <Route key='route-random-sentence' path="/random/sentence" component={props => this.getRandom('sentences', !canEdit)} />
-              <Route key='route-random-article' path="/random/article" component={props => this.getRandom('articles')} />
+              <Route key='route-random-article' path="/random/article" component={props => this.getRandom('articles')} /> */}
               <Route key='route-word' path="/words/:id" component={(props) => {
                 let { id } = useParams();
                 let { mode } = qs.parse(props.location.search, { ignoreQueryPrefix: true });
@@ -291,7 +276,6 @@ class App extends React.Component {
                     <SearchWindow 
                       query={query} 
                       timestamp={Date.now()} 
-                      filterSentences={!canEdit} 
                       defaultTab={defaultTab} 
                       tags={tags}
                       pos={pos}

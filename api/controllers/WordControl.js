@@ -119,9 +119,6 @@ function getWord(req, res) {
     fields.forEach(field => project[field] = 1);
 
     let find = WordModel.findOne({_id: req.params.id}, project);
-    if (fields.includes('sentences')) {
-        find = find.populate('sentences');
-    }
     if (fields.includes('words')) {
         find = find.populate('words');
     }
@@ -146,31 +143,18 @@ function getRandomWord(req, res) {
     let fields = req.query.fields || allFields;
     let project = {};
     fields.forEach(field => project[field] = 1);
-    WordModel.aggregate(
-        [
-            {
-                $sample: {size: 1}
-            }, 
-            {
-                $lookup: {
-                    from: 'sentences',
-                    localField: 'sentences',
-                    foreignField: '_id',
-                    as: 'sentences'
-                }
-            },
-            {
-                $project: project
-            }
-        ]
-    ).then(result => {
-        if (result == null || result.length <= 0) {
-            res.status(404).json({success: false, result: "Words is empty"});
-        } else {
-            return res.json({success: true, result: result[0]});
-        }
-    }).catch(err => {
-        return res.status(500).json({success: false, result: err});
+    const match = JSON.parse(req.query.match || null);
+    
+    WordModel.countDocuments(match, (err, count) => {
+        if (count <= 0) {
+            return res.status(404).json({success: false, result: "Sentences is empty"});
+        } 
+        var random = Math.floor(Math.random() * count)
+        WordModel.findOne(match, project).skip(random).then(result => {
+            return res.json({success: true, result: result});
+        }).catch(err => {
+            return res.status(500).json({success: false, result: err});
+        });
     });
 }
 

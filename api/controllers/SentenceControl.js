@@ -84,19 +84,19 @@ function getSentence(req, res) {
 function getRandomSentence(req, res) {
     let fields = req.query.fields || allFields;
     let project = {};
-    fields.forEach(field => project[field] = 1);
-    let pipeline = [{$sample: {size: 1}}, {$project: project}];
-    if (req.query.match) {
-        pipeline.splice(0, 0, {$match: JSON.parse(req.query.match)});
-    }
-    SentenceModel.aggregate(pipeline).then(result => {
-        if (!result) {
+    fields.forEach(field => project[field] = true);
+
+    const match = JSON.parse(req.query.match || null);
+    SentenceModel.countDocuments(match, (err, count) => {
+        if (count <= 0) {
             return res.status(404).json({success: false, result: "Sentences is empty"});
-        } else {
-            return res.json({success: true, result: result[0]});
-        }
-    }).catch(err => {
-        return res.status(500).json({success: false, result: err});
+        } 
+        var random = Math.floor(Math.random() * count)
+        SentenceModel.findOne(match, project).skip(random).then(result => {
+            return res.json({success: true, result: result});
+        }).catch(err => {
+            return res.status(500).json({success: false, result: err});
+        });
     });
 }
 
