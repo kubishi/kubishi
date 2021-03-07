@@ -18,6 +18,7 @@ import ArticleNew from './ArticleNew';
 import ArticleWindow from './ArticleWindow';
 import history from './history';
 import PrivacyPolicy from './PrivacyPolicy';
+import Help from './Help';
 import Pronunciation from './Pronunciation';
 import SearchBar from './SearchBar';
 import SearchWindow from './SearchWindow';
@@ -28,6 +29,7 @@ import UserType from './UserType';
 import WordEdit from './WordEdit';
 import WordNew from './WordNew';
 import WordWindow from './WordWindow';
+import UserWindow from './UserWindow';
 
 
 const { REACT_APP_FACEBOOK_APP_ID } = process.env;
@@ -51,8 +53,7 @@ class App extends React.Component {
     this.getUser();
   }
 
-  handleLogout(e) {
-    e.preventDefault();
+  handleLogout() {
     if (window.FB) {
       window.FB.logout();
     }
@@ -156,14 +157,17 @@ class App extends React.Component {
       loginButton = (
         <Nav>
           <Nav.Item>
-            <Nav.Link disabled>
+            <Nav.Link href="/profile">
               {'Welcome, ' + user.name}
             </Nav.Link>
           </Nav.Item>
           <Button 
             className="ml-3"
             variant="outline-primary" 
-            onClick={e => this.handleLogout(e)}
+            onClick={e => {
+              e.preventDefault();
+              this.handleLogout();
+            }}
           >Logout</Button>
         </Nav>
       );  
@@ -239,6 +243,13 @@ class App extends React.Component {
                 }
                 return <ArticleWindow canEdit={canEdit} articleId={id} getUser={() => this.state.user} />;
               }} />
+              <Route 
+                key='route-profile' path="/profile" component={(props) => {
+                  return <UserWindow getUser={() => this.state.user} onDelete={() => {
+                    this.handleLogout();
+                  }} />
+                }}
+              />
               <Route key='route-sentence' path="/sentences/:id" component={(props) => {
                 let { id } = useParams();
                 let { mode } = qs.parse(props.location.search, { ignoreQueryPrefix: true });
@@ -262,6 +273,9 @@ class App extends React.Component {
               }} />
               <Route key='route-privacy' path="/privacy">
                 <PrivacyPolicy />
+              </Route>
+              <Route key='route-help' path="/help">
+                <Help />
               </Route>
               <Route key='route-about' path="/about">
                 <About />
@@ -294,6 +308,9 @@ class App extends React.Component {
             <Navbar fixed="bottom" style={{opacity: "1", backgroundColor: "white"}} >
               <Nav key='nav-privacy'>
                 <Nav.Link href="/privacy">Privacy Policy</Nav.Link>
+              </Nav>
+              <Nav key='nav-help'>
+                <Nav.Link href="/help">Help</Nav.Link>
               </Nav>
               <Nav key='nav-contact' className='mr-auto'>
                 <Nav.Link href="mailto:help@kubishi.com">Contact</Nav.Link>

@@ -179,7 +179,16 @@ app.post('/api/users', ensureAuthenticated, (req, res) => {
 
 app.get('/api/users/:id', ensureAuthenticated, ensureUser, UserControl.retrieve);
 app.put('/api/users/:id', ensureEditor, ensureUser, UserControl.update);
-app.delete('/api/users/:id', ensureEditor, ensureUser, UserControl.delete);
+app.delete('/api/users/:id', (req, res, next) => {
+    let decoded = helpers.parseSignedRequest(req.headers.signed_request);
+    console.log(decoded);
+    if (decoded.user_id != req.params.id) {
+        return ensureAuthenticated(req, res, next);
+    } else {
+        console.log("here");
+        return ensureUser(req, res, next);
+    }
+}, UserControl.delete);
 
 app.get('/api', (req, res) => {
     res.json({success: true, result: 'Welcome to the Yaduha API'});
