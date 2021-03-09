@@ -6,8 +6,8 @@ import {
 import Select from 'react-select';
 import { faFilter } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import api from './Api';
-import history from './history';
+import api from '../Api';
+import history from '../common/history';
 import cookie from 'react-cookies';
 
 export default class SearchBar extends React.Component {

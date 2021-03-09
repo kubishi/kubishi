@@ -2,10 +2,10 @@ import React from 'react';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Editor } from '@tinymce/tinymce-react';
-import { getUpdates } from './helpers';
+import { getUpdates } from '../common/helpers';
 import { Form, Row, Col, Button } from 'react-bootstrap'; 
 import ReactTagInput from "@pathofdev/react-tag-input";
-import ImageInput from './ImageInput';
+import ImageInput from '../common/ImageInput';
 import "@pathofdev/react-tag-input/build/index.css";
 
 const KeyCodes = {

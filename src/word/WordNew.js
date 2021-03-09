@@ -1,7 +1,7 @@
 import React from 'react';
 import { Col, Row } from 'react-bootstrap';
-import api from './Api';
-import history from './history';
+import api from '../Api';
+import history from '../common/history';
 import WordForm from './WordForm';
 
 

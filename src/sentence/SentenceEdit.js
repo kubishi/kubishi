@@ -2,9 +2,9 @@ import React from 'react';
 import { Button, Col, Row, Spinner } from 'react-bootstrap';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import api from './Api';
-import { formatSentence } from './helpers';
-import history from './history';
+import api from '../Api';
+import { formatSentence } from '../common/helpers';
+import history from '../common/history';
 import SentenceForm from './SentenceForm';
 
 

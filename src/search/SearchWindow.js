@@ -2,12 +2,12 @@
 import React from 'react';
 import { Col, Row, Spinner, Tabs, Tab } from 'react-bootstrap';
 import Pagination from "react-js-pagination";
-import api from './Api';
-import ArticleList from './ArticleList';
+import api from '../Api';
+import ArticleList from '../article/ArticleList';
 import SearchBar from './SearchBar';
 import './SearchWindow.css';
-import SentenceList from './SentenceList';
-import WordList from './WordList';
+import SentenceList from '../sentence/SentenceList';
+import WordList from '../word/WordList';
 import cookie from 'react-cookies';
 
 class SearchWindow extends React.Component {

@@ -1,12 +1,12 @@
 
 import React from 'react';
 import { Button, Col, Image, Row, Spinner, H4 } from 'react-bootstrap';
-import './common.css';
+import '../common/common.css';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import dateformat from 'dateformat';
-import history from './history';
-import api from './Api';
+import history from '../common/history';
+import api from '../Api';
 
 
 class UserWindow extends React.Component {

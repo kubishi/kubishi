@@ -1,7 +1,7 @@
 import React from 'react';
-import api from './Api';
+import api from '../Api';
 import ArticleForm from './ArticleForm';
-import history from './history';
+import history from '../common/history';
 
 class ArticleNew extends React.Component {
     constructor(props) {

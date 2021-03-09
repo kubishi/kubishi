@@ -2,9 +2,9 @@ import React from 'react';
 import { Spinner } from 'react-bootstrap';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import api from './Api';
+import api from '../Api';
 import ArticleForm from './ArticleForm';
-import history from './history';
+import history from '../common/history';
 
 class ArticleEdit extends React.Component {
     constructor(props) {

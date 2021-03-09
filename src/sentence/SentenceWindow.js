@@ -2,11 +2,11 @@ import { faEdit } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import { Button, Col, Image, OverlayTrigger, Popover, Row, Spinner } from 'react-bootstrap';
-import api from './Api';
-import './common.css';
-import { getdefault, setdefault } from './helpers';
-import SearchBar from './SearchBar';
-import ShareButtons from './ShareButtons';
+import api from '../Api';
+import '../common/common.css';
+import { getdefault, setdefault } from '../common/helpers';
+import SearchBar from '../search/SearchBar';
+import ShareButtons from '../common/ShareButtons';
 import qs from 'query-string';
 
 

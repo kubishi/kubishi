@@ -5,9 +5,9 @@ import Parser from 'html-react-parser';
 import qs from 'query-string';
 import React from 'react';
 import { Button, Col, Image, Row, Spinner } from 'react-bootstrap';
-import api from './Api';
-import SearchBar from './SearchBar';
-import ShareButtons from './ShareButtons';
+import api from '../Api';
+import SearchBar from '../search/SearchBar';
+import ShareButtons from '../common/ShareButtons';
 
 class ArticleWindow extends React.Component {
     constructor(props) {

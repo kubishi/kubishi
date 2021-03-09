@@ -5,11 +5,11 @@ import lodash from 'lodash';
 import React from 'react';
 import { Button, ButtonGroup, Col, Form, ListGroup, Row } from 'react-bootstrap';
 import Select from 'react-select';
-import api from './Api';
-import AudioInput from './AudioInput';
-import './common.css';
-import { getUpdates } from './helpers';
-import ImageInput from './ImageInput';
+import api from '../Api';
+import AudioInput from '../common/AudioInput';
+import '../common/common.css';
+import { getUpdates } from '../common/helpers';
+import ImageInput from '../common/ImageInput';
 import PartOfSpeech from './PartOfSpeech';
 import ReactTagInput from "@pathofdev/react-tag-input";
 

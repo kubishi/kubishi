@@ -5,11 +5,11 @@ import lodash from 'lodash';
 import React from 'react';
 import { Button, Col, Form, Row } from 'react-bootstrap';
 import Select from 'react-select';
-import api from './Api';
-import AudioInput from './AudioInput';
-import ImageInput from './ImageInput';
+import api from '../Api';
+import AudioInput from '../common/AudioInput';
+import ImageInput from '../common/ImageInput';
 import ReactTagInput from "@pathofdev/react-tag-input";
-import { getUpdates } from './helpers';
+import { getUpdates } from '../common/helpers';
 
 
 let REGEX = /([0-9a-zA-Zw̃W̃üÜ']+)([^0-9a-zA-Zw̃W̃üÜ']+)?/g;

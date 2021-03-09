@@ -1,7 +1,7 @@
 import React from 'react';
-import api from './Api';
-import { formatSentence } from './helpers';
-import history from './history';
+import api from '../Api';
+import { formatSentence } from '../common/helpers';
+import history from '../common/history';
 import SentenceForm from './SentenceForm';
 
 class SentenceNew extends React.Component {

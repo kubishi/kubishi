@@ -3,11 +3,11 @@ import { faEdit } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import { Button, Col, Image, Row, Spinner } from 'react-bootstrap';
-import api from './Api';
-import './common.css';
-import SearchBar from './SearchBar';
-import SentenceList from './SentenceList';
-import ShareButtons from './ShareButtons';
+import api from '../Api';
+import '../common/common.css';
+import SearchBar from '../search/SearchBar';
+import SentenceList from '../sentence/SentenceList';
+import ShareButtons from '../common/ShareButtons';
 import WordList from './WordList';
 import qs from 'query-string';
 
