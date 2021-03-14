@@ -69,7 +69,7 @@ class WordWindow extends React.Component {
                     </ListGroup>
                 </Col>
             </Row>
-            <Row>
+            <Row className="mt-2">
                 <Col>
                     <Button onClick={e => history.push("/create/wordlist")} variant="outline-success" className='w-100'>    
                             <FontAwesomeIcon icon={faPlus} className='mr-2' />

@@ -1,0 +1,4 @@
+/* @page { size: landscape; } */
+@media print {
+    body {transform: scale(1);}
+}

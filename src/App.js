@@ -34,6 +34,7 @@ import WordList from './wordlist/WordList';
 import WordListAll from './wordlist/WordListAll';
 import WordListNew from './wordlist/WordListNew';
 import WordListEdit from './wordlist/WordListEdit';
+import WordListCrossword from './wordlist/WordListCrossword';
 
 
 const { REACT_APP_FACEBOOK_APP_ID } = process.env;
@@ -262,6 +263,12 @@ class App extends React.Component {
                   return <UserWindow getUser={() => this.state.user} onDelete={() => {
                     this.handleLogout();
                   }} />
+                }}
+              />
+              <Route 
+                key='route-profile' path="/wordlist/:id/crossword" component={(props) => {
+                  let { id } = useParams();
+                  return <WordListCrossword wordlistId={id} />;
                 }}
               />
               <Route 

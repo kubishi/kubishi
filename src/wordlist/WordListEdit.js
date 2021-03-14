@@ -18,7 +18,7 @@ class WordListEdit extends React.Component {
     }
     
     getWordList() {
-        api.get(`/api/wordlist/${this.props.wordlistId}`, {params: {fields: ['name', 'description']}}).then(res => {
+        api.get(`/api/wordlist/${this.props.wordlistId}`, {params: {fields: ['name', 'description', 'words']}}).then(res => {
             if (res.status == 200) {
                 this.setState({wordlist: res.data.result});
             } else {
@@ -41,7 +41,6 @@ class WordListEdit extends React.Component {
             }
         }).catch(err => console.error(err));
     }
-
 
     deleteWordList() {
         let { wordlist } = this.state;

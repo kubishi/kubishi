@@ -7,7 +7,6 @@ import { Button, ButtonGroup, Col, Form, ListGroup, Row } from 'react-bootstrap'
 import '../common/common.css';
 import { getUpdates } from '../common/helpers';
 
-
 class WordListForm extends React.Component {
     constructor(props) {
         super(props);
@@ -17,7 +16,7 @@ class WordListForm extends React.Component {
     }
 
     submitWordList() {
-        let newWordList = lodash.cloneDeep(lodash.pick(this.state, ['name', 'description']));
+        let newWordList = lodash.cloneDeep(lodash.pick(this.state, ['name', 'description', 'words']));
         this.props.onSubmit(newWordList);
     }
 
@@ -28,18 +27,41 @@ class WordListForm extends React.Component {
     }
 
     hasChanged() {
-        let newWordList = lodash.pick(this.state, ['name', 'description']);
+        let newWordList = lodash.pick(this.state, ['name', 'description', 'words']);
         return Object.keys(getUpdates(this.props.wordlist, newWordList)).length > 0;
+    }
+
+    deleteWordFromList(toDelete) {
+        let words = this.state.words.filter(word => word._id != toDelete._id);
+        this.setState({ words: words });
     }
 
     render() {
         let { submitText, deleteText, onDelete, wordlist } = this.props;
-        let { name, description } = this.state;
+        let { name, description, words } = this.state;
 
         let saveDisabled = false;
         if (wordlist != null) {
             saveDisabled = !this.hasChanged();
         }
+
+        let listItems = (words || []).map((word, i) => {
+            let { text, definition, part_of_speech } = word;
+            part_of_speech = word.part_of_speech || 'unknown';
+            return (
+                <ListGroup.Item 
+                    className="p-1 pb-2 pt-2"
+                    key={'word-list-' + word._id}
+                >
+                    <Button className='mr-2' variant='outline-danger' onClick={e => this.deleteWordFromList(word)} >
+                        <FontAwesomeIcon icon={faTrash} />
+                    </Button>
+                    <span>
+                        <b>{text}</b> <em>({part_of_speech})</em>: {definition}
+                    </span>
+                </ListGroup.Item>
+            );
+        });
 
         let buttons;
         if (onDelete != null) {
@@ -106,6 +128,10 @@ class WordListForm extends React.Component {
                         </Form.Group>
                     </Col>
                 </Form.Row>
+                <ListGroup variant='flush'>
+                    {listItems}
+                </ListGroup>
+
                 {buttons}
             </Form>
         );
