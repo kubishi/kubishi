@@ -37,9 +37,11 @@ const WordControl = require('./api/controllers/WordControl');
 const SentenceControl = require('./api/controllers/SentenceControl');
 const UserControl = require('./api/controllers/UserControl');
 const ArticleControl = require('./api/controllers/ArticleControl');
+const WordListControl = require('./api/controllers/WordListControl');
 const WordModel = require('./api/models/WordModel');
 const SentenceModel = require('./api/models/SentenceModel');
 const ArticleModel = require('./api/models/ArticleModel');
+const WordListModel = require('./api/models/WordListModel');
 
 /**
  * 
@@ -98,7 +100,7 @@ function ensureEditor(req, res, next) {
  */
 function ensureUser(req, res, next) {
     let decoded = helpers.parseSignedRequest(req.headers.signed_request);
-    if (decoded.user_id != req.params.id) {
+    if ((decoded.user_id || '-1') != (req.params.id || '1')) {
         return res.status(401).json({success: false, result: "You are not authorized to view this user's account information."});
     } else {
         return next();
@@ -189,6 +191,38 @@ app.delete('/api/users/:id', (req, res, next) => {
         return ensureUser(req, res, next);
     }
 }, UserControl.delete);
+
+
+
+function addUser(req, res, next) {
+    if (req.headers.signed_request == null) {
+        return res.status(400).json({success: false, result: "No signed_request included in headers"});
+    }
+    
+    let fb_user = helpers.parseSignedRequest(req.headers.signed_request);
+    if (fb_user == null) {
+        return res.status(404).json({success: false, result: "Invalid user"});
+    }
+    User.UserModel.findOne({ids: fb_user.user_id}).then(user => {
+        if (!user) {
+            return res.status(404).json({success: false, result: "No user found"});
+        } else {
+            req.body.user = user._id;
+            return next();
+        }
+    }).catch(err => {
+        return res.status(500).json({success: false, result: err});
+    });
+}
+
+app.get('/api/users/:id/wordlist', WordListControl.retrieveByUser);
+app.get('/api/wordlist/:id', WordListControl.retrieve);
+app.put('/api/wordlist/:id', addUser, WordListControl.update);
+app.post('/api/wordlist', addUser, WordListControl.create);
+app.delete('/api/wordlist/:id', addUser, WordListControl.delete);
+app.post('/api/wordlist/:id/add/:wordid', addUser, WordListControl.addWord);
+app.delete('/api/wordlist/:id/add/:wordid', addUser, WordListControl.deleteWord);
+
 
 app.get('/api', (req, res) => {
     res.json({success: true, result: 'Welcome to the Yaduha API'});

@@ -30,6 +30,10 @@ import WordEdit from './word/WordEdit';
 import WordNew from './word/WordNew';
 import WordWindow from './word/WordWindow';
 import UserWindow from './user/UserWindow';
+import WordList from './wordlist/WordList';
+import WordListAll from './wordlist/WordListAll';
+import WordListNew from './wordlist/WordListNew';
+import WordListEdit from './wordlist/WordListEdit';
 
 
 const { REACT_APP_FACEBOOK_APP_ID } = process.env;
@@ -184,6 +188,15 @@ class App extends React.Component {
       );
     }
 
+    let myListsButton;
+    if (this.state.user) {
+      myListsButton = (
+        <Nav.Item key='nav-wordlist'>
+          <Nav.Link href='/wordlist'>My Lists</Nav.Link>
+        </Nav.Item>
+      );
+    }
+
     let navbar = (
       <Navbar bg="light" expand="md">
         <Navbar.Brand key='nav-brand' href="/">Kubishi</Navbar.Brand>
@@ -196,6 +209,7 @@ class App extends React.Component {
             <Nav.Item key='nav-pronunciation'>
               <Nav.Link href='/pronunciation'>Pronunciation Guide</Nav.Link>
             </Nav.Item>
+            {myListsButton}
             {contributeButton}
           </Nav>
           {loginButton}
@@ -229,7 +243,7 @@ class App extends React.Component {
                     return history.push(`/article/${id}`);
                   }
                 }
-                return <WordWindow wordId={id} canEdit={canEdit}/>;
+                return <WordWindow wordId={id} canEdit={canEdit} getUser={() => this.state.user} />;
               }} />
               <Route key='route-article' path="/articles/:id" component={(props) => {
                 let { id } = useParams();
@@ -248,6 +262,28 @@ class App extends React.Component {
                   return <UserWindow getUser={() => this.state.user} onDelete={() => {
                     this.handleLogout();
                   }} />
+                }}
+              />
+              <Route 
+                key='route-profile' path="/wordlist/:id" component={(props) => {
+                  let { id } = useParams();
+                  
+                  let { mode } = qs.parse(props.location.search, { ignoreQueryPrefix: true });
+                  if (mode == "edit") {
+                    return <WordListEdit getUser={() => this.state.user} wordlistId={id}  />;
+                  }
+                  return <WordList getUser={() => this.state.user} wordlistId={id} />;
+                }}
+              />
+              <Route 
+                key='route-profile' path="/wordlist" component={(props) => {
+                  return <WordListAll getUser={() => this.state.user} />
+                }}
+              />
+              <Route 
+                key='route-profile' path="/create/wordlist/" component={(props) => {
+                  let { id } = useParams();
+                  return <WordListNew getUser={() => this.state.user} />
                 }}
               />
               <Route key='route-sentence' path="/sentences/:id" component={(props) => {
