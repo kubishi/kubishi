@@ -28,7 +28,7 @@ class WordWindow extends React.Component {
 
     getWordLists() {
         let user = this.props.getUser();
-        api.get(`/api/users/${user._id}/wordlist`).then(res => {
+        api.get(`/api/users/${user._id}/wordlist`, {params: {fields: ["name", "description"]}}).then(res => {
             if (res.status == 200) {
                 this.setState({wordlists: res.data.result});
             } else {
@@ -53,7 +53,7 @@ class WordWindow extends React.Component {
                     key={'wordlist-list-' + _id}
                     action href={'/wordlist/' + _id}
                 >
-                    <b>{name} <em>({(words || []).length} words)</em></b>
+                    <b>{name}</b>
                     <br />
                     {description}
                 </ListGroup.Item>
