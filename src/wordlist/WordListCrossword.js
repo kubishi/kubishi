@@ -46,7 +46,8 @@ class WordListCrossword extends React.Component {
         }
 
         let layout = generateLayout(wordlist.words.map(word => { 
-            return {clue: word.definition, answer: word.text}; 
+            console.log(word.text.replace(/^[^a-z'\d]*|[^a-z'\d]*$/gi, ''));
+            return {clue: word.definition, answer: word.text.replace(/^[^a-z'\d]*|[^a-z'\d]*$/gi, '')}; 
         }));
 
         let data = {
