@@ -12,6 +12,17 @@ import PrintProvider, { Print, NoPrint } from 'react-easy-print';
 import "./WordListCrossword.css";
 
 
+function shuffleArray(array) {
+    var arr = array.slice(0);
+    // https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    console.log(arr.map(x => x.text));
+    return arr;
+}
+
 class WordListCrossword extends React.Component {
     constructor(props) {
         super(props);
@@ -45,10 +56,10 @@ class WordListCrossword extends React.Component {
             return;
         }
 
-        let layout = generateLayout(wordlist.words.map(word => { 
+        let layout = generateLayout(shuffleArray(wordlist.words).map(word => { 
             return {
                 clue: word.definition, 
-                answer: word.text.replace("w̃", "w").replace("W̃", "W").replace(/^[^a-z'\d]*|[^a-z'\d]*$/gi, '')
+                answer: word.text.replace("w̃", "w").replace("W̃", "W").replace(/([\s\-.?!",]*$)|(^[\s\-.?!",]*)/gi, '')
             }; 
         }));
 
@@ -57,11 +68,13 @@ class WordListCrossword extends React.Component {
             down: {}
         };
         layout.result.forEach((elem, i) => {
-            data[elem.orientation][i] = {
-                clue: elem.clue,
-                answer: elem.answer,
-                row: elem.starty,
-                col: elem.startx
+            if (elem.orientation == "across" || elem.orientation == "down") {
+                data[elem.orientation][i] = {
+                    clue: elem.clue,
+                    answer: elem.answer,
+                    row: elem.starty,
+                    col: elem.startx
+                }
             }
         });
         this.setState({crosswordData: data}, () => this.crossword.current.reset());
