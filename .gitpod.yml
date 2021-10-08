@@ -1,2 +1,8 @@
+image:
+  file: .gitpod.Dockerfile
 tasks:
   - init: yarn install
+  - init: heroku git:remote -a yaduha
+  - init: |
+      echo "machine api.heroku.com login jaredraycoleman@gmail.com password $HEROKU_API_KEY" > ~/.netrc
+      echo "machine git.heroku.com login jaredraycoleman@gmail.com password $HEROKU_API_KEY" >> ~/.netrc
