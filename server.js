@@ -38,10 +38,12 @@ const SentenceControl = require('./api/controllers/SentenceControl');
 const UserControl = require('./api/controllers/UserControl');
 const ArticleControl = require('./api/controllers/ArticleControl');
 const WordListControl = require('./api/controllers/WordListControl');
+const LessonControl = require('./api/controllers/LessonControl');
 const WordModel = require('./api/models/WordModel');
 const SentenceModel = require('./api/models/SentenceModel');
 const ArticleModel = require('./api/models/ArticleModel');
 const WordListModel = require('./api/models/WordListModel');
+const LessonModel = require('./api/models/LessonModel');
 
 /**
  * 
@@ -126,6 +128,13 @@ app.post('/api/sentences', ensureEditor, SentenceControl.create);
 app.put('/api/sentences/:id', ensureEditor, SentenceControl.update);
 app.get('/api/sentences/:id', SentenceControl.retrieve);
 app.delete('/api/sentences/:id', ensureEditor, SentenceControl.delete);
+
+// crud - lessons
+app.post('/api/lessons', ensureEditor, LessonControl.create);
+app.get('/api/lessons', ensureEditor, LessonControl.retrieveAll);
+app.put('/api/lessons/:id', ensureEditor, LessonControl.update);
+app.get('/api/lessons/:id', LessonControl.retrieve);
+app.delete('/api/lessons/:id', ensureEditor, LessonControl.delete);
 
 // crud - articles
 app.post('/api/articles', ensureEditor, ArticleControl.create);
@@ -235,4 +244,3 @@ app.get('/*', function (req, res) {
 
 // Start Server
 app.listen(process.env.PORT || 8080, () => console.log("Server started on port " + (process.env.PORT || 8080)));
-
