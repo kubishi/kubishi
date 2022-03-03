@@ -2,9 +2,9 @@ const mongoose = require("mongoose");
 
 const LessonSchema = new mongoose.Schema({
     title: String,
-    chapter: String,
     words: [{
         word: {type: mongoose.Types.ObjectId, ref: 'word'},
+        difficulty: Number,
         preferredEnglish: [String],
         preferredPaiute: [String],
         acceptableEnglish: [String],
@@ -12,6 +12,7 @@ const LessonSchema = new mongoose.Schema({
     }],
     sentences: [{
         sentence: {type: mongoose.Types.ObjectId, ref: 'sentence'},
+        difficulty: Number,
         preferredEnglish: [String],
         preferredPaiute: [String],
         acceptableEnglish: [String],

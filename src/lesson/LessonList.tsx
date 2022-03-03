@@ -2,12 +2,18 @@ import React from 'react';
 import { ListGroup, Col, Row } from 'react-bootstrap';
 import './LessonList.css';
 
+type Props = {
+    results: [Lesson] 
+}
 
-function LessonList(props) {
-    let { results } = props;
+type Lesson = {
+    _id: String,
+    title: String,
+    chapter: String
+}
 
-    let listItems = results.map((lesson, i) => {
-        let { title, chapter } = lesson;
+function LessonList({ results }: Props) {
+    let listItems = results.map(({ _id, title, chapter }: Lesson, i) => {
         let item = (
             <>
                 <b>{chapter}</b>
@@ -18,9 +24,9 @@ function LessonList(props) {
         return (
             <ListGroup.Item 
                 className="p-1 pb-2 pt-2"
-                key={'lesson-list-' + lesson._id}
+                key={'lesson-list-' + _id}
                 action
-                href={`/lessons/${lesson._id}`}
+                href={`/lessons/${_id}`}
             >   
                 {item}
             </ListGroup.Item>

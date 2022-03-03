@@ -3,8 +3,8 @@ const LessonModel = require('../models/LessonModel');
 const express = require('express');
 const lodash = require('lodash');
 
-const allFields = ['title', 'chapter', 'words', 'lessons'];
-const requiredFields = ['title', 'chapter'];
+const allFields = ['title', 'words', 'lessons'];
+const requiredFields = ['title'];
 
 
 /** 
