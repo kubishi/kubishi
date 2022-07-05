@@ -29,6 +29,7 @@
     "lodash": "^4.17.19",
     "mongoose": "^5.9.13",
     "nodemon": "^2.0.3",
+    "nth-check": "^2.1.1",
     "openssl": "^1.1.0",
     "query-string": "^6.12.1",
     "react": "^16.13.1",
@@ -48,7 +49,8 @@
     "react-share": "^4.2.0",
     "react-social-icons": "^4.1.0",
     "react-toastify": "^6.0.5",
-    "route-parser": "^0.0.5"
+    "route-parser": "^0.0.5",
+    "tar": "^6.1.11"
   },
   "scripts": {
     "start": "node server.js",
