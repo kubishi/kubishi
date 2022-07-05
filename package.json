@@ -41,7 +41,7 @@
     "react-js-pagination": "^3.0.3",
     "react-mic": "^12.4.6",
     "react-router-dom": "^5.1.2",
-    "react-scripts": "3.4.1",
+    "react-scripts": "^5.0.1",
     "react-select": "^3.1.0",
     "react-share": "^4.2.0",
     "react-social-icons": "^4.1.0",
