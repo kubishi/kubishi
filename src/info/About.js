@@ -35,12 +35,19 @@ function About(props) {
                     </h3>
 
                     <p>
-                        <b>Before there was English, there was nanüümüyadohana</b>. For thousands of years, they used it to talk, sing, and tell stories. They gave names to all the places in Payahuunadü and to all the plants and animals it was home to. Due to the <a href='https://en.wikipedia.org/wiki/California_Genocide'>California Genocide</a> and <a href='https://en.wikipedia.org/wiki/Cultural_assimilation_of_Native_Americans'>forced assimilation</a>, many of these names are no longer used. <b>Owens Valley Paiute is <a href='http://www.endangeredlanguages.com/lang/4692'>is endangered</a></b>, but Indigenous organizations in Payahuunadü <a href='http://www.ovcdc.com/blog/language/'>are fighting</a> to preserve it.
+                        Nanüümüyadohana is the mother language of Payahuunadü.
+                        For thousands of years, the people of Payahuunadü have used it to talk, sing, and tell stories. 
+                        Every place, animal, object, and feeling has a name in nanüümüyadohana.
+                        Due to the <a href='https://en.wikipedia.org/wiki/California_Genocide'>California Genocide</a> and <a href='https://en.wikipedia.org/wiki/Cultural_assimilation_of_Native_Americans'>forced assimilation</a>, many of these names are no longer, but Indigenous organizations in Payahuunadü <a href='http://www.ovcdc.com/blog/language/'>are fighting</a> to change that!
                     </p>
 
                     <h4 className='text-center'><a href='/words/5eacb4f3dca21c60a0a90dde'>Kubishi</a> means brain in <a href='/words/5eacb4f7dca21c60a0a91b42'>nanüümüyadohana</a></h4>
                     <p>
-                        Our mission is to help preserve and protect Owens Valley Paiute history, language, and culture. This website is an online dictionary and encyclopedia dedicated to Payahuunadü and its first people. Kubishi was created and is maintained by <a href='https://jaredraycoleman.com'>Jared Coleman</a>, member of the <a href='http://bigpinepaiute.org'>Big Pine Paiute Tribe of the Owen's Valley</a>. The majority of words and sentences in this dictionary are from the Owens Valley Paiute Dictionary, created by Big Pine Paiute tribal member Glenn Nelson Jr. It is thanks to his work, and the native speakers and elders he worked with, that this website is possible.
+                        Our mission is to help preserve and protect Owens Valley Paiute history, language, and culture. 
+                        This website is an online dictionary and encyclopedia dedicated to Payahuunadü and its first people. 
+                        Kubishi was created and is maintained by <a href='https://jaredraycoleman.com'>Jared Coleman</a>, member of the <a href='http://bigpinepaiute.org'>Big Pine Paiute Tribe of the Owen's Valley</a>. 
+                        The majority of words and sentences in this dictionary are from the Owens Valley Paiute Dictionary, created by Glenn Nelson Jr. 
+                        It is thanks to his work, and the native speakers and elders he worked with, that this website is possible.
                     </p>
                 </Col>
             </Row>
