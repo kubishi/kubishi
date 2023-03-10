@@ -36,9 +36,9 @@ function About(props) {
 
                     <p>
                         Nanüümüyadohana is the mother language of Payahuunadü.
-                        For thousands of years, the people of Payahuunadü have used it to talk, sing, and tell stories. 
+                        For thousands of years, the people of <a href="https://kubishi.com/articles/5efcf01e12525660a84df13b">Payahuunadü</a> have used it to talk, sing, and tell stories. 
                         Every place, animal, object, and feeling has a name in nanüümüyadohana.
-                        Due to the <a href='https://en.wikipedia.org/wiki/California_Genocide'>California Genocide</a> and <a href='https://en.wikipedia.org/wiki/Cultural_assimilation_of_Native_Americans'>forced assimilation</a>, many of these names are no longer, but Indigenous organizations in Payahuunadü <a href='http://www.ovcdc.com/blog/language/'>are fighting</a> to change that!
+                        Due to the <a href='https://en.wikipedia.org/wiki/California_Genocide'>California Genocide</a> and <a href='https://en.wikipedia.org/wiki/Cultural_assimilation_of_Native_Americans'>forced assimilation</a>, many of these names are no longer used, but Indigenous organizations in Payahuunadü <a href='http://www.ovcdc.com/blog/language/'>are fighting</a> to change that!
                     </p>
 
                     <h4 className='text-center'><a href='/words/5eacb4f3dca21c60a0a90dde'>Kubishi</a> means brain in <a href='/words/5eacb4f7dca21c60a0a91b42'>nanüümüyadohana</a></h4>
