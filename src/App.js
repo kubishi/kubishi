@@ -341,7 +341,17 @@ class App extends React.Component {
                 }} 
               />
               <Route key='route-home' path="/">
-                <Row style={{marginTop: "20vh"}}>
+                <Row>
+                  <Col style={{textAlign: "center"}}>
+                    <a href="/words/5eacb4f3dca21c60a0a90dde">
+                      <img 
+                        src="/brain-small-black.png" 
+                        style={{width: "20%", height: "auto", marginTop: "0vh", marginBottom: "0vh"}}
+                      />
+                    </a>
+                  </Col>
+                </Row>
+                <Row style={{marginTop: "0vh"}}>
                   <Col>
                     <SearchBar showRandomButtons autoFocus />
                   </Col>
